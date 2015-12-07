@@ -940,7 +940,7 @@ foreach my $filename (sort keys %htmlized_lexeme_entry) {
   my $longname="generated/lexeme-entries/$filename";
 #  print STDERR "   $longname\n";
   my $html_content=$template;
-  my $x=$htmlized_lexeme_entry{$filename}."<table height='100%'><tr><td>&nbsp;</table>";
+  my $x=$htmlized_lexeme_entry{$filename};
   create_html_file($longname,'wordentry',$x);
 }
 
