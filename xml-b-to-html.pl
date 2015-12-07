@@ -797,8 +797,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
  	    my @coindexed = $attr_node->getElementsByTagName('coindexed');
  	    if (@coindexed) {
+      my $sep;
 			foreach my $node (@coindexed) {
-				$frame_attrs{$attrname} .= " &nbsp;<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
+				$frame_attrs{$attrname} .= "$sep<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
+        $sep = "&nbsp";
 			}
 		}
  	else {
@@ -875,10 +877,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       } $frame_slot->getElementsByTagName('form');
 
       my $classtype;
-      if ($type eq 'typ') {$classtype='_typ'}
+      if ($type eq 'typ') {$classtype=' typ'}
 
-      $frame_table_row1 .= "<td rowspan='2'>$abbrev<a class='functor$classtype' title='functor: $functor_comments{$functor}' target='_top' href='../functors/index-".string_to_html_filename($functor)."'>$functor</a><td><span class='type'><a title='$type_of_compl{$type}'>$type</a></span><td rowspan='2'>&nbsp;&nbsp;";
-      $frame_table_row2 .= "<td><span class='forms'>$forms</span>";
+      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'>$abbrev<a title='functor: $functor_comments{$functor}' target='_top' href='../functors/index-".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
+      $frame_table_row2 .= "<td class='forms'>$forms";
     } # konec for frame slot
     my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";
 
@@ -894,22 +896,20 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries.=
-      "<tr><td class='lexical_unit_index'>".
-      $first_frameentry_row.
-      "<td class='lexical_unit'><table>".
-      "<tr><td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
-      "<tr><td class='attrname frame'>frame<td>".$frame_table_html. # frame má podobu tabulky
-	    (join "", map {"<tr><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('example','usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ) #diat je na konci kvuli prehlednosti vystupu
-      ."</table>"; # konec table .frame
+      "<table class='lexical_unit'>".
+      "<td class='lexical_unit_index'>".$first_frameentry_row.
+      # "<td class='lexical_unit'>".
+      "<td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
+      "<tr><td><td class='attrname frame'>frame<td>".$frame_table_html. # frame má podobu tabulky
+      "<tr><td><td class='attrname example'>example<td>".$frame_attrs{'example'}. # příklady
+      # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
+	    (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ).
+      "</table>";
 
 
   } # end of foreach blu
 
-  $htmlized_lexeme_entry{$filename}.="
-<table class='word_entry'>
-$htmlized_frame_entries
-</table>
-";
+  $htmlized_lexeme_entry{$filename} .= $htmlized_frame_entries;
 
 
 #  print "Lexeme:  ";
