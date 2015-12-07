@@ -364,7 +364,7 @@ sub pdtvallex_word_links {
       . "<span class='invisible'>&rarr;" . $wlink->getAttribute('lexeme_id')
       . "</span></a> ";
   }
-  return $wlink_string ? "<td class='pdtvallex-wlinks'>PDT-Vallex:<br/>$wlink_string</td>" : "";
+  return $wlink_string ? "<div class='pdtvallex-wlinks'>PDT-Vallex:<br/>$wlink_string</div>" : "";
 }
 
 # INPUT: HTML string like aktualizovat<sup class='scriptsize'>biasp</sup>
@@ -632,7 +632,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
 
 
-  $htmlized_lexeme_entry{$filename}.="<table class='headword' cellspacing='0' cellpadding='0'><tr><td class='headword'>$headword_lemmas_table $pdtvallex_word_links</table><br>\n";
+  $htmlized_lexeme_entry{$filename}.="$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div>\n";
 #    "<td>&nbsp;&nbsp;&nbsp;
 #<span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
 
