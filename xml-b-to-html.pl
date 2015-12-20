@@ -7,12 +7,14 @@ use POSIX qw(locale_h);
 setlocale(LC_ALL,"cs_CZ.utf8");
 #setlocale('LANG',"czech");
 use utf8;
+use JSON qw(encode_json);
 #use encoding "utf-8";
 binmode STDERR,":encoding(utf-8)";
 binmode STDOUT,":encoding(utf-8)";
 
 
 use XML::DOM;
+# use Data::Dumper;
 
 
 # ------------------ initializing hint hashes ----------------------
@@ -124,6 +126,8 @@ sub ara2roman ($){
   return join "",map {'I'} (1..$cnt);
 }
 
+# odstraní whitespace z obou stran stringu
+sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
 
 # nahradi znaky s diakritikou a prida za ne suffix  (zatim jednosmerne!)
 my %substitution;
@@ -154,7 +158,7 @@ sub string_to_html_filename {
 			$subst_prefs{$subst_prefix} = 1;
 		}
 	}
-    $substitution{$orig} = "$subst_prefix$subst_suffix.html";
+    $substitution{$orig} = "$subst_prefix$subst_suffix";
   }
   return $substitution{$orig};
 }
@@ -183,9 +187,6 @@ sub create_html_file ($$$) {
   $t=~s/#content#/$content/;
   $t=~s/#css#/..\/..\/static\/vallex.css/;
   $t=~s/#bodyclass#/$bodyclass/;
-  if ($filename=~/alphabet.+selector.+/) {
-    $t =~ s/<\/head>/$javascript_head<\/head>/;
-  }
 
 #  print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
@@ -205,6 +206,15 @@ sub create_multiframe ($$$) {
 #  print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
   print F $m;
+  close F;
+}
+
+sub create_json_file ($$) {
+  my ($filename, $hash)=@_;
+  $filename = $outputdir.$filename;
+  my $json = encode_json($hash);
+  open F,">",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
+  print F $json;
   close F;
 }
 
@@ -247,7 +257,7 @@ sub formnode2formtxt {
     return ["cont"];
   }
   elsif ($type eq "phraseme_part") {
-    return [$formnode->getAttribute('phraseme_part')]
+    return [$formnode->getAttribute('phraseme_part')];
   }
   else { print STDERR 'Nerozeznana forma!\n'; return ['']  }
 }
@@ -258,6 +268,7 @@ sub formnode2formtxt {
 my %framelist;
 my %framecnt;
 my %firstframefilename;
+my %filtertree;
 
 sub add_to_list($$$) {
   my ($crit,$value,$link)=@_;
@@ -266,6 +277,39 @@ sub add_to_list($$$) {
   $framecnt{$crit}{$value}++;
   $link=~/href=\'([^']+)/;
   $firstframefilename{$crit}{$value}=$1 unless  $firstframefilename{$crit}{$value};
+}
+
+# přidá LU do filtrovacího stromu
+# parametry:
+# - index LU (v našem případě od 1 do n - pořadí v XML)
+# - lexém (nejlépe unikátní id)
+# - html string lexému - takový, jaký se bude zobrazovat na stránkách v seznamech
+# - volitelný počet parametrů cesty ve stromu kritérií
+sub unit_to_criteria {
+  my $lu_index = shift;
+  my $lexeme = shift;
+  my $headword_lemmas = shift;
+
+  my $tree = \%filtertree;
+  foreach my $node (@_) {
+    if(!exists ${${$tree}{"subfilters"}}{$node}){
+      ${${$tree}{"subfilters"}}{$node} = {
+        "lexemes" => [],
+        "subfilters" => {}
+      };
+    }
+    $tree = ${${$tree}{"subfilters"}}{$node};
+    push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas];
+  }
+}
+
+# přidá lexém do filtrovacího stromu
+# parametry:
+# - id lexému
+# - html string lexému
+# - cesta ve stromu
+sub lexeme_to_criteria {
+  unit_to_criteria (0, @_);
 }
 
 sub mlemma_2_string {
@@ -537,11 +581,6 @@ my ($version_xml) = map {$_->getFirstChild->toString}
 				$doc->getElementsByTagName('version');
 die "The given XML has different version ($version_xml) than requested VALLEX $version\n" if $version ne $version_xml;
 
-
-#my @alphabet;
-
-my %alphabet;
-
 my %type_of_form;
 my %htmlized_lexeme_entry;
 
@@ -603,10 +642,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       }
     }
     if ($tantum) {
-      add_to_list('rfl','tantum',$link_to_word);
+      lexeme_to_criteria($filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", "tantum");
     }
     else {
-      add_to_list('rfl','derived',$link_to_word);
+      lexeme_to_criteria($filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", "derived");
     }
 
 #    my $lexeme_cluster = $lexeme_node->getParentNode;
@@ -622,12 +661,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my ($lexical_forms) = $lexeme_node->getElementsByTagName('lexical_forms');
 
   my $aspect_combination = join "+",sort grep {!/iter/} grep {$_} keys %global_aspect;
-  add_to_list('aspect',$aspect_combination,$link_to_word);
-
+  lexeme_to_criteria($filename, $headword_lemmas, "others", "aspect", $aspect_combination);
 
   my @variants = $lexeme_node->getElementsByTagName('mlemma_variants');
   if (@variants > 0) {
-    add_to_list('other',"lemma variants",$link_to_word);
+    lexeme_to_criteria($filename, $headword_lemmas, "others", "variants");
   }
 
 
@@ -637,38 +675,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 #<span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
 
   my $homographs = grep {$_->getAttribute('homograph') } $lexeme_node->getElementsByTagName('mlemma');
-  if ($homographs) { add_to_list('other','homographs',$link_to_word)  }
-
-  my $complexity = $#{[$lexeme_node->getElementsByTagName('lu_cluster')]}+1;
-  add_to_list('complexity',$complexity,$link_to_word);
-
-
-  my %occupied_letter;
-
-  my $i;
-  my $first_lemma;
-  foreach my $lemma (@$headwords_rf) {
-    $i++;
-    $lemma =~ /^(ch|.)/;
-    my $firstletter = $1;
-    $firstletter = 'u' if ($firstletter eq 'ú');
-    $firstletter = uc($firstletter);
-    if (not $occupied_letter{$firstletter}) {
-      $alphabet{$firstletter} = 1;
-      if ($i>1) {
-	my $link_to_single_word = "<a target='wordentry' href='../lexeme-entries/$filename'>$bullet $lemma, viz $first_lemma</a><br>";
-	add_to_list('alphabet',$firstletter,$link_to_single_word);
-      }
-      else {
-	$first_lemma = $lemma;
-	add_to_list('alphabet',$firstletter,$link_to_word);
-      }
-      $occupied_letter{$firstletter}++;
-    }
-
+  if ($homographs) {
+    lexeme_to_criteria($filename, $headword_lemmas, "others", "homographs");
   }
 
-
+  my $complexity = $#{[$lexeme_node->getElementsByTagName('lu_cluster')]}+1;
+  $complexity .= $complexity > 1 ? " LUs" : " LU"; # přidá jednotné/množné číslo LU
+  lexeme_to_criteria($filename, $headword_lemmas, "others", 'complexity', $complexity);
 
   my $frame_index;
   my $htmlized_frame_entries;
@@ -704,7 +717,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
  	eval {
  	  foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
         if ($attrname=~/^(control|class)$/) {
-          add_to_list("$attrname",$attr_node->getFirstChild->getNodeValue,$link_to_frame);
+          unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($attr_node->getFirstChild->getNodeValue));
         }
         elsif ($attrname eq "alter") {
           my $type       = $attr_node->getAttribute('type');
@@ -713,7 +726,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("frame_id");
           my $LU_ref_index = $1 if $LU_ref =~ /^blu-v-.+-(\d+)$/;
           warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n") if !$LU_ref_index;
-          add_to_list($attrname, $type.": ".$subtype.$objectless, $link_to_frame);
+
+          unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$objectless);
+
           $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
             . "<tr><td>$subtype$objectless:&nbsp;<td>"
             . "<a target='wordentry' href='#$LU_ref_index'>"
@@ -727,7 +742,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 			if ($attr_node->getAttribute('value') eq "no") {
 				#add_to_list("diat","$type NO",$link_to_frame);
 			} elsif ($attr_node->getAttribute('value') eq "yes") {
-				add_to_list("diat","$type YES",$link_to_frame);
+                unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "$type");
 				if ($frame_attrs{"diat"}) {$frame_attrs{"diat"} .="<br>"}
 				my %subtypes;
 				if ( my @coindexed = $attr_node->getElementsByTagName('coindexeddiat') ) {
@@ -751,7 +766,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 					foreach my $subtype (sort keys %subtypes) {
 						$subtypes{$subtype} =~ s@(&nbsp;.span class='scriptsize'.(impf|pf|iter|biasp)[12]?:./span.)(.*)\g1@$1$3@gs;
 						$frame_attrs{"diat"} .= "<span class='attrname'>$subtype:</span>".$subtypes{$subtype};
-						add_to_list("diat","$subtype",$link_to_frame);
+                        if ($type eq "possres") {
+                            unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "possessive", $subtype);
+                        }
 					}
 				} else {
 					$frame_attrs{"diat"} .= "<span class='attrname'>$type:</span>  YES";
@@ -764,7 +781,16 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
  	      if ($frame_attrs{$attrname}) {$frame_attrs{$attrname} .="<br>"}
  	      $frame_attrs{$attrname} .= "$type:  ";
  	      if ( ($attrname=~/^(control|class|rfl|rcp)$/) ) {
- 	        add_to_list("$attrname",$type,$link_to_frame);
+            if ($attrname eq "rfl") {
+                unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
+            }
+            elsif ($attrname eq "rcp") {
+                unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
+            }
+            else { # control a class
+                unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($type));
+            }
+
  	      }
  	    }
         elsif ($attrname eq "links") {
@@ -850,12 +876,23 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     foreach my $frame_slot ($blu_node->getElementsByTagName('slot')) {
       my $functor=$frame_slot->getAttribute('functor');
       my $abbrev=($frame_slot->getAttribute('expand'))?'&uarr;':"";
+      my $functor_name_string;
       if ($abbrev) {
-	#add_to_list('other','abbreviations',$link_to_frame)
-	add_to_list('functors','&uarr;'.$functor,$link_to_frame);
+        $functor_name_string = '&uarr;' . $functor;
       }
       else {
-	add_to_list('functors',$functor,$link_to_frame);
+        $functor_name_string = $functor;
+      }
+
+      if ($functor =~ /^(ACT|ADDR|ORIG|PAT|EFF)$/) {
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "actants", $functor_name_string);
+      }
+      elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "quasi-valency", $functor_name_string);
+
+      }
+      else {
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "free", $functor_name_string);
       }
       my $type=$frame_slot->getAttribute('type');
 
@@ -868,7 +905,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 	my $efftype=$type;
 	if ($result=~/být\+/) {$efftype='byt'}
 	$type_of_form{$result}=$efftype;
-	add_to_list('forms',$result,$link_to_frame);
+    if($type ne "phraseme_part"){ # filtrování phraseme_part, jinak ostatní forms ano
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $type, $result);
+    }
 	my $form_comment = $long_form_type{$type};
 	$form_comment .= " ($case_names{$result})" if ($type eq 'direct_case');
 
@@ -922,14 +961,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
 }
 close(Pruned_IDs);
-foreach my $headword (sort(keys(%valeval_frames))) {
-  foreach my $frame (@{$valeval_frames{$headword}}) {
-    $headword =~ /^(ch|.)/;
-    my $firstletter = uc($1);
-    add_to_list("valeval", $firstletter, $frame);
-  }
-}
-
 
 # ---------------------- storing word entries ----------------------------
 print STDERR "Storing the html-ized lexeme entries...\n";
@@ -937,207 +968,55 @@ print STDERR "Storing the html-ized lexeme entries...\n";
 create_directory("generated/lexeme-entries/");
 
 foreach my $filename (sort keys %htmlized_lexeme_entry) {
-  my $longname="generated/lexeme-entries/$filename";
+  my $longname="generated/lexeme-entries/$filename.html";
 #  print STDERR "   $longname\n";
-  my $html_content=$template;
   my $x=$htmlized_lexeme_entry{$filename};
   create_html_file($longname,'wordentry',$x);
 }
 
 
-print STDERR "Tisk html pro vyhledavani podle jednotlivych kriterii...\n";
-my %header;
-my %header_comment = (
-	      'control'    => "Frames arranged according to type of control",
-	      'class'      => "Frames sorted with respect to class",
-	      'aspect'     => "Lexemes sorted according to aspect",
-	      'functors'   => "Frames sorted according to functors they contain",
-	      'forms'      => "Frames sorted according to morphemic forms they contain",
-	      'rfl'        => "Frames sorted according to possible usage of reflexive forms",
-	      'diat'       => "Frames sorted according to possible diathesis variants",
-	      'alter'      => "Frames sorted according to possible types of lexical alternation",
-	      'rcp'        => "Frames sorted according to possible usage of reciprocity",
-	      'complexity' => "Verbs sorted according to number of their frames",
-	      'alphabet'   => "Alphabetically sorted verbs",
-	      'valeval'    => "Example sentences from ČNK",
-	      'other'      => "Homographs and lemma variants",
-	     );
+print STDERR "Generating JSON files for filtering\n";
+# celkový strom filtrů = rozklikávací menu
+# + vytvoření adresářové struktury
 
+# print "\n", Dumper(\%filtertree), "\n";
 
-my %leftlist_comment = (
-			'control' => 'Types of control '.questionmark('control'),
-			'class' => 'List of classes '.questionmark('class'),
-			'aspect' => 'Aspect combinations '.questionmark('aspect'),
-			'functors' => 'List of functors '.questionmark('functors'),
-			'forms' => 'List of surface forms '.questionmark('forms'),
-			'complexity' => 'Number of lexical units per lexeme ',
-			'rfl' => 'Types of reflexivity '.questionmark('rfl'),
-			'diat' => 'Types of diatheses', # TODO help extension
-			'alter' => 'Types and subtypes of lexical alternations', # TODO help extension
-			'rcp' => 'Types of reciprocity '.questionmark('rcp'),
-			'valeval' => 'List of all verbs included in VALEVAL '.questionmark('valeval').' project. For them, example sentences from ČNK are supplied.',
-			'other' => 'Miscellaneous groupings',
-		       );
+# jména filtrů - nahradí id v menu
+my %names = (
+  "rcp" => "reciprocity",
+  "rfl" => "reflexivity",
+  );
 
+sub parseFiltertree {
+  my $pathPrefix = shift;
+  my $path = shift;
+  my $tree = shift;
+  my @converted;
 
-my %middlelist_comment = (
-			  'control' => 'Frames with control with "%%"',
-			  'class' => 'Frames in class "%%"',
-			  'aspect' => 'Lexemes with aspect combination "%%"',
-			  'functors' => 'Frames containing functor "%%"',
-			  'forms' => 'Frames containing form "%%"',
-			  'rcp' => 'Frames with possible reciprocity of type "%%"',
-			  'rfl' => 'Type of reflexivity: "%%"',
-			  'diat' => 'Type of diathesis: "%%"',
-			  'alter' => 'Type and subtype of lexical alternation: "%%"',
-			  'complexity' => 'Lexemes with %% LUs',
-			  );
-
-my %alternation_comment = (
-			  'conv' => 'Conversions',
-			  'split' => 'Structural splitting',
-			  'multiple' => 'Multiple structural expression',
-			  );
-
-my %button_text = (
-		   'other' => "<a href='../other/index.html' target='_top'>miscel.</a>",
-		   'rfl' => "<a href='../rfl/index.html' target='_top'>reflex.</a>",
-		   'diat' => "<a href='../diat/index.html' target='_top'>diat.</a>",
-		   'alter' => "<a href='../alter/index.html' target='_top'>alter.</a>",
-		   'rcp' => "<a href='../rcp/index.html' target='_top'>recipr.</a>",
-		   'valeval' => "<a href='../valeval/index.html' target='_top'>VALEVAL</a>",
-		   'home' => "<a href='../../../../index.html' target='_top'>home</home>" ,
-		   'doc' =>  "<a href='../../../../doc/structure_en.html' target='_top'> help <img border='0' src='../../static/questionmark.gif'></a>"
-		  );
-
-my %miscellaneous = (
-		     'homographs' => 'homographs '.questionmark('homographs'),
-		     'lemma variants' => 'lemma variants '.questionmark('variants'),
-		     'abbreviations' => 'slot expansions '.questionmark('expansions'),
-		     'idioms' => 'idiomatic frames '.questionmark('idiom'),
-		     'reflexiva tantum' => 'reflexiva tantum '.questionmark('refllexemes')
-		    );
-
-
-my %firstvaluefilename;
-my %firstvalue;
-my %selector;
-
-my @criteria=('alphabet','class','functors','forms','aspect','control','rfl','diat','alter','rcp','complexity','valeval','other');
-my $width=100/($#criteria+4);
-$width=~s/\..+//;
-
-
-foreach my $crit (@criteria) {
-
-  create_directory("generated/$crit");
-
-  my $criteria_links="<table width='100%'><tr>".
-    (join "",map {
-      my $buttonclass=($_)?(($_ eq $crit)?'selected-button':'button'):'';
-      my $buttontext=($button_text{$_})?$button_text{$_}:
-        (($_ eq $crit)?lc($_):"<a target='_top' href='../$_/index.html'>".lc($_)."</a>");
-      if ($_ eq $crit and $crit eq 'other') {$buttontext='miscel.'};
-      "<td width='$width%'>
- <table width='100%' border='0' cellspacing='0' class='$buttonclass'><tr><td class='$buttonclass' align='center' valign='center' title='$header_comment{$_}'>$buttontext</table>"}
-     (@criteria, '','home','doc')).
-       "</table>\n";
-
-
-#  my ($sec, $min, $hrs, $day, $month, $year) = (localtime) [0,1,2,3,4,5];
-#  my $datetime = sprintf("%04d-%02d-%02d %d:%d:%d\n", $year+1900, $month+1, $day, $hrs,$min, $sec);
-
-  $header{$crit}="<table width='100%' height='100%'>
- <tr height='20pt'><td> <span class='headword'>VALLEX $version</span><br/><iframe src='../../../../doc/version_ref.html' frameborder='0' height='20px' width='170px' marginheight='0px' marginwidth='0px' style='margin:-2px -5px -15px 0'></iframe> <td>$criteria_links<tr><td valign='bottom' align='center'></table>";#<h2>$header{$crit}</h2></table>";
-  my @sortedvalues;
-  if ($crit eq 'complexity') {  @sortedvalues=sort {$b<=>$a} keys %{$framelist{$crit}}  }
-  elsif ($crit eq 'alphabet') { @sortedvalues = sort keys %alphabet }
-  else {@sortedvalues=sort keys %{$framelist{$crit}}};
-
-  foreach my $value (@sortedvalues) {
-    my $effvalue=$value;
-    if ($crit eq 'complexity') {$effvalue.=" LU";$effvalue.="s" if ($value>1)};
-    if ($crit eq 'other') {$effvalue=$miscellaneous{$value}};
-    my $value2=string_to_html_filename($value); # without diacritics
-    my $comment=$middlelist_comment{$crit};
-    $comment=~s/%%/$value/;
-    $comment=($comment)?"<span class='list-comment'>$comment</span><hr>":'';
-#     onClick='javascript:parent.wordentry.location.href='http://www.experts-exchange.com'>
-    $selector{$crit}.="<a target='framelist' href='value-$value2'
-   onClick=\"javascript:parent.wordentry.location.href='".$firstframefilename{$crit}{$value}."'\">
-    $bullet $effvalue <span class='occurrences'>($framecnt{$crit}{$value})</span></a><br>\n";
-    $firstvaluefilename{$crit}="value-$value2" unless $firstvaluefilename{$crit};
-    $firstvalue{$crit}=$value unless $firstvalue{$crit};
-    create_html_file("generated/$crit/value-$value2","framelist",$comment.$framelist{$crit}{$value});
-    create_multiframe("generated/$crit/index-$value2","value-$value2",$firstframefilename{$crit}{$value});
-  }
-  my $comment=($leftlist_comment{$crit})?"<span class='list-comment'>$leftlist_comment{$crit}</span><hr>":'';
-
-  # formy se musi radit specielne, selector se musi prepocitat;
-  if ($crit eq 'forms') {
-    $type_of_form{'cont'}='cont';
-    $selector{$crit}=join "<br>",
-      map {
-	my $type=$_;
-	"<span class='list-comment'>$long_form_types{$type}:</span><br>".
-	  (join "",map {
-	    my $value=$_;
-	    my $value2=string_to_html_filename($value); # without diacritics
-	    "<a target='framelist' href='value-$value2'>$bullet $value ($framecnt{$crit}{$value})</a><br>\n"
-	  } sort grep {$type_of_form{$_} eq $type} keys %type_of_form);
-      } ('direct_case','prepos_case','subord_conj','cont','infinitive','adjective','byt','phraseme_part');
+  if(keys %{${$tree}{"subfilters"}}){
+    create_directory($pathPrefix.$path);
   }
 
-  # podobne s reflexivitami, kam se musi vlozit dve hlavicky
-  elsif ($crit eq 'rfl') {
-    my @values = map {"<a $_"} grep {$_} split /<a /, $selector{$crit};
-    $selector{$crit} =
-      "<span class='list-comment'>Reflexive lexemes</span><br>".
-	(join "", grep {/(derived|tantum)/} @values).
-	"<br><span class='list-comment'>Reflexive usage of LUs of irreflexive lexemes</span><br>".
-	  (join "",grep {!/(derived|tantum)/} @values);
+  foreach my $key (sort keys %{${$tree}{"subfilters"}}) {
+    my $filter_path = $path . string_to_html_filename($key);
+    my $filter_filename = $filter_path . ".json";
+    my %filter = (
+      "id" => $path . $key,
+      "name" => exists $names{$key} ? $names{$key} : $key,
+      "url" => $filter_filename,
+      "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key})
+    );
+    push @converted, \%filter;
 
-#    $selector{$crit} = "<span class='list-comment'>Reflexive forms of frames</span><br>". $selector{$crit};
-
-  } 
-  elsif ($crit eq 'alter') {
-	my @values = map {"<a $_"} grep {$_} split /<a /, $selector{"alter"};
-	$selector{"alter"} = "";
-	for my $type ("conv","split","multiple") {
-		$selector{"alter"} .= "<span class='list-comment'>$alternation_comment{$type}:</span><br>";
-		$selector{"alter"} .= (join "", map {s/$type: //r} grep {/$type/} @values)."<br>";
-	}
-  }
-  elsif ($crit eq 'diat') {
-	my @values = map {"<a $_"} grep {$_} split /<a /, $selector{"diat"};
-	my @selected =  map { s/.* ([^ ]+) YES.*/$1/sr } grep {/YES/} @values;
-	$selector{"diat"} = "";
-	foreach my $type_of_diat (@selected) {
-		$selector{"diat"} .= "<span class='list-comment'>".(join "", map { s/ YES//r } grep {/$type_of_diat YES/} @values)."</span>exemplified:<br>";
-		$selector{"diat"} .= "&nbsp;&nbsp;".(join "&nbsp;&nbsp;", grep {!/$type_of_diat (YES|NO)/} grep {/$type_of_diat/} @values);
-		#$selector{"diat"} .= (join "", grep {/$type_of_diat NO/} @values);
-		$selector{"diat"} .= "<br>";
-	}
-  }
-  elsif ($crit eq 'alphabet') {
-    $selector{$crit} = '
-    <div style="border-style: ridge; border-width: 4px; border-color: firebrick;
-        margin: 10px -5px 30px -5px">
-      <form action="" onsubmit="return false;" style="margin: 2px;">
-        <input type="text" id="vallex_search" value="" size="12"
-            autofocus="true" style="color: white;
-            border-color: firebrick; background-color: firebrick;"/>
-        <img src="../../static/magnifier.png" width="18px" height="18px"
-            style="margin-bottom: -3px"/>
-      </form>
-    </div>
-'. $selector{$crit};
+    create_json_file($pathPrefix.$filter_filename, ${${${$tree}{"subfilters"}}{$key}}{"lexemes"}); # proč perl :-(
   }
 
-  create_html_file("generated/$crit/selector.html","selector",$comment.$selector{$crit});
-  create_html_file("generated/$crit/header.html","header",$header{$crit});
-  create_multiframe("generated/$crit/index.html",$firstvaluefilename{$crit},$firstframefilename{$crit}{$firstvalue{$crit}});
+  return \@converted;
 }
+
+my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree)};
+
+create_json_file("generated/filters.json", \@parsedFiltertree);
 
 
 
