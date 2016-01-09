@@ -236,9 +236,9 @@ var LexemesView = Backbone.View.extend({
 		var selectedLexeme = this.model.get("selectedLexeme");
 		var asyncWrite = function (filtered, pos) {
 			var output = [];
-			// od 1000 řádků už zobrazuje na poloviny
-			var batch = Math.max(500, filtered.length/2)
-			var maxPos = Math.min(pos + batch, filtered.length);
+			var maxPos = 50;
+			if(pos > 0)
+				maxPos = filtered.length;
 			for (var i = pos; i < maxPos; i++) {
 				var lu = filtered[i];
 				var parent = lu.parent;
