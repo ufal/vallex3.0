@@ -180,17 +180,13 @@ my $javascript_head = '<script type="text/javascript" src="jquery.js"></script>
 ';
 
 
-sub create_html_file ($$$) {
-  my ($filename,$bodyclass,$content)=@_;
-  my $t=$template;
+sub create_html_file ($$) {
+  my ($filename, $content)=@_;
   $filename = $outputdir.$filename;
-  $t=~s/#content#/$content/;
-  $t=~s/#css#/..\/..\/static\/vallex.css/;
-  $t=~s/#bodyclass#/$bodyclass/;
 
 #  print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
-  print F $t;
+  print F $content;
   close F;
 }
 
@@ -554,25 +550,13 @@ sub cnk_filename {
 
 print STDERR "Copying non-generated (static) files ...\n";
 
-system "mkdir -p $outputdir/static";
-open IIN,"$xml2html_dir/index.html" or die "Can't open html index\n";
-open IOUT,">:encoding(utf-8)","$outputdir/index.html";
-s/#version#/$version/g, print IOUT while <IIN>;    # copy s jednou substituci
-close IIN;
-close IOUT;
-system "cp -r $xml2html_dir/static/* $outputdir/static/"; # je potreba vyhnout se kopirovan .svn
-
-
-print STDERR "Loading HTML templates...\n";
-
-open T,"$xml2html_dir/html-template.html"  or die "Can't open html template\n";
-$template.=$_ while <T>;
-$template =~ s/#version#/$version/g;
-
-open T,"$xml2html_dir/multiframe-template.html" or die "Can't open multiframe-html template\n";
-$multiframe.=$_ while <T>;
-$multiframe =~ s/#version#/$version/g;
-
+system "mkdir -p $outputdir/";
+# open IIN,"$xml2html_dir/index.html" or die "Can't open html index\n";
+# open IOUT,">:encoding(utf-8)","$outputdir/index.html";
+# s/#version#/$version/g, print IOUT while <IIN>;    # copy s jednou substituci
+# close IIN;
+# close IOUT;
+system "cp -r $xml2html_dir/static/* $outputdir/"; # je potreba vyhnout se kopirovan .svn
 
 print STDERR "Loading $xmlfile...\n";
 my $parser = XML::DOM::Parser->new();
@@ -657,6 +641,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 #    }
   }
 
+  lexeme_to_criteria($filename, $headword_lemmas, "all");
 
   my ($lexical_forms) = $lexeme_node->getElementsByTagName('lexical_forms');
 
@@ -731,7 +716,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
           $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
             . "<tr><td>$subtype$objectless:&nbsp;<td>"
-            . "<a target='wordentry' href='#$LU_ref_index'>"
+            . "<a href='#/lexeme/$filename/$LU_ref_index'>"
             . "<table class='frame-number-ref' cellspacing=0 cellpadding=0><tr>"
             . "<td title='$LU_ref'>&nbsp;$LU_ref_index&nbsp;"
             . "<span class='invisible'>($LU_ref)</span></table></a>"
@@ -867,7 +852,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $id = $blu_node->getAttribute('id');
 
     # číslo rámce
-    my $first_frameentry_row = "<a name='$frame_index' title='$id' class='frame_index_link'>$frame_index</a>";
+    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link'>$frame_index</a>";
     my $lexical_unit_gloss = "$limited_lex_forms<span class='gloss'>$frame_attrs{gloss}</span>$idiom";
 
     # ---------- vytvoreni tabulky s valencnim ramcem
@@ -935,14 +920,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries.=
-      "<table class='lexical_unit'>".
+      "<table class='lexical_unit u$frame_index'>".
       "<td class='lexical_unit_index'>".$first_frameentry_row.
       # "<td class='lexical_unit'>".
       "<td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
       "<tr><td><td class='attrname frame'>frame<td>".$frame_table_html. # frame má podobu tabulky
       "<tr><td><td class='attrname example'>example<td>".$frame_attrs{'example'}. # příklady
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
-	    (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ).
+      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ).
+      "<tr class='expander_row'><td colspan='3'><a class='expander'><span>more</span><div class='circle'>&gt;</div></a>". # příklady
       "</table>";
 
 
@@ -971,7 +957,7 @@ foreach my $filename (sort keys %htmlized_lexeme_entry) {
   my $longname="generated/lexeme-entries/$filename.html";
 #  print STDERR "   $longname\n";
   my $x=$htmlized_lexeme_entry{$filename};
-  create_html_file($longname,'wordentry',$x);
+  create_html_file($longname, $x);
 }
 
 
@@ -1006,7 +992,10 @@ sub parseFiltertree {
       "url" => $filter_filename,
       "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key})
     );
-    push @converted, \%filter;
+    # humus - v hlavním menu nechceme ALL záložku
+    if($path . $key ne "all"){
+      push @converted, \%filter;
+    }
 
     create_json_file($pathPrefix.$filter_filename, ${${${$tree}{"subfilters"}}{$key}}{"lexemes"}); # proč perl :-(
   }

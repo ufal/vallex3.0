@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>vallex 3.0</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet/less" type="text/css" href="css/styles.less">
+	<script src="libs/less.min.js"></script>
+	<script src="libs/underscore-min.js"></script>
+	<script src="libs/jquery-2.1.4.min.js"></script>
+	<script src="libs/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script src="libs/backbone-min.js"></script>
+
+	<script src="js/layout.js"></script>
+	<script src="js/filters.js"></script>
+	<script src="js/lexeme.js"></script>
+	<script src="js/router.js"></script>
+	<script src="js/app.js"></script>
+</head>
+<body>
+
+<header class="header expanded">
+	<h1>vallex <span class="thin">3.0</span></h1>
+	<nav class="main_menu">
+		<ul class="inline separators">
+			<li><a href="." class="selected">data</a></li>
+			<li><a href="grammar.html">grammar</a></li>
+			<li><a href="info.html">info</a></li>
+			<li><a href="guide.html">guide</a></li>
+		</ul>
+	</nav>
+	<nav class="filters">
+		<ul class="filter_list">
+			<!-- <li>
+				<ul class="inline separators">
+					<li><a href="#" class="togglable">functors</a></li>
+					<li><a href="#" class="togglable">forms</a></li>
+					<li><a href="#" class="togglable">control</a></li>
+					<li><a href="#" class="togglable selected">alternations</a></li>
+					<li><a href="#" class="togglable">class</a></li>
+					<li><a href="#" class="togglable">others</a></li>
+					<li>| <a href="#" class="external">moudré vyhledávátko</a></li>
+				</ul>
+			</li> -->
+		</ul>
+	</nav>
+	<div class="fixed_bottom">
+		<a class="expander expanded"><span>hide filters</span> <div class="circle">&gt;</div></a><br>
+	</div>
+</header>
+<div class="dictionary">
+	<div class="alphabet column" id="alphabet">
+		<div class="matrjoska">
+			<table>
+				<tr><td class="letter">a</td><td class="count">n</td></tr>
+				<tr><td class="letter">b</td><td class="count">n</td></tr>
+				<tr><td class="letter">c</td><td class="count">n</td></tr>
+				<tr><td class="letter">d</td><td class="count">n</td></tr>
+				<tr><td class="letter">e</td><td class="count">n</td></tr>
+				<tr><td class="letter">f</td><td class="count">n</td></tr>
+				<tr><td class="letter">g</td><td class="count">n</td></tr>
+				<tr><td class="letter">h</td><td class="count">n</td></tr>
+				<tr><td class="letter">ch</td><td class="count">n</td></tr>
+				<tr><td class="letter">i</td><td class="count">n</td></tr>
+				<tr><td class="letter">j</td><td class="count">n</td></tr>
+				<tr><td class="letter">k</td><td class="count">n</td></tr>
+				<tr><td class="letter">l</td><td class="count">n</td></tr>
+				<tr><td class="letter">m</td><td class="count">n</td></tr>
+				<tr><td class="letter">n</td><td class="count">n</td></tr>
+				<tr><td class="letter">o</td><td class="count">n</td></tr>
+				<tr><td class="letter">p</td><td class="count">n</td></tr>
+				<tr><td class="letter">q</td><td class="count">n</td></tr>
+				<tr><td class="letter">r</td><td class="count">n</td></tr>
+				<tr><td class="letter">s</td><td class="count">n</td></tr>
+				<tr><td class="letter">t</td><td class="count">n</td></tr>
+				<tr><td class="letter">u</td><td class="count">n</td></tr>
+				<tr><td class="letter">v</td><td class="count">n</td></tr>
+				<tr><td class="letter">w</td><td class="count">n</td></tr>
+				<tr><td class="letter">x</td><td class="count">n</td></tr>
+				<tr><td class="letter">y</td><td class="count">n</td></tr>
+				<tr><td class="letter">z</td><td class="count">n</td></tr>
+			</table>
+		</div>
+	</div>
+	<div class="framelist column" id="framelist">
+		<div class="search">
+			<input type="text" class="search_input" placeholder="search">
+		</div>
+		<div class="matrjoska">
+			<div class="result">
+				<ul>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="wordentry column">
+<div class="matrjoska">
+
+</div> <!-- /matrjoska -->
+	</div> <!-- /word entry -->
+</div>
+
+</body>
+</html>

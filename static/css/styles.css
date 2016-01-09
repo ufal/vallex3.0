@@ -1,0 +1,205 @@
+@import url(jquery.mCustomScrollbar.css);
+body {
+  font-family: "roboto", sans-serif;
+  font-size: 11pt;
+  color: #231f20;
+}
+.thin {
+  font-family: "roboto thin";
+}
+.bold,
+b {
+  font-family: "roboto medium";
+}
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+}
+a {
+  color: #e43e5e;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.external {
+  color: #00adef;
+}
+.hidden {
+  display: none;
+}
+.circle {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  text-align: center;
+}
+.circle.external,
+.external .circle {
+  transform: rotate(-45deg);
+}
+.circle.expander,
+.expander .circle {
+  transform: rotate(90deg);
+}
+.circle.expanded,
+.expanded .circle {
+  transform: rotate(-90deg);
+}
+.togglable {
+  color: #231f20;
+}
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.header {
+  padding: 1em 15% 0 15%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header .selected {
+  color: #e43e5e;
+}
+.header h1 {
+  font-size: 300%;
+  font-weight: normal;
+}
+.header .main_menu {
+  text-transform: uppercase;
+  font-size: 150%;
+}
+.header .main_menu a {
+  color: #231f20;
+}
+.header .main_menu a.selected {
+  color: #e43e5e;
+}
+.header .filters {
+  padding: 1em 0;
+}
+.header .filters ul > li {
+  padding: 0.1em 0;
+}
+.header .fixed_bottom {
+  position: absolute;
+  bottom: 1em;
+  right: 2em;
+}
+.dictionary {
+  margin: 0 2em;
+}
+.dictionary .column {
+  overflow: auto;
+  overflow-x: hidden;
+  float: left;
+  height: 100%;
+}
+.dictionary .column.alphabet {
+  width: 5em;
+  line-height: 1em;
+}
+.dictionary .column.alphabet table {
+  border-spacing: 0;
+}
+.dictionary .column.alphabet .letter {
+  padding-right: 1em;
+}
+.dictionary .column.framelist {
+  width: 15em;
+}
+.dictionary .column.framelist .matrjoska {
+  padding-left: 2em;
+}
+.dictionary .column.framelist .search_input {
+  width: 9em;
+}
+.dictionary .column.wordentry .matrjoska {
+  padding: 0 2em;
+}
+.wordentry table {
+  border: 0px transparent none;
+  border-spacing: 0;
+  border-collapse: separate;
+  margin: 0;
+  padding: 0;
+}
+.wordentry .pdtvallex-wlinks {
+  float: right;
+}
+.wordentry .headword {
+  font-size: 150%;
+  margin-bottom: 0.5em;
+}
+.wordentry .headword .scriptsize {
+  font-size: 50%;
+}
+.wordentry .lexical_unit_index {
+  width: 2em;
+}
+.wordentry table.frame a {
+  color: #231f20;
+}
+.wordentry table.frame .type,
+.wordentry table.frame .forms {
+  font-size: 80%;
+  line-height: 1em;
+}
+.wordentry table.frame .functor:first-child {
+  padding-left: 0;
+}
+.wordentry table.frame .functor {
+  padding-left: 1em;
+}
+.wordentry .lexical_unit {
+  width: 100%;
+  border-spacing: 0 0.2em;
+}
+.wordentry .lexical_unit.selected {
+  border: 3px #e43e5e dotted;
+}
+.wordentry .scriptsize {
+  color: #e43e5e;
+}
+.wordentry .invisible {
+  display: none;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+ul.inline li {
+  display: inline-block;
+}
+ul.separators li + li::before {
+  content: " | ";
+}
+.mCS-rounded-dark.mCSB_scrollTools {
+  opacity: 1;
+}
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #fff;
+  border: 1px #231f20 solid;
+}
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_draggerRail {
+  background-color: #231f20;
+}
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar,
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
+  background-color: #231f20;
+}
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar,
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+  background-color: #231f20;
+}

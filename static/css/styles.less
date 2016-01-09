@@ -1,0 +1,313 @@
+@import url(jquery.mCustomScrollbar.css);
+@font: "roboto", sans-serif;
+@black: #231f20;
+@pink: #e43e5e;
+@blue: #00adef;
+@gray: #969696;
+
+// global
+body {
+	font-family: @font;
+	font-size: 11pt;
+	color: @black;
+}
+
+.thin {
+	font-family: "roboto thin";
+}
+
+.bold, b {
+	font-family: "roboto medium";
+}
+
+h1, h2, h3, h4 {
+	margin: 0;
+}
+
+// navigation
+a {
+	color: @pink;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.external {
+	color: @blue;
+}
+
+.hidden {
+	display: none;
+}
+
+.circle {
+	@size: 1.5em;
+
+	display: inline-block;
+
+	width: @size;
+	height: @size;
+	line-height: @size;
+
+	text-align: center;
+
+	&.external, .external & {
+		transform: rotate(-45deg);
+	}
+	&.expander, .expander & {
+		transform: rotate(90deg);
+	}
+	&.expanded, .expanded & {
+		transform: rotate(-90deg);
+	}
+}
+
+.togglable {
+	color: @black;
+}
+
+// layout
+body, html {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.header {
+	padding: 1em 15% 0 15%;
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+
+	.selected {
+		color: @pink;
+	}
+
+	h1 {
+		font-size: 300%;
+		font-weight: normal;
+	}
+	.main_menu {
+		text-transform: uppercase;
+		font-size: 150%;
+		padding-bottom: 0.66em;
+		a {
+			color: @black;
+			&.selected {
+				color: @pink;
+			}
+		}
+	}
+	.filters {
+		padding-bottom: 1em;
+		& ul > li {
+			padding-bottom: 0.2em;
+		}
+	}
+	.fixed_bottom {
+		position: absolute;
+		bottom: 1em;
+		right: 2em;
+	}
+}
+
+.dictionary {
+	margin: 0 2em;
+	.column {
+		overflow: auto;
+		// overflow-x: hidden;
+		float: left;
+		height: 100%;
+
+		&.alphabet {
+			width: 5em;
+			line-height: 1em;
+			// .matrjoska {
+			// 	padding-left: 2em;
+			// }
+			table {
+				border-spacing: 0;
+			}
+			.letter {
+				padding-right: 1em;
+			}
+			.alphabet_row {
+				.count {
+					color: @gray;
+				}
+				&.selected {
+					color: @pink;
+					font-weight: bold;
+					.count {
+						color: @pink;
+					}
+				}
+				&:hover {
+					text-decoration: underline;
+					cursor: pointer;
+				}
+			}
+		}
+		&.framelist {
+			width: 15em;
+			position: relative;
+			.search {
+				padding-left: 2em;
+				height: 2em;
+				// width: 100%;
+				line-height: 2em;
+				background-image: url("../img/search.png");
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: right center;
+				.search_input {
+					width: 11em;
+				}
+			}
+			.matrjoska {
+				width: 100%;
+				position: absolute;
+				top: 2em;
+				bottom: 0;
+			}
+			.result {
+				padding-left: 2em;
+				height: 100%;
+
+				li {
+					a {
+						color: @black;
+						&.selected {
+							color: @pink;
+							font-weight: bold;
+						}
+					}
+				}
+			}
+		}
+		&.wordentry {
+			.matrjoska {
+				padding: 0 2em;
+			}
+		}
+	}
+}
+
+// slovníkové heslo
+.wordentry {
+	table {
+		border: 0px transparent none;
+		border-spacing: 0;
+		border-collapse: separate;
+		margin: 0;
+		padding: 0;
+	}
+
+	.expander_row {
+		text-align: right;
+	}
+
+	.pdtvallex-wlinks {
+		float: right;
+	}
+
+	.headword {
+		font-size: 150%;
+		margin-bottom: 0.5em;
+		.scriptsize {
+			font-size: 50%;
+		}
+	}
+
+	.lexical_unit_index {
+		width: 2em;
+	}
+
+	table.frame {
+		a {
+			color: @black;
+		}
+		.type, .forms {
+			font-size: 80%;
+			line-height: 1em;
+		}
+		.functor:first-child {
+			padding-left: 0;
+		}
+		.functor {
+			padding-left: 1em;
+		}
+		// .forms 
+	}
+
+	.lexical_unit {
+		width: 100%;
+		border-spacing:0 0.2em;
+		&.selected {
+			border:3px @pink dotted;
+		}
+	}
+
+	.scriptsize {
+		color: @pink;
+	}
+
+	.attrname {
+		vertical-align: top;
+		&.frame {
+			vertical-align: middle;
+		}
+	}
+
+	.invisible {
+		display: none;
+	}
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+
+	&.inline {
+		li {
+			display: inline-block;
+		}
+	}
+
+	&.separators {
+		li {
+			padding-left: 0.5em;
+		}
+		li + li::before {
+			content: "|";
+			padding-right: 0.5em;
+		}
+	}
+}
+
+// scrollbar
+.mCS-rounded-dark.mCSB_scrollTools {
+	opacity: 1;
+}
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
+	background-color: #fff;
+	border: 1px @black solid;
+}
+
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_draggerRail{
+	background-color: @black;
+}
+
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: @black; }
+
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar, 
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar{ background-color: @black; }
