@@ -183,7 +183,7 @@ var AlphabetView = Backbone.View.extend({
 				imax = imid - 1;
 
 			cnt++;
-		}1 / 32
+		}
 		var id = lexemes[imin].getAttribute("data-id");
 		var lexeme = appView.lexemes.getLexeme(id);
 		var letter = appView.lexemes.getLetter(lexeme);
@@ -236,7 +236,7 @@ var LexemesView = Backbone.View.extend({
 		var selectedLexeme = this.model.get("selectedLexeme");
 		var asyncWrite = function (filtered, pos) {
 			var output = [];
-			var maxPos = 50;
+			var maxPos = Math.min(50, filtered.length);
 			if(pos > 0)
 				maxPos = filtered.length;
 			for (var i = pos; i < maxPos; i++) {
