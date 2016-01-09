@@ -14,6 +14,7 @@ binmode STDOUT,":encoding(utf-8)";
 
 
 use XML::DOM;
+use List::Util 1.33 'none';
 # use Data::Dumper;
 
 
@@ -290,12 +291,15 @@ sub unit_to_criteria {
   foreach my $node (@_) {
     if(!exists ${${$tree}{"subfilters"}}{$node}){
       ${${$tree}{"subfilters"}}{$node} = {
-        "lexemes" => [],
+        "lexemes" => {},
         "subfilters" => {}
       };
     }
     $tree = ${${$tree}{"subfilters"}}{$node};
-    push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas];
+
+    ${%{$tree}{"lexemes"}}{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas];
+    # push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas]
+      # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
   }
 }
 
@@ -997,7 +1001,9 @@ sub parseFiltertree {
       push @converted, \%filter;
     }
 
-    create_json_file($pathPrefix.$filter_filename, ${${${$tree}{"subfilters"}}{$key}}{"lexemes"}); # proč perl :-(
+    my @lexemes_array = values %{${${${$tree}{"subfilters"}}{$key}}{"lexemes"}}; # proč perl :-(
+    my @sorted = sort {${$a}[0] . ${$a}[1] cmp ${$b}[0] . ${$b}[1]} @lexemes_array;
+    create_json_file($pathPrefix.$filter_filename, \@sorted);
   }
 
   return \@converted;
