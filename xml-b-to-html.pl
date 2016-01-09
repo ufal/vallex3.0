@@ -630,10 +630,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       }
     }
     if ($tantum) {
-      lexeme_to_criteria($filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", "tantum");
+      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "reflexive tantum verbs");
     }
     else {
-      lexeme_to_criteria($filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", "derived");
+      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "derived reflexive lexemes");
     }
 
 #    my $lexeme_cluster = $lexeme_node->getParentNode;
