@@ -1,5 +1,6 @@
 @import url(jquery.mCustomScrollbar.css);
-@font: "roboto", sans-serif;
+@import url(https://fonts.googleapis.com/css?family=Roboto:100,500,400&subset=latin,latin-ext);
+@font: "Roboto", sans-serif;
 @black: #231f20;
 @pink: #e43e5e;
 @blue: #00adef;
@@ -8,16 +9,19 @@
 // global
 body {
 	font-family: @font;
+	font-weight: 400;
 	font-size: 11pt;
 	color: @black;
 }
 
 .thin {
-	font-family: "roboto thin";
+	// font-family: "roboto thin";
+	font-weight: 100;
 }
 
 .bold, b {
-	font-family: "roboto medium";
+	// font-family: "roboto medium";
+	font-weight: 500;
 }
 
 h1, h2, h3, h4 {
@@ -89,7 +93,7 @@ body, html {
 
 	h1 {
 		font-size: 300%;
-		font-weight: normal;
+		.bold;
 	}
 	.main_menu {
 		text-transform: uppercase;
@@ -141,7 +145,7 @@ body, html {
 				}
 				&.selected {
 					color: @pink;
-					font-weight: bold;
+					.bold;
 					.count {
 						color: @pink;
 					}
@@ -183,7 +187,7 @@ body, html {
 						color: @black;
 						&.selected {
 							color: @pink;
-							font-weight: bold;
+							.bold;
 						}
 					}
 				}
