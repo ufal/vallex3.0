@@ -236,7 +236,9 @@ var LexemesView = Backbone.View.extend({
 		var selectedLexeme = this.model.get("selectedLexeme");
 		var asyncWrite = function (filtered, pos) {
 			var output = [];
-			var maxPos = Math.min(pos+1000000, filtered.length);
+			// od 1000 řádků už zobrazuje na poloviny
+			var batch = Math.max(500, filtered.length/2)
+			var maxPos = Math.min(pos + batch, filtered.length);
 			for (var i = pos; i < maxPos; i++) {
 				var lu = filtered[i];
 				var parent = lu.parent;
@@ -249,10 +251,11 @@ var LexemesView = Backbone.View.extend({
 			ul.innerHTML += output.join("");
 			if(i < filtered.length)
 				_.defer(asyncWrite, filtered, i);
+			else
+				console.timeEnd('lexemesRender');
 		}
-		asyncWrite(this.model.filtered, 0);
+		_.defer(asyncWrite, this.model.filtered, 0);
 		// this.$el.html(html);
-		console.timeEnd('lexemesRender');
 	},
 
 	showLexeme: function () {
