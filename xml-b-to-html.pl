@@ -719,11 +719,8 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$objectless);
 
           $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
-            . "<tr><td>$subtype$objectless:&nbsp;<td>"
-            . "<a href='#/lexeme/$filename/$LU_ref_index'>"
-            . "<table class='frame-number-ref' cellspacing=0 cellpadding=0><tr>"
-            . "<td title='$LU_ref'>&nbsp;$LU_ref_index&nbsp;"
-            . "<span class='invisible'>($LU_ref)</span></table></a>"
+            . "<tr><td>$subtype$objectless:&nbsp;"
+            . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a>"
             . "</table>";
         }
         elsif ($attrname eq "diat") {
@@ -856,7 +853,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $id = $blu_node->getAttribute('id');
 
     # číslo rámce
-    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link'>$frame_index</a>";
+    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a>";
     my $lexical_unit_gloss = "$limited_lex_forms<span class='gloss'>$frame_attrs{gloss}</span>$idiom";
 
     # ---------- vytvoreni tabulky s valencnim ramcem
@@ -932,7 +929,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "<tr><td><td class='attrname example'>example<td>".$frame_attrs{'example'}. # příklady
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
       (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ).
-      "<tr class='expander_row'><td colspan='3'><a class='expander'><span>more</span><div class='circle'>&gt;</div></a>". # příklady
+      "<tr class='expander_row'><td colspan='3'><a class='expander'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
       "</table>";
 
 
