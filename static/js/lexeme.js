@@ -245,7 +245,12 @@ var LexemesView = Backbone.View.extend({
 				var selected = "";
 				if(lu == selectedLexeme)
 					selected = " selected";
-				var str = "<li data-id='"+parent.id+"'><a href='#/lexeme/"+parent.id+"/"+lu.id+"' class='"+parent.id+" u"+lu.id+selected+"'>" + parent.get("name") + "&nbsp;" + lu.id + "</a></li>";
+
+				var luId = "";
+				if(lu.id > 0)
+					luId = "&nbsp;" + lu.id;
+
+				var str = "<li data-id='"+parent.id+"'><a href='#/lexeme/"+parent.id+"/"+lu.id+"' class='"+parent.id+" u"+lu.id+selected+"'>" + parent.get("name") + luId + "</a></li>";
 				output.push(str);
 			}
 			ul.innerHTML += output.join("");
