@@ -98,6 +98,10 @@ var FilterMenu = Filter.extend({
 				model: this
 			});
 
+			// modré vyhledávadlo
+			var advancedSearch = _.template($("#advanced-search-template").html());
+			this.filterView.subfilters.$el.find("ul").append(advancedSearch);
+
 			this.trigger("filtersReady");
 		});
 	},
