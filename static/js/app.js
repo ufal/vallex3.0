@@ -40,11 +40,13 @@ var AppView = Backbone.View.extend({
 		$(".alphabet, .wordentry").mCustomScrollbar({
 			theme: "rounded-dark",
 			scrollInertia: 0,
+			mouseWheel:{ scrollAmount: 53 }
 		});
 
 		$(".framelist .result").mCustomScrollbar({
 			theme: "rounded-dark",
 			scrollInertia: 0,
+			mouseWheel:{ scrollAmount: 53 }, // naměřeno v linuxu ve chrome jako defaultní scrollamount u nativního scrollbaru
 			callbacks: {
 				whileScrolling: function () {
 				// onScroll: function () {
