@@ -293,7 +293,7 @@ var LexemesView = Backbone.View.extend({
 					parent.find(".more").hide(200);
 				}
 				else {
-					$expander.find("span").html("hide");
+					$expander.find("span").html("less");
 					$expander.addClass("expanded");
 
 					parent.find(".more").show(200);
