@@ -923,7 +923,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 ##      $attribute_line{$attr} = "<span class='attrname'>-$attr: </span> <a target='_top' href='../$attr/index-".string_to_html_filename($frame_attrs{$attr})."'>$frame_attrs{control}</a><br>\n\n"
 ##	unless (!$frame_attrs{control});
 ##    }
-
+    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex');
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries.=
       "<table class='lexical_unit u$frame_index'>".
@@ -933,8 +933,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "<tr><td><td class='attrname frame'>frame<td>".$frame_table_html. # frame má podobu tabulky
       "<tr><td><td class='attrname example'>example<td>".$frame_attrs{'example'}. # příklady
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
-      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex') ).
-      "<tr class='expander_row'><td colspan='3'><a class='expander'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
+      "<tr class='expander_row'><td colspan='3'><a class='expander". (@frame_attrs_filtered ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
+      # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
+      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} (@frame_attrs_filtered) ).
       "</table>";
 
 

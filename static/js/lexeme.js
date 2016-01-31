@@ -283,6 +283,9 @@ var LexemesView = Backbone.View.extend({
 			$(".lexical_unit .expander").click(function (e) {
 				var parent = $(e.target).parents(".lexical_unit");
 				var $expander = $(this);
+				if($expander.hasClass("disabled"))
+					return;
+
 				if($expander.hasClass("expanded")){
 					$expander.find("span").html("more");
 					$expander.removeClass("expanded");
