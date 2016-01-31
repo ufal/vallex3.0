@@ -892,7 +892,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 	if ($result=~/být\+/) {$efftype='byt'}
 	$type_of_form{$result}=$efftype;
     if($type ne "phraseme_part"){ # filtrování phraseme_part, jinak ostatní forms ano
+      if($type eq "cnt"){ # cnt nemá podkategorie
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $result);
+      }
+      else {
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $type, $result);
+      }
     }
 	my $form_comment = $long_form_type{$type};
 	$form_comment .= " ($case_names{$result})" if ($type eq 'direct_case');
@@ -974,24 +979,109 @@ my %names = (
   "rfl" => "reflexivity",
   );
 
+sub numberSort {
+  return sort {
+    my $numa = (split(" ", $a))[0];
+    my $numb = (split(" ", $b))[0];
+
+    return $numa <=> $numb;
+  } @_;
+}
+
+sub fixedSort {
+  my $fixedSubfilters_ref = shift;
+  my %fixedSubfilters = %$fixedSubfilters_ref;
+  my $subfilters_ref = shift;
+  my @subfilters = @$subfilters_ref;
+  my @fixed = ();
+  my @sorted = ();
+  foreach my $subfilter (@subfilters) {
+    if(exists $fixedSubfilters{$subfilter}){
+      @fixed[$fixedSubfilters{$subfilter}] = $subfilter;
+    }
+    else {
+      push @sorted, $subfilter;
+    }
+  }
+  @sorted = sort @sorted;
+  return (@fixed, @sorted);
+}
+
+my %sortings = (
+  "all" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "functors" => 0,
+      "forms" => 1,
+      "control" => 2,
+      "alternation" => 3,
+      "class" => 4,
+      "others" => 5
+    }, $ref);
+  },
+  "lexicalized" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "conv" => 0,
+      "split" => 1,
+      "multiple" => 2,
+    }, $ref);
+  },
+  "actants" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "ACT" => 0,
+      "ADDR" => 1,
+      "PAT" => 2,
+      "ORIG" => 3,
+      "EFF" => 4,
+    }, $ref);
+  },
+  "direct_case" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "1" => 0,
+      "2" => 1,
+      "3" => 2,
+      "4" => 3,
+      "5" => 4,
+      "7" => 5,
+    }, $ref);
+  },
+  "complexity" => sub {
+    my $ref = shift;
+    return numberSort(@$ref);
+  }
+);
+
 sub parseFiltertree {
   my $pathPrefix = shift;
   my $path = shift;
   my $tree = shift;
+  my $subfilterId = shift;
   my @converted;
 
   if(keys %{${$tree}{"subfilters"}}){
     create_directory($pathPrefix.$path);
   }
 
-  foreach my $key (sort keys %{${$tree}{"subfilters"}}) {
+  my @sortedSubfilters;
+  if(exists $sortings{ $subfilterId }){
+    my @subfilters = keys %{${$tree}{"subfilters"}};
+    @sortedSubfilters = $sortings{ $subfilterId }(\@subfilters);
+  }
+  else {
+    @sortedSubfilters = (sort keys %{${$tree}{"subfilters"}});
+  }
+
+  foreach my $key (@sortedSubfilters) {
     my $filter_path = $path . string_to_html_filename($key);
     my $filter_filename = $filter_path . ".json";
     my %filter = (
       "id" => $path . $key,
       "name" => exists $names{$key} ? $names{$key} : $key,
       "url" => $filter_filename,
-      "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key})
+      "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key}, $key)
     );
     # humus - v hlavním menu nechceme ALL záložku
     if($path . $key ne "all"){
@@ -1006,7 +1096,7 @@ sub parseFiltertree {
   return \@converted;
 }
 
-my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree)};
+my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree, "all")};
 
 create_json_file("generated/filters.json", \@parsedFiltertree);
 
