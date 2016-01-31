@@ -303,6 +303,10 @@ var LexemesView = Backbone.View.extend({
 			if($(".lexical_unit").length <= 3){
 				$(".lexical_unit .expander").click();
 			}
+			else {
+				if(lu.id > 0)
+					$(".lexical_unit.u"+lu.id+" .expander").click();
+			}
 
 			if(lu.id > 0){
 				$(".wordentry .matrjoska .lexical_unit.u"+lu.id).addClass("selected");
