@@ -298,7 +298,12 @@ var LexemesView = Backbone.View.extend({
 
 					parent.find(".more").show(200);
 				}
-			})
+			});
+
+			if($(".lexical_unit").length <= 3){
+				$(".lexical_unit .expander").click();
+			}
+
 			if(lu.id > 0){
 				$(".wordentry .matrjoska .lexical_unit.u"+lu.id).addClass("selected");
 				$(".wordentry").mCustomScrollbar("scrollTo", ".lexical_unit.u"+lu.id, {
