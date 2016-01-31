@@ -269,53 +269,76 @@ var LexemesView = Backbone.View.extend({
 		var lexeme = lu.parent;
 		var LUIndex = lu.id;
 
-		console.time("select");
+		// označení ve vyhledávání
 		if(prevlu)
 			this.$el.find(".result ul li ."+prevlu.parent.id).removeClass("selected");
 		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id).addClass("selected");
-		console.timeEnd("select");
 
+		// pokud je stránka již načtená
+		if(prevlu !== undefined && prevlu.parent == lu.parent){
+			this.toggleLUSelection(lu.id);
+			this.toggleLUExpansion(lu.id, true);
+		}
+		else {
+			this.showPage(lexeme, lu);
+		}
+
+	},
+
+	showPage: function (lexeme, lu) {
 		var _this = this;
 		lexeme.getPage(function (data) {
 			$(".wordentry .matrjoska").html(data);
 			var lu = _this.model.get("selectedLexeme");
 			$(".lexical_unit .more").hide();
 			$(".lexical_unit .expander").click(function (e) {
-				var parent = $(e.target).parents(".lexical_unit");
-				var $expander = $(this);
-				if($expander.hasClass("disabled"))
-					return;
-
-				if($expander.hasClass("expanded")){
-					$expander.find("span").html("more");
-					$expander.removeClass("expanded");
-
-					parent.find(".more").hide(200);
-				}
-				else {
-					$expander.find("span").html("less");
-					$expander.addClass("expanded");
-
-					parent.find(".more").show(200);
-				}
+				var id = $(e.target).parents(".lexical_unit").data("id");
+				_this.toggleLUExpansion(id);
 			});
 
 			if($(".lexical_unit").length <= 3){
-				$(".lexical_unit .expander").click();
+				for (var i = 0; i < $(".lexical_unit").length; i++) {
+					_this.toggleLUExpansion(i+1, true);
+				};
 			}
 			else {
 				if(lu.id > 0)
-					$(".lexical_unit.u"+lu.id+" .expander").click();
+					_this.toggleLUExpansion(lu.id, true);
 			}
 
 			if(lu.id > 0){
-				$(".wordentry .matrjoska .lexical_unit.u"+lu.id).addClass("selected");
-				$(".wordentry").mCustomScrollbar("scrollTo", ".lexical_unit.u"+lu.id, {
-					scrollInertia: 250
-				});
+				_this.toggleLUSelection(lu.id);
 			}
-			// _this.expand(lu.id);
 		});
+	},
+
+	toggleLUSelection: function (id, select) {
+		$(".wordentry .matrjoska .lexical_unit").toggleClass("selected", false);
+		$(".wordentry .matrjoska .lexical_unit.u"+id).toggleClass("selected", select);
+		$(".wordentry").mCustomScrollbar("scrollTo", ".lexical_unit.u"+id, {
+			scrollInertia: 250
+		});
+	},
+
+	toggleLUExpansion: function (id, expand) {
+		// var parent = $(e.target).parents(".lexical_unit");
+		var $parent = $(".wordentry .matrjoska .lexical_unit.u"+id);
+		var $expander = $parent.find(".expander");
+		if($expander.hasClass("disabled"))
+			return;
+
+		if(($expander.hasClass("expanded") && expand === undefined) || expand === false){
+			$expander.find("span").html("more");
+			$expander.removeClass("expanded");
+
+			$parent.find(".more").hide(200);
+		}
+		else {
+			$expander.find("span").html("less");
+			$expander.addClass("expanded");
+
+			$parent.find(".more").show(200);
+		}
 	}
 });
 

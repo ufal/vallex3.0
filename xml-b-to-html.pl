@@ -926,7 +926,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex');
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries.=
-      "<table class='lexical_unit u$frame_index'>".
+      "<table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
       "<td class='lexical_unit_index'>".$first_frameentry_row.
       # "<td class='lexical_unit'>".
       "<td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
