@@ -5,6 +5,8 @@ function resize () {
 		var documentHeight = window.innerHeight;
 		var headerHeight = $(".header").outerHeight();
 		$(".dictionary").css("height", (documentHeight - headerHeight -1)+"px");
+
+		$(".scrollhack").css("height", $(".framelist").height() + "px");
 	}
 
 	// horizontála
