@@ -13,6 +13,7 @@ var Lexemes = Backbone.Model.extend({
 	},
 
 	findFirst: function (str) {
+		console.time("findFirst");
 		str = str.toLowerCase();
 		for (var i = 0; i < this.filtered.length; i++) {
 			var lu = this.filtered[i];
@@ -24,9 +25,59 @@ var Lexemes = Backbone.Model.extend({
 					break;
 				}
 			}
-			if(found)
+			if(found){
+				console.timeEnd("findFirst");
 				return [i, lu];
+			}
 		}
+	},
+
+	findBest: function (str) {
+		if(!str){
+			return [0, this.filtered[0]];
+		}
+
+		str = str.toLowerCase();
+
+		for (var i = 0; i < this.filtered.length; i++) {
+			var lu = this.filtered[i];
+			var name = lu.parent.get("name").toLowerCase();
+			var found = true;
+			for (var j = 0; j < str.length; j++) {
+				if(str[j] != name[j]){
+					found = false;
+					break;
+				}
+			}
+			if(found){
+				console.timeEnd("findFirst");
+				return [i, lu];
+			}
+		}
+
+		// pokud nenajde nic jednoduché vyhledávání, přepne se na složitější
+		if(!found){
+			for (var i = 0; i < this.filtered.length; i++) {
+				var lu = this.filtered[i];
+				var namesString = lu.parent.get("name").toLowerCase();
+				var names = namesString.split(", ");
+				for (var n = 0; n < names.length; n++) {
+					var name = names[n];
+					var found = true;
+					for (var j = 0; j < str.length; j++) {
+						if(str[j] != name[j]){
+							found = false;
+							break;
+						}
+					}
+					if(found){
+						console.timeEnd("findFirst");
+						return [i, lu];
+					}
+				}
+			}
+		}
+
 	},
 
 	getLexeme: function (id) {
@@ -219,7 +270,9 @@ var LexemesView = Backbone.View.extend({
 
 	// scroll k prvnímu odpovídajícímu výsledku podle str
 	scrollTo: function (str) {
-		var first = this.model.findFirst(str);
+		console.time("findBest");
+		var first = this.model.findBest(str);
+		console.timeEnd("findBest");
 		if(first !== undefined){
 			this.$el.find(".result").mCustomScrollbar("scrollTo", "."+first[1].parent.id, {
 				scrollInertia: 250
