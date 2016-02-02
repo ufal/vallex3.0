@@ -58,6 +58,8 @@ var AppView = Backbone.View.extend({
 
 	addFilters: function () {
 		var filtersDOM = this.filters.filterView.render();
+
+		resize();
 	},
 
 	changeFilters: function () {

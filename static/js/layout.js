@@ -4,7 +4,8 @@ function resize () {
 	if($(".header").hasClass("expanded")){
 		var documentHeight = window.innerHeight;
 		var headerHeight = $(".header").outerHeight();
-		$(".dictionary").css("height", (documentHeight - headerHeight -1)+"px");
+		var bottomMargin = 20;
+		$(".dictionary").css("height", (documentHeight - headerHeight - bottomMargin)+"px");
 
 		$(".scrollhack").css("height", $(".framelist").height() + "px");
 	}
