@@ -313,7 +313,15 @@ var LexemesView = Backbone.View.extend({
 
 	render: function () {
 		console.time('lexemesRender');
-		this.$el.find(".search_input").attr("placeholder", "search ("+this.model.filtered.length+")");
+
+		// popisek do placeholderu hledacího políčka
+		// trochu zneužívá to, že ve filtru jsou buď jen lexémy a nebo LU
+		// ale to snad nevadí
+		var search_description = this.model.filtered[0].id > 0 ? "LU" : "lexeme";
+		if(this.model.filtered.length > 1)
+			search_description += "s";
+
+		this.$el.find(".search_input").attr("placeholder", "search ("+this.model.filtered.length+" "+search_description+")");
 		var $ul = this.$el.find(".result ul").html("");
 		var ul = $ul[0];
 		var _this = this;
