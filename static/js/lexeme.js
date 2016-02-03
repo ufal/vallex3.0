@@ -257,7 +257,8 @@ var AlphabetView = Backbone.View.extend({
 
 var LexemesView = Backbone.View.extend({
 	events: {
-		"keyup .search_input": "search"
+		"keyup .search_input": "search",
+		"blur .search_input": "clearSearch",
 	},
 	initialize: function () {
 		this.listenTo(this.model, "filtersChange", this.render);
@@ -270,6 +271,10 @@ var LexemesView = Backbone.View.extend({
 		}
 
 		this.scrollTo(e.target.value);
+	},
+
+	clearSearch: function (e) {
+		e.target.value = "";
 	},
 
 	// scroll k prvnímu odpovídajícímu výsledku podle str
