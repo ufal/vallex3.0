@@ -265,6 +265,10 @@ var LexemesView = Backbone.View.extend({
 	},
 
 	search: function (e) {
+		if(e.keyCode == 13){
+			this.select(e.target.value);
+		}
+
 		this.scrollTo(e.target.value);
 	},
 
@@ -309,6 +313,12 @@ var LexemesView = Backbone.View.extend({
 				scrollInertia: 250
 			});
 		}
+	},
+
+	select: function (str) {
+		var first = this.model.findBest(str);
+		console.log(first)
+		this.model.setSelectedLexeme(first[1].parent.id, first[1].id);
 	},
 
 	render: function () {
