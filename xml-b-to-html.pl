@@ -930,12 +930,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "<td class='lexical_unit_index'>".$first_frameentry_row.
       # "<td class='lexical_unit'>".
       "<td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
-      "<tr><td><td class='attrname frame'>frame<td>".$frame_table_html. # frame má podobu tabulky
-      "<tr><td><td class='attrname example'>example<td>".$frame_attrs{'example'}. # příklady
+      "<tr><td><td class='attrname frame'>frame<td class='attr frame'>".$frame_table_html. # frame má podobu tabulky
+      "<tr><td><td class='attrname example'>example<td class='attr example'>".$frame_attrs{'example'}. # příklady
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
       "<tr class='expander_row'><td colspan='3'><a class='expander". (@frame_attrs_filtered ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
       # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
-      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "} (@frame_attrs_filtered) ).
+      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td class='attr $_'>$frame_attrs{$_} "} (@frame_attrs_filtered) ).
       "</table>";
 
 
