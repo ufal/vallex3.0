@@ -119,13 +119,14 @@ body, html {
 
 	h1 {
 		font-size: 100%*(40/12);
+		margin-bottom: 0.1em;
 		.light;
 	}
 	.main_menu {
 		font-size: 100%*(20/12);
 		.light;
 		text-transform: uppercase;
-		padding-bottom: 0.66em;
+		padding-bottom: 0.5em;
 		a {
 			color: @black;
 			&.selected {
@@ -137,7 +138,8 @@ body, html {
 		.regular;
 		padding-bottom: 1em;
 		& ul > li {
-			padding-bottom: 0.2em;
+			padding-bottom: 0.4em;
+			line-height: 0.9em;
 		}
 	}
 	.fixed_bottom {
@@ -350,11 +352,11 @@ ul {
 
 	&.separators {
 		li {
-			padding-left: 0.5em;
+			padding-left: 0.3em;
 		}
 		li + li::before {
 			content: "|";
-			padding-right: 0.5em;
+			padding-right: 0.3em;
 		}
 	}
 }
