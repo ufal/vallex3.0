@@ -382,8 +382,10 @@ var LexemesView = Backbone.View.extend({
 		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id).addClass("selected");
 
 		// pokud je stránka již načtená
-		if(prevlu !== undefined && prevlu.parent == lu.parent){
+		if(prevlu !== undefined && prevlu.parent.id == lu.parent.id){
+			// označí aktivní LU
 			this.toggleLUSelection(lu.id);
+			// otevře aktivní LU
 			this.toggleLUExpansion(lu.id, true);
 		}
 		else {
@@ -398,21 +400,47 @@ var LexemesView = Backbone.View.extend({
 			$(".wordentry .matrjoska").html(data);
 			var lu = _this.model.get("selectedLexeme");
 			$(".lexical_unit .more").hide();
+
+			// funkce rozbalovače
 			$(".lexical_unit .expander").click(function (e) {
 				var id = $(e.target).parents(".lexical_unit").data("id");
 				_this.toggleLUExpansion(id);
 			});
 
+			// funkce kliknutí na číslo pro aktivní lexém
+			// (aktivní lexém nespouští event změny adresy webu)
+			$(".lexical_unit .frame_index_link").click(function (e) {
+				var lu = _this.model.get("selectedLexeme");
+				var id = $(e.target).parents(".lexical_unit").data("id");
+				if(lu.id == id){
+					_this.toggleLUSelection(id);
+					_this.toggleLUExpansion(id, true);
+				}
+			});
+
+			// označování kliknutím do prázdna
+			// $(".lexical_unit").click(function (e) {
+			// 	console.log($(e.target).data("events"))
+			// 	if(!$(e.target).is("a")){
+			// 		var id = $(e.target).parents(".lexical_unit").data("id");
+			// 		var selected = _this.toggleLUSelection(id);
+			// 		_this.toggleLUExpansion(id, selected);
+			// 	}
+			// });
+
+			// otevření, pokud je < 3 LU
 			if($(".lexical_unit").length <= 3){
 				for (var i = 0; i < $(".lexical_unit").length; i++) {
 					_this.toggleLUExpansion(i+1, true);
 				};
 			}
 			else {
+				// otevře aktivní LU
 				if(lu.id > 0)
 					_this.toggleLUExpansion(lu.id, true);
 			}
 
+			// označí aktivní LU
 			if(lu.id > 0){
 				_this.toggleLUSelection(lu.id);
 			}
@@ -420,11 +448,18 @@ var LexemesView = Backbone.View.extend({
 	},
 
 	toggleLUSelection: function (id, select) {
+		var $selecting = $(".wordentry .matrjoska .lexical_unit.u"+id);
+		var selected = $selecting.hasClass("selected");
 		$(".wordentry .matrjoska .lexical_unit").toggleClass("selected", false);
-		$(".wordentry .matrjoska .lexical_unit.u"+id).toggleClass("selected", select);
+		if(!selected || select !== undefined){
+			$(".wordentry .matrjoska .lexical_unit.u"+id).toggleClass("selected", select);
+		}
+
 		$(".wordentry").mCustomScrollbar("scrollTo", ".lexical_unit.u"+id, {
 			scrollInertia: 250
 		});
+
+		return select === undefined ? !selected : select;
 	},
 
 	toggleLUExpansion: function (id, expand) {
@@ -432,19 +467,23 @@ var LexemesView = Backbone.View.extend({
 		var $parent = $(".wordentry .matrjoska .lexical_unit.u"+id);
 		var $expander = $parent.find(".expander");
 		if($expander.hasClass("disabled"))
-			return;
+			return false;
 
 		if(($expander.hasClass("expanded") && expand === undefined) || expand === false){
 			$expander.find("span").html("more");
 			$expander.removeClass("expanded");
 
 			$parent.find(".more").hide(200);
+
+			return false;
 		}
 		else {
 			$expander.find("span").html("less");
 			$expander.addClass("expanded");
 
 			$parent.find(".more").show(200);
+
+			return true;
 		}
 	}
 });
