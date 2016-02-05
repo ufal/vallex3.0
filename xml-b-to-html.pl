@@ -93,7 +93,7 @@ my %long_form_type = (
 		       'direct_case' => 'direct case',
 		       'prepos_case' => 'prepositional case',
 		       'subord_conj' => 'subordinating conjunction',
-		       'cnt' => 'content clause',
+		       'cont' => 'content clause',
 		       'infinitive' => 'infinitive',
 		       'adjective' => 'construction with an adjective',
 		       'byt' => 'construction with "být" (to be)',
@@ -150,7 +150,6 @@ sub string_to_html_filename {
 		$subst_prefix =~ s/\s+$//;
 		$subst_prefix =~ s/, /-/;		# control: ACT, PAT
 		$subst_prefix =~ tr/+ /-_/;		# forms:   mezi+4     do bot
-		$subst_prefix =~ s/&uarr;/_/;	# functor: &uarr;DIR
 		$subst_prefix =~ s/[^a-zA-Z0-9_-]/./g;
 		$subst_prefix = "_" if !$subst_prefix;
 		if ($subst_prefs{$subst_prefix}) {
@@ -250,13 +249,13 @@ sub formnode2formtxt {
     if ($prep) {$prep="$prep+";};
     return [$prep.'inf'];
   }
-  elsif ($type eq "cnt") {
+  elsif ($type eq "cont") {
     return ["cont"];
   }
   elsif ($type eq "phraseme_part") {
     return [$formnode->getAttribute('phraseme_part')];
   }
-  else { print STDERR 'Nerozeznana forma!\n'; return ['']  }
+  else { print STDERR "Nerozeznana forma ($type)!\n"; return ['']  }
 }
 
 
@@ -328,22 +327,24 @@ sub mlemma_2_string {
 sub lexeme_or_blu_to_lemmas {
   my ($higher_node,$with_aspect) = @_;
   my %asp2lemma;
-  my $reflex = "";
+  my $globreflex = "";
 
   foreach my $node (
       grep {$_->getNodeType == ELEMENT_NODE}
       map {$_->getChildNodes}
       grep {$_->getNodeType == ELEMENT_NODE and $_->getTagName eq "lexical_forms"} $higher_node->getChildNodes) {
     if ($node->getTagName eq "mlemma") {
+      my $refl = $node->getAttribute("optrefl") ? " (".$node->getAttribute("optrefl").")" : "##GLOBREFL##";
       $asp2lemma{$node->getAttribute("coindex")}
-        = [[$node->getFirstChild->getNodeValue . "##REFL##", $node->getAttribute('homograph')]]; # TODO o dva radky niz je temer kopie
-    my @test___ = @{$asp2lemma{$node->getAttribute("coindex")}};
+        = [[$node->getFirstChild->getNodeValue . $refl, $node->getAttribute('homograph')]]; # TODO o dva radky niz je temer kopie
     } elsif ($node->getTagName eq "mlemma_variants") {
       $asp2lemma{$node->getAttribute("coindex")}
-        = [map {[$_->getFirstChild->getNodeValue . "##REFL##", $_->getAttribute('homograph')]} $node->getElementsByTagName('mlemma')];
-    my @test___ = @{$asp2lemma{$node->getAttribute("coindex")}};
-    } elsif ($node->getTagName eq "reflex") {
-      $reflex = " ".$node->getFirstChild->getNodeValue;
+        = [map {
+                my $refl = $_->getAttribute("optrefl") ? " (".$_->getAttribute("optrefl").")" : "##GLOBREFL##";
+                [$_->getFirstChild->getNodeValue . $refl, $_->getAttribute('homograph')]
+            } $node->getElementsByTagName('mlemma')];
+    } elsif ($node->getTagName eq "commonrefl") {
+      $globreflex = " ".$node->getFirstChild->getNodeValue;
     } else {
       print STDERR "Necekany tagname: ".$node->getTagName()."\n";
     }
@@ -351,7 +352,7 @@ sub lexeme_or_blu_to_lemmas {
 
   foreach my $coindex (keys %asp2lemma) {
     foreach my $lemma (@{$asp2lemma{$coindex}}) {
-      $lemma->[0] =~ s/##REFL##/$reflex/g; # replace placeholder by (possibly empty) $reflex
+      $lemma->[0] =~ s/##GLOBREFL##/$globreflex/g; # replace placeholder by (possibly empty) $globreflex
     }
   }
 
@@ -481,7 +482,7 @@ sub get_valeval_excerpt {
   return -1 if !$filename;             # "no occurence of this verb in CNK"
   my $frame_num = shift;
   open(CNK, "<encoding(utf-8)", $filename)
-    or die("Can't open HTML with VALEVAL examples.\n");
+    or die("Can't open HTML $filename with VALEVAL examples.\n");
   my $nalezen_ramec = 0;
   my $nalezena_veta = 0;
   my $sentence = "empty";
@@ -567,7 +568,13 @@ my $parser = XML::DOM::Parser->new();
 my $doc = $parser->parsefile($xmlfile);
 my ($version_xml) = map {$_->getFirstChild->toString}
 				$doc->getElementsByTagName('version');
-die "The given XML has different version ($version_xml) than requested VALLEX $version\n" if $version ne $version_xml;
+if ( $version ne $version_xml ) {
+    if ( $version."test" ne $version_xml) {
+        die "The given XML has different version ($version_xml) than requested VALLEX $version\n";
+    } else {
+        warn "The given XML has different version ($version_xml) than requested VALLEX $version\n";
+    }
+}
 
 my %type_of_form;
 my %htmlized_lexeme_entry;
@@ -577,7 +584,7 @@ print STDERR "Transforming lexemes into HTML and their classification according 
 
 
 foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')) {
-  my @refl = $lexeme_node->getElementsByTagName('reflex');
+  my @refl = $lexeme_node->getElementsByTagName('commonrefl');
 #  print "REFL: @refl\n";
 #  exit;
   if (@refl == 0) {
@@ -594,8 +601,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')) {
 my %autocomplete_lemma2filename;
 my $pruned_IDs_file = $xmlfile;
 $pruned_IDs_file =~ s/\/[^\/]+$/\/pruned_IDs.txt/;
-die("ERROR: XML file name without a path: $xmlfile.\n")
-  if $pruned_IDs_file eq $xmlfile;
+$pruned_IDs_file =~ s/(?:\.xml)?$/_pruned_IDs.txt/ if $pruned_IDs_file eq $xmlfile;
 open(Pruned_IDs, ">:encoding(utf-8)", $pruned_IDs_file)
   or die("Cannot open $pruned_IDs_file for writing.\n");
 
@@ -688,7 +694,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0) {  # omezeni forem, pro nez LU plati
       %local_aspect = lexeme_or_blu_to_lemmas($blu_node, 0);    # local == for LU
       my $blu_headwords_rf = lexeme_node_2_headwords(\%local_aspect, 1);
-      $limited_lex_forms = "jen <span class='gloss'>".(join ", ",@$blu_headwords_rf)."</span><br>";
+      $limited_lex_forms = "limit <span class='gloss'>".(join ", ",@$blu_headwords_rf)."</span><br>";
       @blu_coindexes = keys %local_aspect;
       # print(STDERR @blu_coindexes ? "lokalni: @blu_coindexes\n" : "lokalni prazdno\n");
     } else {
@@ -701,7 +707,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     # ---------- load the frame attributes
     my %frame_attrs;
     # tady se musi pridat rozdeleni na dok: %???% /ned: %...%
-     foreach my $attrname ('example','gloss','control','class','rfl','diat','alter','rcp','links') {
+     foreach my $attrname ('example','gloss','control','class','reflex','diat','alter','recipr','links') {
        if ($blu_node->getElementsByTagName($attrname)->item(0)) {
  	eval {
  	  foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
@@ -711,15 +717,19 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         elsif ($attrname eq "alter") {
           my $type       = $attr_node->getAttribute('type');
           my $subtype    = $attr_node->getAttribute('subtype');
-          my $objectless = $attr_node->getAttribute('objectless') ? " (objectless)" : "";
+          my $primary    = $attr_node->getAttribute('primary');
+          my $locatum    = $attr_node->getAttribute('locatumtype');
+          $locatum = $locatum ? " ($locatum)" : "";
+          my $primary_mark = "<span style='font-size:large'>" # FIXME moc velke, odstrkuje radku
+            . ($primary ? "Ⅰ" : "Ⅱ") . "</span>";
           my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("frame_id");
           my $LU_ref_index = $1 if $LU_ref =~ /^blu-v-.+-(\d+)$/;
           warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n") if !$LU_ref_index;
 
-          unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$objectless);
+          unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$locatum);
 
           $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
-            . "<tr><td>$subtype$objectless:&nbsp;"
+            . "<tr><td>$subtype$locatum: $primary_mark&nbsp;"
             . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a>"
             . "</table>";
         }
@@ -750,9 +760,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 				}
 				if (%subtypes) {
 					foreach my $subtype (sort keys %subtypes) {
+						#my $adjusted_subtype = $subtype;
+						#$adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
 						$subtypes{$subtype} =~ s@(&nbsp;.span class='scriptsize'.(impf|pf|iter|biasp)[12]?:./span.)(.*)\g1@$1$3@gs;
+						#$frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
+						#add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
 						$frame_attrs{"diat"} .= "<span class='attrname'>$subtype:</span>".$subtypes{$subtype};
-                        if ($type eq "possres") {
+                        if ($type eq "poss-result") {
                             unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "possessive", $subtype);
                         }
 					}
@@ -766,11 +780,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         elsif (my $type = $attr_node->getAttribute('type')) {
  	      if ($frame_attrs{$attrname}) {$frame_attrs{$attrname} .="<br>"}
  	      $frame_attrs{$attrname} .= "$type:  ";
- 	      if ( ($attrname=~/^(control|class|rfl|rcp)$/) ) {
-            if ($attrname eq "rfl") {
+          if ( ($attrname=~/^(control|class|reflex|recipr)$/) ) {
+            if ($attrname eq "reflex") {
                 unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
             }
-            elsif ($attrname eq "rcp") {
+            elsif ($attrname eq "recipr") {
                 unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
             }
             else { # control a class
@@ -861,24 +875,16 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
     foreach my $frame_slot ($blu_node->getElementsByTagName('slot')) {
       my $functor=$frame_slot->getAttribute('functor');
-      my $abbrev=($frame_slot->getAttribute('expand'))?'&uarr;':"";
-      my $functor_name_string;
-      if ($abbrev) {
-        $functor_name_string = '&uarr;' . $functor;
-      }
-      else {
-        $functor_name_string = $functor;
-      }
 
       if ($functor =~ /^(ACT|ADDR|ORIG|PAT|EFF)$/) {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "actants", $functor_name_string);
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "actants", $functor);
       }
       elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "quasi-valency", $functor_name_string);
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "quasi-valency", $functor);
 
       }
       else {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "free", $functor_name_string);
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "free", $functor);
       }
       my $type=$frame_slot->getAttribute('type');
 
@@ -892,7 +898,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 	if ($result=~/být\+/) {$efftype='byt'}
 	$type_of_form{$result}=$efftype;
     if($type ne "phraseme_part"){ # filtrování phraseme_part, jinak ostatní forms ano
-      if($type eq "cnt"){ # cnt nemá podkategorie
+      if($type eq "cont"){ # cont nemá podkategorie
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $result);
       }
       else {
@@ -909,7 +915,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       my $classtype;
       if ($type eq 'typ') {$classtype=' typ'}
 
-      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'>$abbrev<a title='functor: $functor_comments{$functor}' target='_top' href='../functors/index-".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
+      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' target='_top' href='../functors/index-".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
       $frame_table_row2 .= "<td class='forms'>$forms";
     } # konec for frame slot
     my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";
@@ -923,7 +929,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 ##      $attribute_line{$attr} = "<span class='attrname'>-$attr: </span> <a target='_top' href='../$attr/index-".string_to_html_filename($frame_attrs{$attr})."'>$frame_attrs{control}</a><br>\n\n"
 ##	unless (!$frame_attrs{control});
 ##    }
-    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','rfl','conv','split','multiple','rcp','class','diat','PDT-Vallex');
+    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex');
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries.=
       "<table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
@@ -976,8 +982,8 @@ print STDERR "Generating JSON files for filtering\n";
 
 # jména filtrů - nahradí id v menu
 my %names = (
-  "rcp" => "reciprocity",
-  "rfl" => "reflexivity",
+  "recipr" => "reciprocity",
+  "reflex" => "reflexivity",
   );
 
 sub numberSort {
