@@ -221,6 +221,17 @@ body, html {
 					width: 100%;
 				}
 
+				&.search_active {
+					li {
+						a {
+							color: @gray;
+							&.found {
+								color: @black;
+							}
+						}
+					}
+				}
+
 				li {
 					margin-left: 1em;
 					text-indent: -1em;

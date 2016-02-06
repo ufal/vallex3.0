@@ -1,6 +1,6 @@
 var AppRouter = Backbone.Router.extend({
 	routes: {
-		"filter/:id": "getFilter",
+		"filter/*path": "getFilter",
 		"lexeme/:lexeme": "getLexeme",
 		"lexeme/:lexeme/:unit": "getLexeme",
 		// "*actions": "defaultRoute"

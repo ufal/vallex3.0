@@ -283,36 +283,44 @@ var LexemesView = Backbone.View.extend({
 		var first = this.model.findBest(str);
 		console.timeEnd("findBest");
 
-		console.time("grey");
-		var results = $(".result li a");
-		if(str){
-			results.css("color", "#969696");
-			for (var i = 0; i < this.model.filtered.length; i++) {
-				var lu = this.model.filtered[i];
-				var namesString = lu.parent.get("name").toLowerCase();
-				var names = namesString.split(", ");
-				for (var n = 0; n < names.length; n++) {
-					var name = names[n];
-					var found = true;
-					for (var j = 0; j < str.length; j++) {
-						if(name[j] != str[j]){
-							found = false;
+		var _this = this;
+		_.defer(function () {
+			console.time("grey");
+			var results = $(".result li a");
+			if(str){
+				$(".result .found").removeClass("found");
+				$(".result").addClass("search_active");
+				// results.css("color", "#969696");
+				for (var i = 0; i < _this.model.filtered.length; i++) {
+					var lu = _this.model.filtered[i];
+					var namesString = lu.parent.get("name").toLowerCase();
+					var names = namesString.split(", ");
+					for (var n = 0; n < names.length; n++) {
+						var name = names[n];
+						var found = true;
+						for (var j = 0; j < str.length; j++) {
+							if(name[j] != str[j]){
+								found = false;
+								break;
+							}
+						}
+						if(found){
+							$(results[i]).addClass("found");
+							// $(results[i]).css("color", "#231f20");
+							// $(".result ul ." + lu.parent.id).css("color", "#231f20");
 							break;
 						}
 					}
-					if(found){
-						$(results[i]).css("color", "#231f20");
-						// $(".result ul ." + lu.parent.id).css("color", "#231f20");
-						break;
-					}
 				}
 			}
-		}
-		else {
-			results.css("color", "#231f20");
-		}
+			else {
+				// results.css("color", "#231f20");
+				$(".result").removeClass("search_active");
+			}
 
-		console.timeEnd("grey");
+			console.timeEnd("grey");
+		});
+
 		if(first !== undefined){
 			this.$el.find(".result").mCustomScrollbar("scrollTo", "."+first[1].parent.id, {
 				scrollInertia: 250
