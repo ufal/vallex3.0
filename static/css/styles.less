@@ -208,7 +208,7 @@ body, html {
 			.matrjoska {
 				width: 100%;
 				position: absolute;
-				top: 2em;
+				top: 3em;
 				bottom: 0;
 			}
 			.result {
@@ -376,16 +376,28 @@ ul {
 // scrollbar
 .mCS-rounded-dark.mCSB_scrollTools {
 	opacity: 1;
+	width: 26px;
 }
 .mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar, 
 .mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar{
 	background-color: #fff;
 	border: 1px @black solid;
+	margin: 0;
+	width: 24px;
+	height: 24px;
 }
 
 .mCS-rounded-dark.mCSB_scrollTools .mCSB_draggerRail{
 	background-color: @black;
+	width: 4px;
+	// border-radius: 4px;
 }
+
+// .mCustomScrollBox {
+// 	overflow: visible;
+// 	overflow-x: visible;
+// 	overflow-y: visible;
+// }
 
 .mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar, 
 .mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar{ background-color: @black; }
