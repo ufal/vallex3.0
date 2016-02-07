@@ -1085,7 +1085,7 @@ sub parseFiltertree {
     my $filter_path = $path . string_to_html_filename($key);
     my $filter_filename = $filter_path . ".json";
     my %filter = (
-      "id" => $path . $key,
+      "id" => $filter_path,
       "name" => exists $names{$key} ? $names{$key} : $key,
       "url" => $filter_filename,
       "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key}, $key)

@@ -3,6 +3,9 @@ var AppView = Backbone.View.extend({
 		"click .fixed_bottom .expander" : "toggleHeader"
 	},
 
+	// mohl bych implementovat promises, ale kvůli jednomu eventu...?
+	filtersReady: false,
+
 	initialize: function() {
 		// this.listenTo(this.model, "change", this.render);
 		this.filters = new FilterMenu({
@@ -13,15 +16,12 @@ var AppView = Backbone.View.extend({
 			filtersURL: "filters.json"
 		});
 		this.listenTo(this.filters, "filtersReady", this.addFilters);
-		this.listenTo(this.filters, "filtersChange", this.changeFilters);
 
 		this.lexemes = new Lexemes();
 		this.lexemesView = new LexemesView({
 			model: this.lexemes,
 			el: "#framelist"
 		});
-
-		this.changeFilters();
 
 		this.alphabetView = new AlphabetView({
 			model: this.lexemes,
@@ -34,6 +34,20 @@ var AppView = Backbone.View.extend({
 		this.router.on("route:getLexeme", function (lexeme, unit) {
 			console.log("getLexeme route")
 			this.lexemes.setSelectedLexeme(lexeme, unit);
+		}, this);
+		this.router.on("route:getFilter", function (path) {
+			console.log("getFilter route");
+
+			if(this.filtersReady){
+				this.getFilter(path);
+			}
+			else {
+				var _this = this;
+				this.listenToOnce(this.filters, "filtersReady", function () {
+					_this.getFilter(path);
+				})
+			}
+			
 		}, this);
 		Backbone.history.start();
 
@@ -56,16 +70,21 @@ var AppView = Backbone.View.extend({
 		});
 	},
 
-	addFilters: function () {
-		var filtersDOM = this.filters.filterView.render();
+	getFilter: function (path) {
+		var pathArray = [];
+		if(path !== null)
+			var pathArray = path.split("/");
+
+		var selectedFilter = this.filters.setSelectedFilter([], pathArray);
+
+		this.lexemes.showFiltered(selectedFilter);
 
 		resize();
 	},
 
-	changeFilters: function () {
-		// console.log(arguments)
-		var selectedFilter = this.filters.getSelectedFilter();
-		this.lexemes.showFiltered(selectedFilter);
+	addFilters: function () {
+		this.filtersReady = true;
+		var filtersDOM = this.filters.filterView.render();
 
 		resize();
 	},
