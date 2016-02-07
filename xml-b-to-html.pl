@@ -941,7 +941,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
       "<tr class='expander_row'><td colspan='3'><a class='expander". (@frame_attrs_filtered ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
       # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
-      (join "", map {"<tr class='more'><td><td class='attrname $_'>$_<td class='attr $_'>$frame_attrs{$_} "} (@frame_attrs_filtered) ).
+      (join "", map {
+        my $attrname = $_;
+        if($attrname eq "usage in ČNK"){
+          $attrname = "cnk_usage";
+        }
+        "<tr class='more'><td><td class='attrname $attrname'>$_<td class='attr $attrname'>$frame_attrs{$_} "
+        } (@frame_attrs_filtered) ).
       "</table>";
 
 
