@@ -22,6 +22,8 @@ var AppView = Backbone.View.extend({
 			model: this.lexemes,
 			el: "#framelist"
 		});
+		// zobrazení hlavního filtru
+		this.lexemes.showFiltered(this.filters);
 
 		this.alphabetView = new AlphabetView({
 			model: this.lexemes,
