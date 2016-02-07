@@ -12,26 +12,6 @@ var Lexemes = Backbone.Model.extend({
 		this.cached = {};
 	},
 
-	findFirst: function (str) {
-		console.time("findFirst");
-		str = str.toLowerCase();
-		for (var i = 0; i < this.filtered.length; i++) {
-			var lu = this.filtered[i];
-			var name = lu.parent.get("name").toLowerCase();
-			var found = true;
-			for (var j = 0; j < str.length; j++) {
-				if(str[j] != name[j]){
-					found = false;
-					break;
-				}
-			}
-			if(found){
-				console.timeEnd("findFirst");
-				return [i, lu];
-			}
-		}
-	},
-
 	findBest: function (str) {
 		if(!str){
 			return [0, this.filtered[0]];
@@ -50,7 +30,6 @@ var Lexemes = Backbone.Model.extend({
 				}
 			}
 			if(found){
-				console.timeEnd("findFirst");
 				return [i, lu];
 			}
 		}
@@ -71,13 +50,11 @@ var Lexemes = Backbone.Model.extend({
 						}
 					}
 					if(found){
-						console.timeEnd("findFirst");
 						return [i, lu];
 					}
 				}
 			}
 		}
-
 	},
 
 	getLexeme: function (id) {
@@ -114,7 +91,7 @@ var Lexemes = Backbone.Model.extend({
 			lexeme.units.each(function (unit) {
 				if(unit.tags[filter.id]){
 					// add to filtered
-					_this.filtered.push(unit); // TODO!!
+					_this.filtered.push(unit);
 
 					// alphabet statistics
 					var letter = _this.getLetter(lexeme);
@@ -123,9 +100,6 @@ var Lexemes = Backbone.Model.extend({
 				}
 			});
 		});
-
-		// console.log(this.filtered.length);
-		// console.log(this.alphabet);
 		console.timeEnd('lexemesFilter');
 		this.trigger("filtersChange");
 	},
@@ -168,8 +142,7 @@ var Lexemes = Backbone.Model.extend({
 			lexicalUnit.tags[filter.id] = true;
 		}, this);
 
-		console.log(list.length);
-		console.log(this.lexemes.length);
+		console.log("parsed length", list.length);
 
 		this.cached[filter.id] = true;
 		console.timeEnd("parseList");
@@ -285,40 +258,7 @@ var LexemesView = Backbone.View.extend({
 
 		var _this = this;
 		_.defer(function () {
-			console.time("grey");
-			var results = $(".result li a");
-			if(str){
-				$(".result .found").removeClass("found");
-				$(".result").addClass("search_active");
-				// results.css("color", "#969696");
-				for (var i = 0; i < _this.model.filtered.length; i++) {
-					var lu = _this.model.filtered[i];
-					var namesString = lu.parent.get("name").toLowerCase();
-					var names = namesString.split(", ");
-					for (var n = 0; n < names.length; n++) {
-						var name = names[n];
-						var found = true;
-						for (var j = 0; j < str.length; j++) {
-							if(name[j] != str[j]){
-								found = false;
-								break;
-							}
-						}
-						if(found){
-							$(results[i]).addClass("found");
-							// $(results[i]).css("color", "#231f20");
-							// $(".result ul ." + lu.parent.id).css("color", "#231f20");
-							break;
-						}
-					}
-				}
-			}
-			else {
-				// results.css("color", "#231f20");
-				$(".result").removeClass("search_active");
-			}
-
-			console.timeEnd("grey");
+			_this.grayFiltered(str);
 		});
 
 		if(first !== undefined){
@@ -326,6 +266,39 @@ var LexemesView = Backbone.View.extend({
 				scrollInertia: 250
 			});
 		}
+	},
+
+	grayFiltered: function (str) {
+		console.time("gray");
+		var results = $(".result li a");
+		if(str){
+			$(".result .found").removeClass("found");
+			$(".result").addClass("search_active");
+			for (var i = 0; i < this.model.filtered.length; i++) {
+				var lu = this.model.filtered[i];
+				var namesString = lu.parent.get("name").toLowerCase();
+				var names = namesString.split(", ");
+				for (var n = 0; n < names.length; n++) {
+					var name = names[n];
+					var found = true;
+					for (var j = 0; j < str.length; j++) {
+						if(name[j] != str[j]){
+							found = false;
+							break;
+						}
+					}
+					if(found){
+						$(results[i]).addClass("found");
+						break;
+					}
+				}
+			}
+		}
+		else {
+			$(".result").removeClass("search_active");
+		}
+
+		console.timeEnd("gray");
 	},
 
 	select: function (str) {
@@ -336,6 +309,8 @@ var LexemesView = Backbone.View.extend({
 
 	render: function () {
 		console.time('lexemesRender');
+
+		this.grayFiltered(); // odstraní šedou
 
 		// popisek do placeholderu hledacího políčka
 		// trochu zneužívá to, že ve filtru jsou buď jen lexémy a nebo LU

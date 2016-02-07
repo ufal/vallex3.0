@@ -3,6 +3,6 @@ var AppRouter = Backbone.Router.extend({
 		"filter/*path": "getFilter",
 		"lexeme/:lexeme": "getLexeme",
 		"lexeme/:lexeme/:unit": "getLexeme",
-		// "*actions": "defaultRoute"
+		"*actions": "defaultRoute"
 	}
 });

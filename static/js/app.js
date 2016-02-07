@@ -7,7 +7,6 @@ var AppView = Backbone.View.extend({
 	filtersReady: false,
 
 	initialize: function() {
-		// this.listenTo(this.model, "change", this.render);
 		this.filters = new FilterMenu({
 			selected: true,
 			id: "all",
@@ -22,15 +21,11 @@ var AppView = Backbone.View.extend({
 			model: this.lexemes,
 			el: "#framelist"
 		});
-		// zobrazení hlavního filtru
-		this.lexemes.showFiltered(this.filters);
 
 		this.alphabetView = new AlphabetView({
 			model: this.lexemes,
 			el: "#alphabet"
 		});
-
-		var _this = this;
 
 		this.router = new AppRouter;
 		this.router.on("route:getLexeme", function (lexeme, unit) {
@@ -51,25 +46,30 @@ var AppView = Backbone.View.extend({
 			}
 			
 		}, this);
+		this.router.on("route:defaultRoute", function (path) {
+			console.log("defaultRoute route");
+
+			// zobrazení hlavního filtru
+			this.lexemes.showFiltered(this.filters);
+		}, this);
 		Backbone.history.start();
 
-		$(".alphabet, .wordentry").mCustomScrollbar({
+		var scrollbarSettings = {
 			theme: "rounded-dark",
 			scrollInertia: 0,
 			mouseWheel:{ scrollAmount: 53 }
-		});
+		};
 
-		$(".framelist .result").mCustomScrollbar({
-			theme: "rounded-dark",
-			scrollInertia: 0,
-			mouseWheel:{ scrollAmount: 53 }, // naměřeno v linuxu ve chrome jako defaultní scrollamount u nativního scrollbaru
+		$(".alphabet, .wordentry").mCustomScrollbar(scrollbarSettings);
+
+		var _this = this;
+		$(".framelist .result").mCustomScrollbar(_.extend(scrollbarSettings, {
 			callbacks: {
 				whileScrolling: function () {
-				// onScroll: function () {
 					_this.alphabetView.framelistScroll();
 				}
 			}
-		});
+		}));
 	},
 
 	getFilter: function (path) {
@@ -89,14 +89,6 @@ var AppView = Backbone.View.extend({
 		var filtersDOM = this.filters.filterView.render();
 
 		resize();
-	},
-
-	toggle: function () {
-		this.model.toggle();
-	},
-
-	render: function() {
-
 	},
 
 	toggleHeader: function (e) {
