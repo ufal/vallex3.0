@@ -5,6 +5,7 @@ var AppView = Backbone.View.extend({
 
 	// mohl bych implementovat promises, ale kvůli jednomu eventu...?
 	filtersReady: false,
+	filterSelected: false,
 
 	initialize: function() {
 		this.filters = new FilterMenu({
@@ -44,15 +45,16 @@ var AppView = Backbone.View.extend({
 					_this.getFilter(path);
 				})
 			}
+
+			this.filterSelected = true;
 			
 		}, this);
-		this.router.on("route:defaultRoute", function (path) {
-			console.log("defaultRoute route");
+		Backbone.history.start();
 
+		if(!this.filterSelected){
 			// zobrazení hlavního filtru
 			this.lexemes.showFiltered(this.filters);
-		}, this);
-		Backbone.history.start();
+		}
 
 		var scrollbarSettings = {
 			theme: "rounded-dark",
