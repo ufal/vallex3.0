@@ -782,14 +782,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 $frame_attrs{$attrname} .="<br>"
               }
 
+              my $url_type = string_to_html_filename($type);
               if ( ($attrname=~/^(control|class|reflex|recipr)$/) ) {
                 if ($attrname eq "reflex") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
-                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$type'>$type</a>: ";
+                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
                 }
                 elsif ($attrname eq "recipr") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
-                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$type'>$type</a>: ";
+                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
                 }
                 else { # control a class
                   # tohle else nikdy nenastane, nejspíš přežitek ze starších verzí, radši to tu ale nechávám
@@ -1112,7 +1113,7 @@ sub parseFiltertree {
       "url" => $filter_filename,
       "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key}, $key)
     );
-    # humus - v hlavním menu nechceme ALL záložku
+    # humus - v hlavním menu nechcemestring_to_html_filename ALL záložku
     if($path . $key ne "all"){
       push @converted, \%filter;
     }
