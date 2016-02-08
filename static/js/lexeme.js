@@ -428,6 +428,10 @@ var LexemesView = Backbone.View.extend({
 		});
 	},
 
+	clearPage: function () {
+		$(".wordentry .matrjoska").html("");
+	},
+
 	toggleLUSelection: function (id, select) {
 		var $selecting = $(".wordentry .matrjoska .lexical_unit.u"+id);
 		var selected = $selecting.hasClass("selected");

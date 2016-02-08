@@ -35,6 +35,7 @@ var AppView = Backbone.View.extend({
 		}, this);
 		this.router.on("route:getFilter", function (path) {
 			console.log("getFilter route");
+			this.lexemesView.clearPage();
 
 			if(this.filtersReady){
 				this.getFilter(path);
