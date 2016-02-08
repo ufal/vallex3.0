@@ -727,10 +727,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n") if !$LU_ref_index;
 
               unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$locatum);
-
+              my $url_type = string_to_html_filename($type);
+              my $url_subtype = string_to_html_filename($subtype.$locatum);
               $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
-                . "<tr><td>$subtype$locatum: $primary_mark&nbsp;"
-                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a>"
+                . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
+                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec:sect:$type'>rule &gt;</a>"
                 . "</table>";
             }
             elsif ($attrname eq "diat") {
