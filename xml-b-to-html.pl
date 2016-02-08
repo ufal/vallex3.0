@@ -953,6 +953,18 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 ##      $attribute_line{$attr} = "<span class='attrname'>-$attr: </span> <a target='_top' href='../$attr/index-".string_to_html_filename($frame_attrs{$attr})."'>$frame_attrs{control}</a><br>\n\n"
 ##	unless (!$frame_attrs{control});
 ##    }
+    my %attrname_links = (
+      'control' => 'guide.html#sec:sect:control',
+      'reflex' => 'guide.html#sec:sect:reflexivity',
+      'conv' => 'guide.html#sec:sect:alter',
+      'split' => 'guide.html#sec:sect:alter',
+      'multiple' => 'guide.html#sec:sect:alter',
+      'recipr' => 'guide.html#sec:sect:reciprocity',
+      'class' => 'guide.html#sec:sect:class',
+      'diat' => 'guide.html#sec:sect:diat',
+      'PDT-Vallex' => 'http://ufal.mff.cuni.cz/PDT-Vallex/'
+    );
+
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex');
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries .=
@@ -970,7 +982,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         if($attrname eq "usage in ČNK"){
           $attrname = "cnk_usage";
         }
-        "<tr class='more'><td><td class='attrname $attrname'>$_<td class='attr $attrname'>$frame_attrs{$_} "
+        "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$_}."'>$_</a><td class='attr $attrname'>$frame_attrs{$_} "
         } (@frame_attrs_filtered) ).
       "</table>";
   } # end of foreach blu
