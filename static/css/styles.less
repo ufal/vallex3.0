@@ -249,8 +249,21 @@ body, html {
 			}
 		}
 		&.wordentry {
+			position: relative;
 			.matrjoska {
 				padding: 0 2em;
+			}
+			.wordentry_header {
+				height: 2em;
+				.matrjoska {
+					padding-right: 0;
+				}
+			}
+			.wordentry_content {
+				position: absolute;
+				top: 3em;
+				bottom: 0;
+				width: 100%;
 			}
 		}
 	}
@@ -279,6 +292,8 @@ body, html {
 	.pdtvallex-wlinks {
 		font-size: 100%*(14/12);
 		float: right;
+		width: 6.3em;
+		z-index: 1;
 		a {
 			.external;
 		}

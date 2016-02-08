@@ -63,7 +63,9 @@ var AppView = Backbone.View.extend({
 			mouseWheel:{ scrollAmount: 53 }
 		};
 
-		$(".alphabet, .wordentry").mCustomScrollbar(scrollbarSettings);
+		$(".alphabet").mCustomScrollbar(scrollbarSettings);
+		$(".wordentry_content").mCustomScrollbar(scrollbarSettings);
+		// console.log($(".wordentry_content"));
 
 		var _this = this;
 		$(".framelist .result").mCustomScrollbar(_.extend(scrollbarSettings, {

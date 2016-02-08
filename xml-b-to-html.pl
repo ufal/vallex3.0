@@ -665,7 +665,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
 
 
-  $htmlized_lexeme_entry{$filename}.="$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div>\n";
+  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div></div>\n";
 #    "<td>&nbsp;&nbsp;&nbsp;
 #<span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
 
@@ -987,7 +987,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "</table>";
   } # end of foreach blu
 
-  $htmlized_lexeme_entry{$filename} .= $htmlized_frame_entries;
+  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_content'>".$htmlized_frame_entries."</div>";
 
 #  print "Lexeme:  ";
 #  print join " , ",map {"$_ $reflex"} @{$headwords_rf};

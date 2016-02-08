@@ -378,7 +378,12 @@ var LexemesView = Backbone.View.extend({
 	showPage: function (lexeme, lu) {
 		var _this = this;
 		lexeme.getPage(function (data) {
-			$(".wordentry .matrjoska").html(data);
+			data = "<div>" + data + "</div>";
+			var $data = $(data);
+			var header = $data.find(".wordentry_header");
+			var content = $data.find(".wordentry_content");
+			$(".wordentry .wordentry_header .matrjoska").html(header.html());
+			$(".wordentry .wordentry_content .matrjoska").html(content.html());
 			var lu = _this.model.get("selectedLexeme");
 			$(".lexical_unit .more").hide();
 
