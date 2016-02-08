@@ -778,18 +778,27 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               }
             }
             elsif (my $type = $attr_node->getAttribute('type')) {
-              if ($frame_attrs{$attrname}) {$frame_attrs{$attrname} .="<br>"}
-              $frame_attrs{$attrname} .= "$type:  ";
+              if ($frame_attrs{$attrname}) {
+                $frame_attrs{$attrname} .="<br>"
+              }
+
               if ( ($attrname=~/^(control|class|reflex|recipr)$/) ) {
                 if ($attrname eq "reflex") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
+                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$type'>$type</a>: ";
                 }
                 elsif ($attrname eq "recipr") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
+                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$type'>$type</a>: ";
                 }
                 else { # control a class
+                  # tohle else nikdy nenastane, nejspíš přežitek ze starších verzí, radši to tu ale nechávám
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($type));
+                  $frame_attrs{$attrname} .= "$type: ";
                 }
+              }
+              else {
+                $frame_attrs{$attrname} .= "$type: ";
               }
             }
             elsif ($attrname eq "links") {
