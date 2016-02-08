@@ -830,7 +830,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
             }
             else {
               if (my $the_only_child = $attr_node->getFirstChild) {
-                $frame_attrs{$attrname} .= $the_only_child->getNodeValue;
+                my $trimmed_value = trim($the_only_child->getNodeValue);
+                my $url_value = string_to_html_filename($trimmed_value);
+                if($attrname=~/^(control|class)$/){
+                  $frame_attrs{$attrname} .= "<a href='#/filter/$attrname/$url_value'>$trimmed_value</a>";
+                }
+                else {
+                  $frame_attrs{$attrname} .= $the_only_child->getNodeValue;
+                }
               } else {
                 $frame_attrs{$attrname} =~ s{:  $}{};
               }
