@@ -876,16 +876,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     foreach my $frame_slot ($blu_node->getElementsByTagName('slot')) {
       my $functor=$frame_slot->getAttribute('functor');
 
+      my $functor_class = "free";
       if ($functor =~ /^(ACT|ADDR|ORIG|PAT|EFF)$/) {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "actants", $functor);
+        $functor_class = "actants";
       }
       elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "quasi-valency", $functor);
+        $functor_class = "quasi-valency";
+      }
+      unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", $functor_class, $functor);
 
-      }
-      else {
-        unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", "free", $functor);
-      }
       my $type=$frame_slot->getAttribute('type');
 
       # ------------ formy slotu
@@ -897,25 +896,33 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 	my $efftype=$type;
 	if ($result=~/být\+/) {$efftype='byt'}
 	$type_of_form{$result}=$efftype;
+
+        my $filter_url;
+        my $url_result = string_to_html_filename($result);
     if($type ne "phraseme_part"){ # filtrování phraseme_part, jinak ostatní forms ano
       if($type eq "cont"){ # cont nemá podkategorie
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $result);
+        $filter_url = "forms/$url_result";
       }
       else {
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $type, $result);
+        $filter_url = "forms/".string_to_html_filename($type)."/$url_result";
       }
+    }
+    else {
+      $filter_url = "functors/free/DPHR";
     }
 	my $form_comment = $long_form_type{$type};
 	$form_comment .= " ($case_names{$result})" if ($type eq 'direct_case');
 
 	"<a class='forms' target='_top' title='morphemic form: $form_comment'
-       href='../forms/index-".string_to_html_filename($result)."'>$result</a>";
+       href='#/filter/$filter_url'>$result</a>";
       } $frame_slot->getElementsByTagName('form');
 
       my $classtype;
       if ($type eq 'typ') {$classtype=' typ'}
 
-      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' target='_top' href='../functors/index-".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
+      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
       $frame_table_row2 .= "<td class='forms'>$forms";
     } # konec for frame slot
     my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";

@@ -263,7 +263,8 @@ var LexemesView = Backbone.View.extend({
 
 		if(first !== undefined){
 			this.$el.find(".result").mCustomScrollbar("scrollTo", "."+first[1].parent.id, {
-				scrollInertia: 250
+				scrollInertia: 1000,
+				callbacks: true
 			});
 		}
 	},
