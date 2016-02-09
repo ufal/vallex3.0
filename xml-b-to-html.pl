@@ -461,7 +461,7 @@ sub create_links_to_valeval {
 
       # The frame is used in VALEVAL
       my $line = (@aspects > 1 and !$only_one_aspect ? "&nbsp;<span class='scriptsize'>$asp:</span> " : "" ) .
-        "<a href=\"../cnk/$lemma_full.html#$frame_num\" target=\"_blank\">" . $excerpt . "</a>";
+        "<a href=\"generated/cnk/$lemma_full.html#$frame_num\" target=\"_blank\">" . $excerpt . "</a>";
       push(@return, $line);
 
       my $headword = $lemma_stem . ($homo ? "<sub class='scriptsize'>$homo</sub>" : "");
