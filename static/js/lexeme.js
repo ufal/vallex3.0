@@ -458,7 +458,7 @@ var LexemesView = Backbone.View.extend({
 			$(".wordentry .matrjoska .lexical_unit.u"+id).toggleClass("selected", select);
 		}
 
-		$(".wordentry").mCustomScrollbar("scrollTo", ".lexical_unit.u"+id, {
+		$(".wordentry_content").mCustomScrollbar("scrollTo", ".lexical_unit.u"+id, {
 			scrollInertia: 250
 		});
 
