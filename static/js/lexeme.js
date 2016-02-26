@@ -221,7 +221,7 @@ var AlphabetView = Backbone.View.extend({
 	render: function () {
 		var alphabetTable = _.map(this.model.alphabet, function (letterStats, letter) {
 			if(letterStats != 0){
-				return "<tr onClick='appView.lexemesView.scrollTo(\""+letter+"\")' class='alphabet_row "+letter+"'><td class='letter'>"+letter+"</td><td class='count'>"+letterStats+"</td></tr>"
+				return "<tr onClick='appView.lexemesView.scrollToLetter(\""+letter+"\")' class='alphabet_row "+letter+"'><td class='letter'>"+letter+"</td><td class='count'>"+letterStats+"</td></tr>"
 			}
 			return "";
 		});
@@ -233,7 +233,6 @@ var AlphabetView = Backbone.View.extend({
 var LexemesView = Backbone.View.extend({
 	events: {
 		"keyup .search_input": "search",
-		"blur .search_input": "clearSearch",
 	},
 	initialize: function () {
 		this.listenTo(this.model, "filtersChange", this.render);
@@ -249,7 +248,14 @@ var LexemesView = Backbone.View.extend({
 	},
 
 	clearSearch: function (e) {
-		e.target.value = "";
+		this.$el.find(".search_input").val("");
+		// odstraní šedou
+		this.grayFiltered();
+	},
+
+	scrollToLetter: function (letter) {
+		this.clearSearch();
+		this.scrollTo(letter);
 	},
 
 	// scroll k prvnímu odpovídajícímu výsledku podle str
@@ -310,7 +316,7 @@ var LexemesView = Backbone.View.extend({
 	render: function () {
 		console.time('lexemesRender');
 
-		this.grayFiltered(); // odstraní šedou
+		this.clearSearch();
 
 		// popisek do placeholderu hledacího políčka
 		// trochu zneužívá to, že ve filtru jsou buď jen lexémy a nebo LU
@@ -354,6 +360,8 @@ var LexemesView = Backbone.View.extend({
 	},
 
 	showLexeme: function () {
+		this.clearSearch();
+
 		var lu = this.model.get("selectedLexeme");
 		if(lu === null)
 			return;
