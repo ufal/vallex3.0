@@ -10,6 +10,8 @@ var Lexemes = Backbone.Model.extend({
 		this.filtered = [];
 		this.alphabet = {};
 		this.cached = {};
+
+		this.set("selectedLexeme", null);
 	},
 
 	findBest: function (str) {
@@ -353,6 +355,8 @@ var LexemesView = Backbone.View.extend({
 
 	showLexeme: function () {
 		var lu = this.model.get("selectedLexeme");
+		if(lu === null)
+			return;
 		var prevlu = this.model.previous("selectedLexeme");
 		var lexeme = lu.parent;
 		var LUIndex = lu.id;
@@ -363,7 +367,7 @@ var LexemesView = Backbone.View.extend({
 		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id).addClass("selected");
 
 		// pokud je stránka již načtená
-		if(prevlu !== undefined && prevlu.parent.id == lu.parent.id){
+		if(prevlu !== null && prevlu.parent.id == lu.parent.id){
 			// označí aktivní LU
 			this.toggleLUSelection(lu.id);
 			// otevře aktivní LU
@@ -435,6 +439,7 @@ var LexemesView = Backbone.View.extend({
 
 	clearPage: function () {
 		$(".wordentry .matrjoska").html("");
+		this.model.set("selectedLexeme", null);
 	},
 
 	toggleLUSelection: function (id, select) {
