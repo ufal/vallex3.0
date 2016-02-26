@@ -60,7 +60,11 @@ var AppView = Backbone.View.extend({
 		var scrollbarSettings = {
 			theme: "rounded-dark",
 			scrollInertia: 0,
-			mouseWheel:{ scrollAmount: 53 }
+			mouseWheel:{ scrollAmount: 53 },
+			keyboard: { 
+				scrollAmount: 53,
+				scrollType: "stepped"
+			}
 		};
 
 		$(".alphabet").mCustomScrollbar(scrollbarSettings);
