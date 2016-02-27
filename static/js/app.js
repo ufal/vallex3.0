@@ -82,6 +82,9 @@ var AppView = Backbone.View.extend({
 	},
 
 	getFilter: function (path) {
+		// filters summary clear
+		$(".header .filters_summary ul").html("");
+
 		var pathArray = [];
 		if(path !== null)
 			var pathArray = path.split("/");
@@ -100,13 +103,24 @@ var AppView = Backbone.View.extend({
 		resize();
 	},
 
+	headerExpanded: true,
 	toggleHeader: function (e) {
-		console.log(e)
 		var $expander = $(e.currentTarget);
-		console.log("msg")
-		$(".header .filters").slideToggle({
+		$(".header .filters, .header .main_menu, .header .filters_summary").slideToggle({
 			progress: resize
 		});
+
+		var fontSize = "333.33333333%";
+		if(this.headerExpanded){
+			fontSize = "200%";
+		}
+
+		$(".header h1").animate({
+				fontSize: fontSize
+			}, {
+				progress: resize
+		});
+
 		$expander.toggleClass("expanded");
 		if($expander.hasClass("expanded")){
 			$expander.find("span").html("hide filters");
@@ -114,6 +128,8 @@ var AppView = Backbone.View.extend({
 		else {
 			$expander.find("span").html("show filters");
 		}
+
+		this.headerExpanded = !this.headerExpanded;
 	}
 
 });

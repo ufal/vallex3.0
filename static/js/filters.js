@@ -115,6 +115,7 @@ var FilterView = Backbone.View.extend({
 	render: function() {
 		this.$el.html("");
 
+
 		var a = document.createElement("a");
 		var $a = $(a);
 		$a.addClass("togglable");
@@ -126,6 +127,11 @@ var FilterView = Backbone.View.extend({
 			path = path.split("/");
 			path.pop();
 			path = path.join("/");
+
+			// filters_summary
+			var li = document.createElement("li");
+			li.innerHTML = this.model.get("name");
+			$(".header .filters_summary ul").append(li);
 		}
 
 		$a.attr("href", "#/filter/" + path);
