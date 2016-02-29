@@ -6,6 +6,7 @@
 @pink: #e43e5e;
 @blue: #00adef;
 @gray: #969696;
+@teal: #1ed4b0;
 
 .thin {
 	font-weight: 100;
@@ -37,7 +38,7 @@ h1, h2, h3, h4 {
 
 // navigation
 a {
-	color: @pink;
+	color: @teal;
 	cursor: pointer;
 	text-decoration: none;
 }
@@ -114,7 +115,7 @@ body, html {
 	overflow: hidden;
 
 	.selected {
-		color: @pink;
+		color: @teal;
 	}
 
 	h1 {
@@ -130,7 +131,7 @@ body, html {
 		a {
 			color: @black;
 			&.selected {
-				color: @pink;
+				color: @teal;
 			}
 		}
 	}
@@ -174,10 +175,10 @@ body, html {
 					color: @gray;
 				}
 				&.selected {
-					color: @pink;
+					color: @teal;
 					.bold;
 					.count {
-						color: @pink;
+						color: @teal;
 					}
 				}
 				&:hover {
@@ -238,7 +239,7 @@ body, html {
 					a {
 						color: @black;
 						&.selected {
-							color: @pink !important;
+							color: @teal !important;
 							.bold;
 						}
 						&.not_match {
@@ -320,6 +321,9 @@ body, html {
 
 	.lexical_unit_index {
 		width: 2em;
+		a {
+			color: @black;
+		}
 	}
 
 	table.frame {
@@ -344,7 +348,7 @@ body, html {
 		border-spacing:0 0.2em;
 		border: 3px transparent dotted;
 		&.selected {
-			border: 3px @pink dotted;
+			border: 3px @black dotted;
 		}
 	}
 
