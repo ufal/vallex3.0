@@ -290,15 +290,25 @@ body, html {
 		}
 	}
 
-	.pdtvallex-wlinks {
-		font-size: 100%*(14/12);
+	.pdtvallex-box {
+		.regular;
 		position: absolute;
 		right: 0;
-		width: 6.3em;
-		z-index: 1;
-		background-color: white;
-		a {
-			.external;
+		z-index: 10;
+		background-color: #ffffff;
+
+		.expander {
+			span {
+				.external;
+			}
+		}
+
+		.pdt-links {
+			border: 1px @gray solid;
+			margin: 0;
+			padding: 0.5em 0;
+			list-style-type: none;
+			text-align: right;
 		}
 	}
 

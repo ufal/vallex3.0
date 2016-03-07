@@ -406,12 +406,22 @@ sub pdtvallex_word_links {
     $lemma =~ s/\ /&nbsp;/x; # keep reflexive verbs on one line together
     $url_lemma =~ s/\ /+/x;
     $wlink_string .=
-      "<a href='$PDTVALLEX_URL$url_lemma' target='_blank'>"
-      . $lemma
-      . "<span class='invisible'>&rarr;" . $wlink->getAttribute('lexeme_id')
-      . "</span></a> ";
+      "<li><a href='$PDTVALLEX_URL$url_lemma' target='_blank' class='external'>"
+      . "<span>$lemma</span>"
+      . "<div class='arrow'>&gt;</div></a></li>";
   }
-  return $wlink_string ? "<div class='pdtvallex-wlinks'>PDT-Vallex:<br/>$wlink_string</div>" : "";
+  if($wlink_string){
+    return "<div class='pdtvallex-box'>"
+           . "<a class='expander'>"
+           . "<span>PDT-Vallex</span>"
+           . "<div class='arrow'>&gt;</div>"
+           . "</a>"
+           . "<ul class='pdt-links' style='display: none;'>$wlink_string</ul>"
+           . "</div>";
+  }
+  else {
+    return "";
+  }
 }
 
 # INPUT: HTML string like aktualizovat<sup class='scriptsize'>biasp</sup>

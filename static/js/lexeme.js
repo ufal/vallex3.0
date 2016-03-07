@@ -475,6 +475,13 @@ var LexemesView = Backbone.View.extend({
 				_this.toggleLUExpansion(id);
 			});
 
+			// funkce rozbalovače pdt-vallex
+			$(".pdtvallex-box .expander").click(function (e) {
+				$(".pdtvallex-box .expander").toggleClass("expanded");
+				// $(".pdtvallex-box .pdt-links").toggle();
+				$(".pdtvallex-box .pdt-links").slideToggle();
+			});
+
 			// funkce kliknutí na číslo pro aktivní lexém
 			// (aktivní lexém nespouští event změny adresy webu)
 			$(".lexical_unit .frame_index_link").click(function (e) {
