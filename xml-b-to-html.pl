@@ -1,14 +1,14 @@
 #!/usr/bin/env perl
 
 use strict;
-#use warnings;
+# use warnings;
 use locale;
 use POSIX qw(locale_h);
 setlocale(LC_ALL,"cs_CZ.utf8");
-#setlocale('LANG',"czech");
+# setlocale('LANG',"czech");
 use utf8;
 use JSON qw(encode_json);
-#use encoding "utf-8";
+# use encoding "utf-8";
 binmode STDERR,":encoding(utf-8)";
 binmode STDOUT,":encoding(utf-8)";
 
@@ -29,88 +29,88 @@ my $outputdir = "$xml2html_dir/../vallex-$version/data/html/";
 
 
 my %functor_comments = (
-			"ACT" => "actor",
-			"ADDR" => "addressee",
-			"PAT" => "patient",
-			"EFF" => "effect",
-			"ORIG" => "origin",
-			"DIFF" => "difference",
-			"OBST" => "obstacle",
-			"ACMP" => "accompaniement",
-			"AIM" => "aim",
-			"BEN" => "benefactive",
-			"CAUS" => "cause",
-			"COMPL" => "complement",
-			"DIR" => "shortcut for DIR1 DIR2 DIR3",
-			"DIR1" => "direction-from",
-			"DIR2" => "direction-through",
-			"DIR3" => "direction-to",
-			"DPHR" => "dependent part of a phraseme",
-			"EXT" => "extent",
-			"HER" => "heritage",
-			"INTT" => "intent",
-			"LOC" => "locative",
-			"MANN" => "manner",
-			"MEANS" => "means",
-			"NORM" => "norm",
-			"RCMP" => "recompense",
-			"REG" => "regard",
-			"RESL" => "result",
-			"SUBS" => "substitution",
-			"TFHL" => "temporal-for-how-long",
-			"TFRWH" => "temporal-from-when",
-			"THL" => "temporal-how-long ",
-			"TOWH" => "temporal-to when",
-			"TSIN" => "temporal-since-when",
-			"TWHEN" => "temporal-when"
-		       );
+  "ACT" => "actor",
+  "ADDR" => "addressee",
+  "PAT" => "patient",
+  "EFF" => "effect",
+  "ORIG" => "origin",
+  "DIFF" => "difference",
+  "OBST" => "obstacle",
+  "ACMP" => "accompaniement",
+  "AIM" => "aim",
+  "BEN" => "benefactive",
+  "CAUS" => "cause",
+  "COMPL" => "complement",
+  "DIR" => "shortcut for DIR1 DIR2 DIR3",
+  "DIR1" => "direction-from",
+  "DIR2" => "direction-through",
+  "DIR3" => "direction-to",
+  "DPHR" => "dependent part of a phraseme",
+  "EXT" => "extent",
+  "HER" => "heritage",
+  "INTT" => "intent",
+  "LOC" => "locative",
+  "MANN" => "manner",
+  "MEANS" => "means",
+  "NORM" => "norm",
+  "RCMP" => "recompense",
+  "REG" => "regard",
+  "RESL" => "result",
+  "SUBS" => "substitution",
+  "TFHL" => "temporal-for-how-long",
+  "TFRWH" => "temporal-from-when",
+  "THL" => "temporal-how-long ",
+  "TOWH" => "temporal-to when",
+  "TSIN" => "temporal-since-when",
+  "TWHEN" => "temporal-when"
+);
 
 my %type_of_compl = (
-		     'opt' => 'type of complementation: optional',
-		     'typ' => 'type of complementation: typical',
-		     'obl' => 'type of complementation: obligatory'
-		    );
+  'opt' => 'type of complementation: optional',
+  'typ' => 'type of complementation: typical',
+  'obl' => 'type of complementation: obligatory'
+);
 
-my $border=0;
-
+my $border = 0;
 
 my %long_attr_names = (
-		       'class' => 'sem. class',
-		       'frame' => 'val. frame',
-		      );
+  'class' => 'sem. class',
+  'frame' => 'val. frame',
+);
  
 my %long_form_types = (
-		       'direct_case' => 'Direct cases',
-		       'prepos_case' => 'Prepositional cases',
-		       'subord_conj' => 'Subordinating conjunctions',
-		       'cont' => 'Content clauses',
-		       'infinitive' => 'Infinitive',
-		       'adjective' => 'Constructions with adjectives',
-		       'byt' => 'Constructions with "být" (to be)',
-		       'phraseme_part' => 'Parts of phrasemes'
-		      );
+  'direct_case' => 'Direct cases',
+  'prepos_case' => 'Prepositional cases',
+  'subord_conj' => 'Subordinating conjunctions',
+  'cont' => 'Content clauses',
+  'infinitive' => 'Infinitive',
+  'adjective' => 'Constructions with adjectives',
+  'byt' => 'Constructions with "být" (to be)',
+  'phraseme_part' => 'Parts of phrasemes'
+);
+
 my %long_form_type = (
-		       'direct_case' => 'direct case',
-		       'prepos_case' => 'prepositional case',
-		       'subord_conj' => 'subordinating conjunction',
-		       'cont' => 'content clause',
-		       'infinitive' => 'infinitive',
-		       'adjective' => 'construction with an adjective',
-		       'byt' => 'construction with "být" (to be)',
-		       'phraseme_part' => 'part of a phraseme'
-		      );
+  'direct_case' => 'direct case',
+  'prepos_case' => 'prepositional case',
+  'subord_conj' => 'subordinating conjunction',
+  'cont' => 'content clause',
+  'infinitive' => 'infinitive',
+  'adjective' => 'construction with an adjective',
+  'byt' => 'construction with "být" (to be)',
+  'phraseme_part' => 'part of a phraseme'
+);
 my %case_names = (
-		       '1' => 'nominative',
-		       '2' => 'genitive',
-		       '3' => 'dative',
-		       '4' => 'accusative',
-		       '5' => 'vocative',
-		       '6' => 'locative',
-		       '7' => 'instrumental',
+  '1' => 'nominative',
+  '2' => 'genitive',
+  '3' => 'dative',
+  '4' => 'accusative',
+  '5' => 'vocative',
+  '6' => 'locative',
+  '7' => 'instrumental',
 );
 
 
-my $bullet="<img src='../../static/redbullet.gif'>";
+my $bullet = "<img src='../../static/redbullet.gif'>";
 
 use Readonly;
 Readonly my $PDTVALLEX_URL => "http://lindat.mff.cuni.cz/services/PDT-Vallex/?verb=";
@@ -122,42 +122,46 @@ my %irrefl_mlemma;
 
 
 # prevod arabskych cislic na rimske (zatim napraseno)
-sub ara2roman ($){
+sub ara2roman ($) {
   my ($cnt)=@_;
   return join "",map {'I'} (1..$cnt);
 }
 
 # odstraní whitespace z obou stran stringu
-sub  trim { my $s = shift; $s =~ s/^\s+|\s+$//g; return $s };
+sub trim {
+  my $s = shift;
+  $s =~ s/^\s+|\s+$//g;
+  return $s;
+};
 
-# nahradi znaky s diakritikou a prida za ne suffix  (zatim jednosmerne!)
+# nahradi znaky s diakritikou a prida za ne suffix (zatim jednosmerne!)
 my %substitution;
 my %subst_prefs;
 sub string_to_html_filename {
   my ($orig)=@_;
   if (not $substitution{$orig}) {
-	my $subst_prefix;
-	my $subst_suffix = "";
+    my $subst_prefix;
+    my $subst_suffix = "";
     if ($orig =~ /^lxm-v-/) {
-		$subst_prefix = $1 if $orig =~ /^lxm-v-(.{1,5}).*?$/;
-		$subst_prefix =~ tr/áéíóúůýěžščřďťň/aeiouuyezscrdtn/;
-		$subst_prefix =~ s/[^a-zA-Z0-9-]/_/g;
-		$subst_suffix = ++$subst_prefs{$subst_prefix};
-	} else {
-		$subst_prefix = $orig =~ /^([^:]*).*$/s ? $1 : "";
-		$subst_prefix =~ tr/áéíóúůýěžščřďťňŽŠČŘĎŤŇ/aeiouuyezscrdtnZSCRDTN/;
-		$subst_prefix =~ s/^\s+//;
-		$subst_prefix =~ s/\s+$//;
-		$subst_prefix =~ s/, /-/;		# control: ACT, PAT
-		$subst_prefix =~ tr/+ /-_/;		# forms:   mezi+4     do bot
-		$subst_prefix =~ s/[^a-zA-Z0-9_-]/./g;
-		$subst_prefix = "_" if !$subst_prefix;
-		if ($subst_prefs{$subst_prefix}) {
-			$subst_suffix = ++$subst_prefs{$subst_prefix};
-		} else {
-			$subst_prefs{$subst_prefix} = 1;
-		}
-	}
+      $subst_prefix = $1 if $orig =~ /^lxm-v-(.{1,5}).*?$/;
+      $subst_prefix =~ tr/áéíóúůýěžščřďťň/aeiouuyezscrdtn/;
+      $subst_prefix =~ s/[^a-zA-Z0-9-]/_/g;
+      $subst_suffix = ++$subst_prefs{$subst_prefix};
+    } else {
+      $subst_prefix = $orig =~ /^([^:]*).*$/s ? $1 : "";
+      $subst_prefix =~ tr/áéíóúůýěžščřďťňŽŠČŘĎŤŇ/aeiouuyezscrdtnZSCRDTN/;
+      $subst_prefix =~ s/^\s+//;
+      $subst_prefix =~ s/\s+$//;
+      $subst_prefix =~ s/, /-/; # control: ACT, PAT
+      $subst_prefix =~ tr/+ /-_/; # forms:   mezi+4     do bot
+      $subst_prefix =~ s/[^a-zA-Z0-9_-]/./g;
+      $subst_prefix = "_" if !$subst_prefix;
+      if ($subst_prefs{$subst_prefix}) {
+        $subst_suffix = ++$subst_prefs{$subst_prefix};
+      } else {
+        $subst_prefs{$subst_prefix} = 1;
+      }
+    }
     $substitution{$orig} = "$subst_prefix$subst_suffix";
   }
   return $substitution{$orig};
@@ -165,7 +169,7 @@ sub string_to_html_filename {
 
 
 
-sub create_directory($) {
+sub create_directory ($) {
   my $directory_name = shift;
   my $fullpath = $outputdir.$directory_name;
   print STDERR "Creating directory $fullpath ...\n";
@@ -176,15 +180,13 @@ my $javascript_head = '<script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="jquery.autocomplete.js"></script>
   <link rel="stylesheet" type="text/css" href="jquery.autocomplete.css"/>
   <script type="text/javascript" src="../lexeme-entries/index.js"></script>
-  <script type="text/javascript" src="autocomplete.js"></script>
-';
+  <script type="text/javascript" src="autocomplete.js"></script>';
 
 
 sub create_html_file ($$) {
   my ($filename, $content)=@_;
   $filename = $outputdir.$filename;
-
-#  print STDERR "Storing $filename ...\n";
+  # print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
   print F $content;
   close F;
@@ -196,10 +198,10 @@ sub create_multiframe ($$$) {
   $filename = $outputdir.$filename;
   $m=~s/#framelist#/$firstframelist/;
   $m=~s/#wordentry#/$firstentryfilename/;
-#  open F,">:encoding(utf-8)",$filename;
-#  open F,">:$filename";
-#  $filename=~s/^(..............................).+/$1/;  #hack!!!! tady by mel byt poradny test
-#  print STDERR "Storing $filename ...\n";
+  # open F,">:encoding(utf-8)",$filename;
+  # open F,">:$filename";
+  # $filename=~s/^(..............................).+/$1/;  #hack!!!! tady by mel byt poradny test
+  # print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
   print F $m;
   close F;
@@ -214,7 +216,7 @@ sub create_json_file ($$) {
   close F;
 }
 
-sub questionmark($) {
+sub questionmark ($) {
   my ($label)=@_;
   if ($label) {
     return "<a href='../../../../doc/structure_en.html#sec:$label' target='_parent'><img border='0' src='../../static/questionmark.gif'></a>";
@@ -242,7 +244,7 @@ sub formnode2formtxt {
   }
   elsif ($type eq "adjective") {
     my $prepos = $formnode->getAttribute('prepos_lemma');
-	$prepos = $prepos ? $prepos."+" : "";
+    $prepos = $prepos ? $prepos."+" : "";
     return [$to_be.$prepos."adj-".$formnode->getAttribute('case')]
   }
   elsif ($type eq "infinitive") {
@@ -266,7 +268,7 @@ my %framecnt;
 my %firstframefilename;
 my %filtertree;
 
-sub add_to_list($$$) {
+sub add_to_list ($$$) {
   my ($crit,$value,$link)=@_;
   return unless $value;
   $framelist{$crit}{$value}.=$link;
@@ -395,13 +397,13 @@ sub pdtvallex_word_links {
   foreach my $wlink ($lexeme_node->getElementsByTagName('wlink')) {
     my @lemmas = @{$coindexed_lemmas{$wlink->getAttribute('coindex')}};
     my $lemma;
-    if (@lemmas > 1) {				# if there are more variants
-      $lemma = $wlink->getAttribute('variant');	# the proper one is specified
+    if (@lemmas > 1) { # if there are more variants
+      $lemma = $wlink->getAttribute('variant'); # the proper one is specified
     } else {
-      $lemma = $lemmas[0]->[0];	# the only one -> 'lemma' from (lemma, homo)
+      $lemma = $lemmas[0]->[0]; # the only one -> 'lemma' from (lemma, homo)
     }
     my $url_lemma = $lemma;
-    $lemma =~ s/\ /&nbsp;/x;	# keep reflexive verbs on one line together
+    $lemma =~ s/\ /&nbsp;/x; # keep reflexive verbs on one line together
     $url_lemma =~ s/\ /+/x;
     $wlink_string .=
       "<a href='$PDTVALLEX_URL$url_lemma' target='_blank'>"
@@ -425,7 +427,7 @@ sub get_coindexed_hash {
   my %coindexed;
 
   foreach my $headword_html (@headwords_html) {
-    #$coindexed{$2} = $1 if $headword_html =~ /^ ([^<>]+)  <sup\ class='scriptsize'>  ([^<>]+)  <\/sup>  $/x;
+    # $coindexed{$2} = $1 if $headword_html =~ /^ ([^<>]+)  <sup\ class='scriptsize'>  ([^<>]+)  <\/sup>  $/x;
     my $asp = $1 if $headword_html =~ s/<sup\ class='scriptsize'>  ([^<>]+)  <\/sup>  $//x;
     $headword_html =~ s/([^<])\//$1|/g;   # HTML slashes remain -- variant slashes changed into pipes
     my @lemma_variants = map { /^ ([^<>]+)  (?:<sub\ class='scriptsize'>([IV]+)<\/sub>)? $/x; [$1,$2]} split(/\|/, $headword_html);
@@ -469,8 +471,8 @@ sub create_links_to_valeval {
 
       # Output lexeme's ID (it will be used to prune VALLEX XML and get smaller one only with those lexemes used in VALEVAL
       print(Pruned_IDs "$lexeme_id-$asp",
-		       $var ? "-".("", "A","B","C","D")[$var] : "",
-		       "\n");
+            $var ? "-".("", "A","B","C","D")[$var] : "",
+            "\n");
     }
   }
   return join("<br/>", @return);
@@ -488,29 +490,29 @@ sub get_valeval_excerpt {
   my $sentence = "empty";
   while (<CNK>) {
     if ($nalezena_veta) {
-      #$sentence = <CNK>;
+      # $sentence = <CNK>;
       $sentence = $_;
       last;
     }
     $nalezena_veta = 1 if $nalezen_ramec and /<td class="sentences" title="example sentence">/;
     $nalezen_ramec = 1 if /<a name="$frame_num"/;
   }
-  return 0 if $sentence eq "empty";		# no occurence of this frame
+  return 0 if $sentence eq "empty"; # no occurence of this frame
 
-  $sentence =~ s/<a href=["'][^"']+["']>//g;	# ged rid of href start tag
-  $sentence =~ s/^.*?( .{1,40}:\d+<\/a>)/&hellip;$1/	# trim beginning
-    if $sentence =~ /^.*(.{60}:\d+<\/a>)/;		# if too long
-  $sentence =~ s/:\d+<\/a>(.{1,50} ).*/$1&hellip;/	# trim end
-    if $sentence =~ /:\d+<\/a>(.{70}).*/;		# if too long
-  $sentence =~ s/:\d+<\/a>//g;			# ged rid of href closing tag
-  $sentence =~ s/<\/a>//g;			# href of reflexive particles
-  $sentence =~ s/^\s+//;	# leading spaces
-  $sentence =~ s/\s+$//;	# trailing newline
+  $sentence =~ s/<a href=["'][^"']+["']>//g; # ged rid of href start tag
+  $sentence =~ s/^.*?( .{1,40}:\d+<\/a>)/&hellip;$1/ # trim beginning
+    if $sentence =~ /^.*(.{60}:\d+<\/a>)/; # if too long
+  $sentence =~ s/:\d+<\/a>(.{1,50} ).*/$1&hellip;/ # trim end
+    if $sentence =~ /:\d+<\/a>(.{70}).*/; # if too long
+  $sentence =~ s/:\d+<\/a>//g; # ged rid of href closing tag
+  $sentence =~ s/<\/a>//g; # href of reflexive particles
+  $sentence =~ s/^\s+//; # leading spaces
+  $sentence =~ s/\s+$//; # trailing newline
 
-  my $more = "";	# is there more than one example for this frame?
+  my $more = ""; # is there more than one example for this frame?
   while (<CNK>) {
-    last if /<table class="examples">/;	# next frame
-    if (/<td class="sentences"/) {	# next sentences for the same frame
+    last if /<table class="examples">/; # next frame
+    if (/<td class="sentences"/) { # next sentences for the same frame
       $more = "&nbsp;&nbsp;&nbsp;<span style=\"font-size:6pt\">(more&hellip;)</span>";
       last;
     }
@@ -536,12 +538,12 @@ sub create_correct_filename {
         $$lemma = $lemma_without;
         return cnk_filename($$lemma);
       }
-      return 0;		# "no occurence of this verb in CNK"
+      return 0; # "no occurence of this verb in CNK"
     } elsif ($$lemma =~ /zachy/ and cnk_filename($$lemma."-2")) {
       $$lemma .= "-2";
       return cnk_filename($$lemma);
     } else {
-      return 0;		# "no occurence of this verb in CNK"
+      return 0; # "no occurence of this verb in CNK"
     }
   }
   return cnk_filename($$lemma);
@@ -567,13 +569,13 @@ print STDERR "Loading $xmlfile...\n";
 my $parser = XML::DOM::Parser->new();
 my $doc = $parser->parsefile($xmlfile);
 my ($version_xml) = map {$_->getFirstChild->toString}
-				$doc->getElementsByTagName('version');
+                        $doc->getElementsByTagName('version');
 if ( $version ne $version_xml ) {
-    if ( $version."test" ne $version_xml) {
-        die "The given XML has different version ($version_xml) than requested VALLEX $version\n";
-    } else {
-        warn "The given XML has different version ($version_xml) than requested VALLEX $version\n";
-    }
+  if ( $version."test" ne $version_xml) {
+    die "The given XML has different version ($version_xml) than requested VALLEX $version\n";
+  } else {
+    warn "The given XML has different version ($version_xml) than requested VALLEX $version\n";
+  }
 }
 
 my %type_of_form;
@@ -585,15 +587,15 @@ print STDERR "Transforming lexemes into HTML and their classification according 
 
 foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')) {
   my @refl = $lexeme_node->getElementsByTagName('commonrefl');
-#  print "REFL: @refl\n";
-#  exit;
+  # print "REFL: @refl\n";
+  # exit;
   if (@refl == 0) {
-#    print "Nonrefl\n";
+    # print "Nonrefl\n";
     foreach my $mlemma_node ($lexeme_node->getElementsByTagName('mlemma')) {
       my $mlemma = $mlemma_node->getFirstChild->getNodeValue;
       my $homo_index = $mlemma_node->getAttribute('homograph');
       $irrefl_mlemma{$mlemma.$homo_index} = 1;
-#      print "IRREFL: $mlemma.$homo_index\n";
+      # print "IRREFL: $mlemma.$homo_index\n";
     }
   }
 }
@@ -642,13 +644,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "derived reflexive lexemes");
     }
 
-#    my $lexeme_cluster = $lexeme_node->getParentNode;
-#    if (grep {$_ ne $lexeme_node} $lexeme_cluster->getElementsByTagName('lexeme')) {
-#      add_to_list('rfl','derived',$link_to_word);
-#    }
-#    else {
-#      add_to_list('rfl','tantum',$link_to_word);
-#    }
+    # my $lexeme_cluster = $lexeme_node->getParentNode;
+    # if (grep {$_ ne $lexeme_node} $lexeme_cluster->getElementsByTagName('lexeme')) {
+    #  add_to_list('rfl','derived',$link_to_word);
+    # }
+    # else {
+    #  add_to_list('rfl','tantum',$link_to_word);
+    # }
   }
 
   lexeme_to_criteria($filename, $headword_lemmas, "all");
@@ -666,8 +668,8 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
 
   $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div></div>\n";
-#    "<td>&nbsp;&nbsp;&nbsp;
-#<span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
+  # "<td>&nbsp;&nbsp;&nbsp;
+  # <span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
 
   my $homographs = grep {$_->getAttribute('homograph') } $lexeme_node->getElementsByTagName('mlemma');
   if ($homographs) {
@@ -737,7 +739,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
             elsif ($attrname eq "diat") {
               my $type = $attr_node->getAttribute('type');
               if ($attr_node->getAttribute('value') eq "no") {
-              #add_to_list("diat","$type NO",$link_to_frame);
+              # add_to_list("diat","$type NO",$link_to_frame);
               } elsif ($attr_node->getAttribute('value') eq "yes") {
                 unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "$type");
                 if ($frame_attrs{"diat"}) {$frame_attrs{"diat"} .="<br>"}
@@ -761,11 +763,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 }
                 if (%subtypes) {
                   foreach my $subtype (sort keys %subtypes) {
-                    #my $adjusted_subtype = $subtype;
-                    #$adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
+                    # my $adjusted_subtype = $subtype;
+                    # $adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
                     $subtypes{$subtype} =~ s@(&nbsp;.span class='scriptsize'.(impf|pf|iter|biasp)[12]?:./span.)(.*)\g1@$1$3@gs;
-                    #$frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
-                    #add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
+                    # $frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
+                    # add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
                     if ($type eq "poss-result") {
                       $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/possessive/$subtype'>$subtype:</a>".$subtypes{$subtype};
                       unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "possessive", $subtype);
@@ -816,10 +818,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 my $lemma        = $variant ? $variant : join("/", map {$_->[0]} @{$local_aspect{$coindex}}); # TODO kdyby se fakt pouzilo /, je to chyba
                 $lemma =~ s/\ /+/xg;
                 # Rounding (2 decimal places)
-                $weight += 0.005;				# plus half
-                $weight =~ s/,(..).*$/.\1/;		# trunk
-                $weight += 0;					# remove trailing zeros
-                $weight =~ s/,/./;				# point instead of comma
+                $weight += 0.005; # plus half
+                $weight =~ s/,(..).*$/.\1/; # trunk
+                $weight += 0; # remove trailing zeros
+                $weight =~ s/,/./; # point instead of comma
 
                 my $limit;
                 # kdyz je nutne rozlisovat, ktery z vidu platnych pro danou LU to je,
@@ -864,7 +866,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
             }
           }
 
-          #	  $frame_attrs{$attrname}=$blu_node->getElementsByTagName($attrname)->item(0)->getFirstChild->getNodeValue
+          # $frame_attrs{$attrname}=$blu_node->getElementsByTagName($attrname)->item(0)->getFirstChild->getNodeValue
         };
         warn("nonfatal: ", $@) if $@;
       }
@@ -878,12 +880,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     $frame_attrs{'usage in ČNK'} = create_links_to_valeval($frame_index, $filename, $lexeme_id, $only_one_apect, %coindexed_lemmas);
 
 
-# ---------- vytvoreni tabulky s lemmaty, indexy a glosou
-#    my $idiom;
-#    if ($blu_node->getAttribute('use') eq "idiom") {     # predelat na use idiom !!!!!!!!!
-#      $idiom="&nbsp;(idiom)";
-#      add_to_list('other','idioms',$link_to_frame);
-#    }
+    # ---------- vytvoreni tabulky s lemmaty, indexy a glosou
+    # my $idiom;
+    # if ($blu_node->getAttribute('use') eq "idiom") {     # predelat na use idiom !!!!!!!!!
+    #   $idiom="&nbsp;(idiom)";
+    #   add_to_list('other','idioms',$link_to_frame);
+    # }
 
     my $idiom;
     if ($blu_node->getParentNode->getAttribute('idiom') eq "1") {
@@ -954,14 +956,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";
 
     # ---------- radek s prikladem, tridou a kontrolou, rcp, refl
-#    my $example_line=  "<span class='attrname'>-example: </span>$frame_attrs{example}<br>\n\n";
+    # my $example_line=  "<span class='attrname'>-example: </span>$frame_attrs{example}<br>\n\n";
 
-#### tato cast kodu se nikde nepouziva, promenn %attribute_line je mrtva
-##    my %attribute_line;
-##    foreach my $attr ('example','control','rfl','rcp','class','PDT-Vallex') {
-##      $attribute_line{$attr} = "<span class='attrname'>-$attr: </span> <a target='_top' href='../$attr/index-".string_to_html_filename($frame_attrs{$attr})."'>$frame_attrs{control}</a><br>\n\n"
-##	unless (!$frame_attrs{control});
-##    }
+    #### tato cast kodu se nikde nepouziva, promenn %attribute_line je mrtva
+    # my %attribute_line;
+    # foreach my $attr ('example','control','rfl','rcp','class','PDT-Vallex') {
+    #   $attribute_line{$attr} = "<span class='attrname'>-$attr: </span> <a target='_top' href='../$attr/index-".string_to_html_filename($frame_attrs{$attr})."'>$frame_attrs{control}</a><br>\n\n"
+    #     unless (!$frame_attrs{control});
+    # }
+
     my %attrname_links = (
       'control' => 'guide.html#sec:sect:control',
       'reflex' => 'guide.html#sec:sect:reflexivity',
@@ -998,11 +1001,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
   $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_content'>".$htmlized_frame_entries."</div>";
 
-#  print "Lexeme:  ";
-#  print join " , ",map {"$_ $reflex"} @{$headwords_rf};
-#  print "($complexity)";
-#
-#  print "\n";
+  # print "Lexeme:  ";
+  # print join " , ",map {"$_ $reflex"} @{$headwords_rf};
+  # print "($complexity)";
+
+  # print "\n";
 }
 close(Pruned_IDs);
 
@@ -1013,7 +1016,7 @@ create_directory("generated/lexeme-entries/");
 
 foreach my $filename (sort keys %htmlized_lexeme_entry) {
   my $longname="generated/lexeme-entries/$filename.html";
-#  print STDERR "   $longname\n";
+  # print STDERR "   $longname\n";
   my $x=$htmlized_lexeme_entry{$filename};
   create_html_file($longname, $x);
 }
@@ -1029,7 +1032,7 @@ print STDERR "Generating JSON files for filtering\n";
 my %names = (
   "recipr" => "reciprocity",
   "reflex" => "reflexivity",
-  );
+);
 
 sub numberSort {
   return sort {
