@@ -437,7 +437,12 @@ var LexemesView = Backbone.View.extend({
 		// označení ve vyhledávání
 		if(prevlu)
 			this.$el.find(".result ul li ."+prevlu.parent.id).removeClass("selected");
-		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id).addClass("selected");
+		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id)
+			.addClass("selected")
+			.one("click", function (e) {
+				e.preventDefault();
+				appView.router.navigate("#/lexeme/"+lexeme.id+"/0", {trigger:true});
+			});
 
 		// pokud je stránka již načtená
 		if(prevlu !== null && prevlu.parent.id == lu.parent.id){
