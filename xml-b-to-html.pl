@@ -766,13 +766,16 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     $subtypes{$subtype} =~ s@(&nbsp;.span class='scriptsize'.(impf|pf|iter|biasp)[12]?:./span.)(.*)\g1@$1$3@gs;
                     #$frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
                     #add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
-                    $frame_attrs{"diat"} .= "<span class='attrname'>$subtype:</span>".$subtypes{$subtype};
                     if ($type eq "poss-result") {
+                      $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/possessive/$subtype'>$subtype:</a>".$subtypes{$subtype};
                       unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "possessive", $subtype);
+                    }
+                    else {
+                      $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$subtype:</a>".$subtypes{$subtype};
                     }
                   }
                 } else {
-                  $frame_attrs{"diat"} .= "<span class='attrname'>$type:</span>  YES";
+                  $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type</a> YES";
                 }
               } else {
                 print STDERR "Unexpected value in a diathesis node.";
