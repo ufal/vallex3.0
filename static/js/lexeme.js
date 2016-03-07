@@ -297,7 +297,7 @@ var LexemesView = Backbone.View.extend({
 			onSelect: function (suggestion) {
 				var lu = suggestion.data;
 				// select
-				appView.router.navigate("/lexeme/"+lu.parent.id+"/"+lu.id, {trigger:true});
+				appView.router.navigate("#/lexeme/"+lu.parent.id+"/"+lu.id, {trigger:true});
 				// scroll
 				_this.$el.find(".result").mCustomScrollbar("scrollTo", "."+lu.parent.id);
 			}
