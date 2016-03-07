@@ -436,7 +436,7 @@ var LexemesView = Backbone.View.extend({
 
 		// označení ve vyhledávání
 		if(prevlu)
-			this.$el.find(".result ul li ."+prevlu.parent.id).removeClass("selected");
+			this.$el.find(".result ul li ."+prevlu.parent.id).removeClass("selected").off("click");
 		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id)
 			.addClass("selected")
 			.one("click", function (e) {
