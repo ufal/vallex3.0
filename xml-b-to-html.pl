@@ -815,11 +815,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 my $weight       = $flink_node->getAttribute("weight");
                 my $lemma        = $variant ? $variant : join("/", map {$_->[0]} @{$local_aspect{$coindex}}); # TODO kdyby se fakt pouzilo /, je to chyba
                 $lemma =~ s/\ /+/xg;
-				# Rounding (2 decimal places)
-				$weight += 0.005;				# plus half
-				$weight =~ s/,(..).*$/.\1/;		# trunk
-				$weight += 0;					# remove trailing zeros
-				$weight =~ s/,/./;				# point instead of comma
+                # Rounding (2 decimal places)
+                $weight += 0.005;				# plus half
+                $weight =~ s/,(..).*$/.\1/;		# trunk
+                $weight += 0;					# remove trailing zeros
+                $weight =~ s/,/./;				# point instead of comma
 
                 my $limit;
                 # kdyz je nutne rozlisovat, ktery z vidu platnych pro danou LU to je,
