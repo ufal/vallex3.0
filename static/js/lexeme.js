@@ -231,12 +231,77 @@ var AlphabetView = Backbone.View.extend({
 });
 
 var LexemesView = Backbone.View.extend({
-	events: {
-		"keyup .search_input": "search",
-	},
+	// events: {
+	// 	"keyup .search_input": "search",
+	// },
 	initialize: function () {
 		this.listenTo(this.model, "filtersChange", this.render);
 		this.listenTo(this.model, "change:selectedLexeme", this.showLexeme);
+
+		// autocomplete
+		var _this = this;
+		$('.search_input').autocomplete({
+			preserveInput: true, // kvůli homographs, které dělají neplechu s html tagy
+			autoSelectFirst: true,
+			lookup: function (query, done) {
+				var result = {
+					suggestions: []
+				};
+
+				if(query){
+					var unique = {};
+					for (var i = 0; i < _this.model.filtered.length; i++) {
+						var lu = _this.model.filtered[i];
+						var namesString = lu.parent.get("name").toLowerCase();
+						var names = namesString.split(", ");
+						for (var n = 0; n < names.length; n++) {
+							var name = names[n];
+							var found = true;
+							for (var j = 0; j < query.length; j++) {
+								if(name[j] != query[j]){
+									found = false;
+									break;
+								}
+							}
+							if(found && !unique[lu.parent.id]){
+								result.suggestions.push({
+									"value": namesString,
+									"data": lu
+								});
+								unique[lu.parent.id] = true;
+								break;
+							}
+						}
+					}
+				}
+
+
+				done(result);
+			},
+			formatResult: function (suggestion, currentValue) {
+				// vybarví matchnuté začátky lemmat
+				return _(suggestion.value.split(", ")).map(function (lemma) {
+					for (var i = 0; i < currentValue.length; i++) {
+						if(lemma[i] != currentValue[i])
+							break;
+					}
+					if(currentValue.length == i)
+						return "<strong>" + lemma.substr(0, i) + "</strong>" + lemma.substr(i);
+					else
+						return false;
+				}).filter(function (lemma) {
+					return lemma !== false;
+				}).join(", ");
+			},
+
+			onSelect: function (suggestion) {
+				var lu = suggestion.data;
+				// select
+				appView.router.navigate("/lexeme/"+lu.parent.id+"/"+lu.id, {trigger:true});
+				// scroll
+				_this.$el.find(".result").mCustomScrollbar("scrollTo", "."+lu.parent.id);
+			}
+		});
 	},
 
 	search: function (e) {
@@ -250,7 +315,7 @@ var LexemesView = Backbone.View.extend({
 	clearSearch: function (e) {
 		this.$el.find(".search_input").val("");
 		// odstraní šedou
-		this.grayFiltered();
+		// this.grayFiltered();
 	},
 
 	scrollToLetter: function (letter) {
@@ -264,10 +329,10 @@ var LexemesView = Backbone.View.extend({
 		var first = this.model.findBest(str);
 		console.timeEnd("findBest");
 
-		var _this = this;
-		_.defer(function () {
-			_this.grayFiltered(str);
-		});
+		// var _this = this;
+		// _.defer(function () {
+		// 	_this.grayFiltered(str);
+		// });
 
 		if(first !== undefined){
 			this.$el.find(".result").mCustomScrollbar("scrollTo", "."+first[1].parent.id);
