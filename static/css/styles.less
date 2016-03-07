@@ -1,6 +1,6 @@
 @import url(jquery.mCustomScrollbar.css);
 // @import url(https://fonts.googleapis.com/css?family=Roboto:100,500,400&subset=latin,latin-ext);
-@import url(https://fonts.googleapis.com/css?family=Roboto:100,300,400,700&subset=latin,latin-ext);
+@import url(https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700&subset=latin,latin-ext);
 @font: "Roboto", sans-serif;
 @black: #231f20;
 @pink: #e43e5e;
@@ -18,6 +18,10 @@
 
 .regular {
 	font-weight: 400;
+}
+
+.medium {
+	font-weight: 500;
 }
 
 .bold, b {
@@ -56,7 +60,7 @@ a:hover {
 }
 
 .expander {
-	font-size: 100%*(14/12);
+	.regular;
 }
 
 .arrow {
@@ -291,7 +295,6 @@ body, html {
 	}
 
 	.pdtvallex-box {
-		.regular;
 		position: absolute;
 		right: 0;
 		z-index: 10;
@@ -318,6 +321,9 @@ body, html {
 
 	.gloss {
 		.regular;
+		.scriptsize {
+			.light;
+		}
 	}
 
 	.headword {
@@ -337,6 +343,7 @@ body, html {
 	}
 
 	table.frame {
+		.medium;
 		a {
 			color: @black;
 		}
@@ -364,6 +371,14 @@ body, html {
 
 	.scriptsize {
 		color: @pink;
+	}
+
+	.primary-mark {
+		.bold;
+	}
+
+	.rule-link {
+		.light;
 	}
 
 	.attrname {

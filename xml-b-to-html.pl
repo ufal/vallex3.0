@@ -732,7 +732,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               my $primary    = $attr_node->getAttribute('primary');
               my $locatum    = $attr_node->getAttribute('locatumtype');
               $locatum = $locatum ? " ($locatum)" : "";
-              my $primary_mark = "<span style='font-size:large'>" # FIXME moc velke, odstrkuje radku
+              my $primary_mark = "<span class='primary-mark'>" # FIXME moc velke, odstrkuje radku
                 . ($primary ? "Ⅰ" : "Ⅱ") . "</span>";
               my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("frame_id");
               my $LU_ref_index = $1 if $LU_ref =~ /^blu-v-.+-(\d+)$/;
@@ -743,7 +743,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               my $url_subtype = string_to_html_filename($subtype.$locatum);
               $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
                 . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
-                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec:sect:$type'>rule &gt;</a>"
+                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec:sect:$type' class='rule-link'>rule &gt;</a>"
                 . "</table>";
             }
             elsif ($attrname eq "diat") {
