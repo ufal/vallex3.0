@@ -950,7 +950,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       my $classtype;
       if ($type eq 'typ') {$classtype=' typ'}
 
-      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a><td class='type'><a title='$type_of_compl{$type}'>$type</a>";
+      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a><td class='type' title='$type_of_compl{$type}'>$type";
       $frame_table_row2 .= "<td class='forms'>$forms";
     } # konec for frame slot
     my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";
