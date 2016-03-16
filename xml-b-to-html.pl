@@ -771,26 +771,40 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     $subtypes{$example->getAttribute('subtype')} .= $example->getFirstChild->getNodeValue;
                   }
                 }
-                if (%subtypes) {
+                foreach my $subtype (sort keys %subtypes) {
+                  $subtypes{$subtype} =~ s@(&nbsp;<span class='scriptsize'>(impf|pf|iter|biasp)[12]?:</span>)(.*)\g1@$1$3@gs;
+                  $subtypes{$subtype} =~ s/\s+$//; # trailing whitespace removed -> semicolon can be appended
+                }
+
+                #   $type     -->    $subtype
+                # poss-result --> (poss-result-conv poss-result-nconv poss-result-both)
+                # deagent     --> (deagent deagent0)
+                # passive     --> passive / or YES
+                # recipient   --> recipient / or YES
+                warn("ERROR: Possessive resultative without a subtype: $headword_lemmas LU$frame_index\n") if $type eq "poss-result" and !%subtypes;
+                warn("ERROR: Deagentisation without a subtype: $headword_lemmas LU$frame_index\n") if $type eq "deagent" and !%subtypes;
+                warn("ERROR: Subtype not allowed for $type diathesis: $headword_lemmas LU$frame_index\n") if $type ne "poss-result" and $type ne "deagent" and %subtypes and (keys(%subtypes) > 1 or !$subtypes{$type});
+                # TODO predchozi chyby kontrolovat hlavne v prevodu do XML ci v testech dat
+                if ($type eq "poss-result") {
                   foreach my $subtype (sort keys %subtypes) {
                     # my $adjusted_subtype = $subtype;
                     # $adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
-                    $subtypes{$subtype} =~ s@(&nbsp;.span class='scriptsize'.(impf|pf|iter|biasp)[12]?:./span.)(.*)\g1@$1$3@gs;
                     # $frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
                     # add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
-                    if ($type eq "poss-result") {
-                      $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/possessive/$subtype'>$subtype:</a>".$subtypes{$subtype};
-                      unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "possessive", $subtype);
-                    }
-                    else {
-                      $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$subtype:</a>".$subtypes{$subtype};
-                    }
+                    $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype'>$subtype:</a>".$subtypes{$subtype};
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", $type, $subtype);
                   }
+                } elsif (%subtypes) {
+                  $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type:</a>";
+                  # Only one possible subtype for "passive" and "recipient"
+                  # and both possible subtypes for "deagent" should be merged
+                  # TODO aspects are not merged properly (original "deagent impf pf deagent0 impf pf" -> "deagent impf pf impf pf")
+                  $frame_attrs{"diat"} .= join("; ", map {$subtypes{$_}} sort keys(%subtypes));
                 } else {
                   $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type</a> YES";
                 }
               } else {
-                print STDERR "Unexpected value in a diathesis node.";
+                print STDERR "Unexpected value of 'value' in a diathesis node.";
               }
             }
             elsif (my $type = $attr_node->getAttribute('type')) {
