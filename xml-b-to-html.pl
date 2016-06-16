@@ -1161,13 +1161,18 @@ sub parseFiltertree {
       "url" => $filter_filename,
       "subfilters" => parseFiltertree($pathPrefix, $filter_path . "/", ${${$tree}{"subfilters"}}{$key}, $key)
     );
-    # humus - v hlavním menu nechcemestring_to_html_filename ALL záložku
+    # humus - v hlavním menu nechceme ALL záložku
     if($path . $key ne "all"){
       push @converted, \%filter;
     }
 
     my @lexemes_array = values %{${${${$tree}{"subfilters"}}{$key}}{"lexemes"}}; # proč perl :-(
-    my @sorted = sort {${$a}[0] . ${$a}[1] cmp ${$b}[0] . ${$b}[1]} @lexemes_array;
+    my @sorted = sort {
+      if(${$a}[0] eq ${$b}[0]) {
+        return ${$a}[1] <=> ${$b}[1];
+      }
+      return ${$a}[2] cmp ${$b}[2];
+      } @lexemes_array;
     create_json_file($pathPrefix.$filter_filename, \@sorted);
   }
 
