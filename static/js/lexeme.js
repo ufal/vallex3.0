@@ -473,6 +473,9 @@ var LexemesView = Backbone.View.extend({
 			var lu = _this.model.get("selectedLexeme");
 			$(".lexical_unit .more").hide();
 
+			// defaultně scroll nahoru
+			$(".wordentry_content").mCustomScrollbar("scrollTo", 0);
+
 			// funkce rozbalovače
 			$(".lexical_unit .expander").click(function (e) {
 				var id = $(e.target).parents(".lexical_unit").data("id");
