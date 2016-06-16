@@ -1006,19 +1006,18 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     $htmlized_frame_entries .=
       "<table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
       "<td class='lexical_unit_index'>".$first_frameentry_row.
-      # "<td class='lexical_unit'>".
-      "<td colspan='2' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
-      "<tr><td><td class='attrname frame'>frame<td class='attr frame'>".$frame_table_html. # frame má podobu tabulky
-      "<tr><td><td class='attrname example'>example<td class='attr example'>".$frame_attrs{'example'}. # příklady
+      "<td colspan='3' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
+      "<tr><td><td class='attrname frame'>frame<td colspan='2' class='attr frame'>".$frame_table_html. # frame má podobu tabulky
+      "<tr><td><td class='attrname example'>example<td class='attr example'>".$frame_attrs{'example'}.
+      "<td class='expander_cell'><a class='expander". (@frame_attrs_filtered ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # more tlačítko
       # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
-      "<tr class='expander_row'><td colspan='3'><a class='expander". (@frame_attrs_filtered ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # příklady
       # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
       (join "", map {
         my $attrname = $_;
         if($attrname eq "usage in ČNK"){
           $attrname = "cnk_usage";
         }
-        "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$_}."'>$_</a><td class='attr $attrname'>$frame_attrs{$_} "
+        "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$_}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} "
         } (@frame_attrs_filtered) ).
       "</table>";
   } # end of foreach blu
