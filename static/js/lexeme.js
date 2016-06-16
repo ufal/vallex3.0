@@ -1,4 +1,4 @@
-var LUseparator = /\/|, /;
+var LUseparator = /[^<]\/|, /;
 
 var Lexemes = Backbone.Model.extend({
 	lexemes: null,
