@@ -85,6 +85,9 @@ var AppView = Backbone.View.extend({
 		// filters summary clear
 		$(".header .filters_summary ul").html("");
 
+		// render aktivuji manuálně, protože all je selected vždy
+		this.filters.filterView.render();
+
 		var pathArray = [];
 		if(path !== null)
 			var pathArray = path.split("/");
