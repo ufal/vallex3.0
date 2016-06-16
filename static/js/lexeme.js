@@ -1,3 +1,5 @@
+var LUseparator = /\/|, /;
+
 var Lexemes = Backbone.Model.extend({
 	lexemes: null,
 	cached: null,
@@ -41,7 +43,7 @@ var Lexemes = Backbone.Model.extend({
 			for (var i = 0; i < this.filtered.length; i++) {
 				var lu = this.filtered[i];
 				var namesString = lu.parent.get("name").toLowerCase();
-				var names = namesString.split(", ");
+				var names = namesString.split(LUseparator);
 				for (var n = 0; n < names.length; n++) {
 					var name = names[n];
 					var found = true;
@@ -253,7 +255,7 @@ var LexemesView = Backbone.View.extend({
 					for (var i = 0; i < _this.model.filtered.length; i++) {
 						var lu = _this.model.filtered[i];
 						var namesString = lu.parent.get("name").toLowerCase();
-						var names = namesString.split(", ");
+						var names = namesString.split(LUseparator);
 						for (var n = 0; n < names.length; n++) {
 							var name = names[n];
 							var found = true;
@@ -280,7 +282,7 @@ var LexemesView = Backbone.View.extend({
 			},
 			formatResult: function (suggestion, currentValue) {
 				// vybarví matchnuté začátky lemmat
-				return _(suggestion.value.split(", ")).map(function (lemma) {
+				return _(suggestion.value.split(LUseparator)).map(function (lemma) {
 					for (var i = 0; i < currentValue.length; i++) {
 						if(lemma[i] != currentValue[i])
 							break;
@@ -348,7 +350,7 @@ var LexemesView = Backbone.View.extend({
 			for (var i = 0; i < this.model.filtered.length; i++) {
 				var lu = this.model.filtered[i];
 				var namesString = lu.parent.get("name").toLowerCase();
-				var names = namesString.split(", ");
+				var names = namesString.split(LUseparator);
 				for (var n = 0; n < names.length; n++) {
 					var name = names[n];
 					var found = true;
