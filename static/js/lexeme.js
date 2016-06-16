@@ -423,6 +423,8 @@ var LexemesView = Backbone.View.extend({
 				console.timeEnd('lexemesRender');
 		}
 		_.defer(asyncWrite, this.model.filtered, 0);
+
+		this.$el.find(".result").mCustomScrollbar("scrollTo", 0);
 		// this.$el.html(html);
 	},
 
