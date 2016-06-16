@@ -242,6 +242,10 @@ var LexemesView = Backbone.View.extend({
 
 		// autocomplete
 		var _this = this;
+		$('.search_input').on("focus", function () {
+			$('.search_input').autocomplete().suggest();
+		});
+
 		$('.search_input').autocomplete({
 			preserveInput: true, // kvůli homographs, které dělají neplechu s html tagy
 			autoSelectFirst: true,
