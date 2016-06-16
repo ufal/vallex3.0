@@ -406,7 +406,7 @@ var LexemesView = Backbone.View.extend({
 				var lu = filtered[i];
 				var parent = lu.parent;
 				var selected = "";
-				if(lu == selectedLexeme)
+				if(parent.id == selectedLexeme.parent.id && lu.id == selectedLexeme.id)
 					selected = " selected";
 
 				var luId = "";
