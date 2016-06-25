@@ -410,7 +410,9 @@ var LexemesView = Backbone.View.extend({
 				var lu = filtered[i];
 				var parent = lu.parent;
 				var selected = "";
-				if(selectedLexeme !== null && parent.id == selectedLexeme.parent.id && lu.id == selectedLexeme.id)
+				if( selectedLexeme !== null && 
+					parent.id == selectedLexeme.parent.id &&
+					(lu.id == 0 || lu.id == selectedLexeme.id))
 					selected = " selected";
 
 				var luId = "";
@@ -445,7 +447,10 @@ var LexemesView = Backbone.View.extend({
 		// označení ve vyhledávání
 		if(prevlu)
 			this.$el.find(".result ul li ."+prevlu.parent.id).removeClass("selected").off("click");
-		this.$el.find(".result ul li ."+lexeme.id+".u"+lu.id)
+		var luClass = ".result ul li ."+lexeme.id+".u"+lu.id;
+		var lexemeClass = ".result ul li ."+lexeme.id+".u0";
+		console.log(luClass + ", " + lexemeClass);
+		this.$el.find(luClass + ", " + lexemeClass)
 			.addClass("selected")
 			.one("click", function (e) {
 				e.preventDefault();
