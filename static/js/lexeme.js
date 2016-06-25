@@ -37,28 +37,6 @@ var Lexemes = Backbone.Model.extend({
 				return [i, lu];
 			}
 		}
-
-		// pokud nenajde nic jednoduché vyhledávání, přepne se na složitější
-		if(!found){
-			for (var i = 0; i < this.filtered.length; i++) {
-				var lu = this.filtered[i];
-				var namesString = lu.parent.get("name").toLowerCase();
-				var names = namesString.split(LUseparator);
-				for (var n = 0; n < names.length; n++) {
-					var name = names[n];
-					var found = true;
-					for (var j = 0; j < str.length; j++) {
-						if(str[j] != name[j]){
-							found = false;
-							break;
-						}
-					}
-					if(found){
-						return [i, lu];
-					}
-				}
-			}
-		}
 	},
 
 	getLexeme: function (id) {
@@ -310,14 +288,6 @@ var LexemesView = Backbone.View.extend({
 		});
 	},
 
-	search: function (e) {
-		if(e.keyCode == 13){
-			this.select(e.target.value);
-		}
-
-		this.scrollTo(e.target.value);
-	},
-
 	clearSearch: function (e) {
 		this.$el.find(".search_input").val("");
 		// odstraní šedou
@@ -376,12 +346,6 @@ var LexemesView = Backbone.View.extend({
 		}
 
 		console.timeEnd("gray");
-	},
-
-	select: function (str) {
-		var first = this.model.findBest(str);
-		console.log(first)
-		this.model.setSelectedLexeme(first[1].parent.id, first[1].id);
 	},
 
 	render: function () {
