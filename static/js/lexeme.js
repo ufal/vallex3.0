@@ -577,7 +577,18 @@ var LexemesView = Backbone.View.extend({
 			$expander.find("span").html("less");
 			$expander.addClass("expanded");
 
-			$parent.find(".more").show(200);
+			var hidden = $parent.find(".more").length;
+			$parent.find(".more").show(200, "swing", function () {
+				if(--hidden == 0){
+					var LUBottomY = $parent[0].getBoundingClientRect().bottom;
+					var windowBottomY = $(".wordentry_content")[0].getBoundingClientRect().bottom;
+					if(LUBottomY > windowBottomY) {
+						$(".wordentry_content").mCustomScrollbar("scrollTo", ".lexical_unit.u"+id, {
+							scrollInertia: 100
+						});
+					}
+				}
+			});
 
 			return true;
 		}
