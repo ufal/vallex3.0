@@ -407,7 +407,7 @@ sub pdtvallex_word_links {
     $url_lemma =~ s/\ /+/x;
     $wlink_string .=
       "<li><a href='$PDTVALLEX_URL$url_lemma' target='_blank' class='external'>"
-      . "<span>$lemma</span>"
+      . "<span>$lemma</span>&nbsp;"
       . "<div class='arrow'>&gt;</div></a></li>";
   }
   if($wlink_string){
