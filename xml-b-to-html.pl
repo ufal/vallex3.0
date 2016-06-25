@@ -1129,7 +1129,56 @@ my %sortings = (
   "complexity" => sub {
     my $ref = shift;
     return numberSort(@$ref);
-  }
+  },
+  "forms" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "direct_case" => 0,
+      "prepos_case" => 1,
+      "infinitive" => 2,
+      "subord_conj" => 3,
+      "cont" => 4,
+      "adjective" => 5,
+    }, $ref);
+  },
+  "functors" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "actants" => 0,
+      "free" => 1,
+      "quasi-valency" => 2,
+    }, $ref);
+  },
+  "aspect" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "impf" => 0,
+      "pf" => 1,
+      "impf+pf" => 2,
+      "biasp" => 3,
+      "impf1+impf2+pf" => 4,
+      "impf1+impf2+pf1+pf2" => 5,
+      "impf+pf1+pf2" => 6,
+      "pf1+pf2" => 7,
+    }, $ref);
+  },
+  "control" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "ACT" => 0,
+      "ADDR" => 1,
+      "ACT, ADDR" => 2,
+      "PAT" => 3,
+      "ACT, PAT" => 4,
+      "ORIG" => 5,
+      "ex" => 6,
+      "ACT, ex" => 7,
+      "ADDR, ex" => 8,
+      "PAT, ex" => 9,
+      "BEN, ex" => 10,
+      "ORIG, ex" => 11,
+    }, $ref);
+  },
 );
 
 sub parseFiltertree {
