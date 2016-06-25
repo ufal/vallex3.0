@@ -452,7 +452,7 @@ var LexemesView = Backbone.View.extend({
 			// funkce rozbalovače
 			$(".lexical_unit .expander").click(function (e) {
 				var id = $(e.target).parents(".lexical_unit").data("id");
-				_this.toggleLUExpansion(id);
+				_this.toggleLUExpansion(id, undefined, true);
 			});
 
 			// funkce rozbalovače pdt-vallex
@@ -469,7 +469,7 @@ var LexemesView = Backbone.View.extend({
 				var id = $(e.target).parents(".lexical_unit").data("id");
 				if(lu.id == id){
 					_this.toggleLUSelection(id);
-					_this.toggleLUExpansion(id, true);
+					_this.toggleLUExpansion(id, true, true);
 				}
 			});
 
@@ -486,13 +486,13 @@ var LexemesView = Backbone.View.extend({
 			// otevření, pokud je < 3 LU
 			if($(".lexical_unit").length <= 3){
 				for (var i = 0; i < $(".lexical_unit").length; i++) {
-					_this.toggleLUExpansion(i+1, true);
+					_this.toggleLUExpansion(i+1, true, false);
 				};
 			}
 			else {
 				// otevře aktivní LU
 				if(lu.id > 0)
-					_this.toggleLUExpansion(lu.id, true);
+					_this.toggleLUExpansion(lu.id, true, true);
 			}
 
 			// označí aktivní LU
@@ -522,7 +522,7 @@ var LexemesView = Backbone.View.extend({
 		return select === undefined ? !selected : select;
 	},
 
-	toggleLUExpansion: function (id, expand) {
+	toggleLUExpansion: function (id, expand, scrollIfOverflows) {
 		// var parent = $(e.target).parents(".lexical_unit");
 		var $parent = $(".wordentry .matrjoska .lexical_unit.u"+id);
 		var $expander = $parent.find(".expander");
@@ -543,7 +543,7 @@ var LexemesView = Backbone.View.extend({
 
 			var hidden = $parent.find(".more").length;
 			$parent.find(".more").show(200, "swing", function () {
-				if(--hidden == 0){
+				if(--hidden == 0 && scrollIfOverflows){
 					var LUBottomY = $parent[0].getBoundingClientRect().bottom;
 					var windowBottomY = $(".wordentry_content")[0].getBoundingClientRect().bottom;
 					if(LUBottomY > windowBottomY) {
