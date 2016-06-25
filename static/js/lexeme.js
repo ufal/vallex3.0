@@ -232,6 +232,8 @@ var LexemesView = Backbone.View.extend({
 					suggestions: []
 				};
 
+				query = query.toLowerCase();
+
 				if(query){
 					var unique = {};
 					for (var i = 0; i < _this.model.filtered.length; i++) {
@@ -263,6 +265,9 @@ var LexemesView = Backbone.View.extend({
 				done(result);
 			},
 			formatResult: function (suggestion, currentValue) {
+
+				currentValue = currentValue.toLowerCase();
+
 				// vybarví matchnuté začátky lemmat
 				return _(suggestion.value.split(LUseparator)).map(function (lemma) {
 					for (var i = 0; i < currentValue.length; i++) {
