@@ -164,7 +164,7 @@ body, html {
 		height: 100%;
 
 		&.alphabet {
-			width: 5em;
+			width: 6em;
 			line-height: 1em;
 			// .matrjoska {
 			// 	padding-left: 2em;
@@ -193,10 +193,11 @@ body, html {
 			}
 		}
 		&.framelist {
-			width: 15em;
+			@leftPadding: 1em;
+			width: 14em;
 			position: relative;
 			.search {
-				padding-left: 2em;
+				padding-left: @leftPadding;
 				height: 2em;
 				// width: 100%;
 				line-height: 2em;
@@ -218,7 +219,7 @@ body, html {
 				bottom: 0;
 			}
 			.result {
-				padding-left: 2em;
+				padding-left: @leftPadding;
 				height: 100%;
 
 				.scrollhack {
