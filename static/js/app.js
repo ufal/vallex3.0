@@ -1,6 +1,7 @@
 var AppView = Backbone.View.extend({
 	events: {
-		"click .fixed_bottom .expander" : "toggleHeader"
+		"click .fixed_bottom .expander" : "toggleHeader",
+		"click .footer .expander" : "toggleFooter"
 	},
 
 	// mohl bych implementovat promises, ale kvůli jednomu eventu...?
@@ -133,7 +134,25 @@ var AppView = Backbone.View.extend({
 		}
 
 		this.headerExpanded = !this.headerExpanded;
-	}
+	},
+
+	toggleFooter: function (e) {
+		var $expander = $(e.currentTarget);
+
+		$(".footer .content").slideToggle();
+		if($expander.hasClass("expanded")){
+			$(".footer").animate({
+				borderTopWidth: "0px"
+			});
+		}
+		else {
+			$(".footer").animate({
+				borderTopWidth: "4px"
+			});
+		}
+
+		$expander.toggleClass("expanded");
+	},
 
 });
 

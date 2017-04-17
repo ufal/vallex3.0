@@ -434,6 +434,34 @@ ul {
 	}
 }
 
+// vysouvací patička
+.footer {
+	text-align: center;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background-color: #fff;
+	border-top: 0px @black solid;
+	width: 100%;
+	z-index: 2;
+	.top {
+		height: 18px;
+		.expander {
+			display: inline-block;
+			height: 18px;
+			transform: scale(3, 1);
+			// background-color: red;
+			.arrow {
+				position: relative;
+				top: -3px;
+			}
+		}
+	}
+	.content {
+		padding: 2em;
+	}
+}
+
 // autocomplete
 .autocomplete-suggestions {
 	background-color: #ffffff;
