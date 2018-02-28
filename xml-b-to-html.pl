@@ -869,11 +869,18 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               }
             }
 
+            my $lvc_index = $blu_node->getTagName eq "llu" ?
+              ($attr_node->getAttribute('lvc_coindex') or 0) : undef();
             my @coindexed = $attr_node->getElementsByTagName('coindexed');
             if (@coindexed) {
               my $sep;
               foreach my $node (@coindexed) {
-                $frame_attrs{$attrname} .= "$sep<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
+                my $node_value = "$sep<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
+                if (defined($lvc_index)) {
+                  $frame_attrs{$attrname}->[$lvc_index] .= $node_value;
+                } else {
+                  $frame_attrs{$attrname} .= $node_value;
+                }
                 $sep = "&nbsp";
               }
             }
@@ -888,8 +895,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   my $node_value = $the_only_child->getNodeValue;
                   $node_value =~ s/^\s+//;
                   $node_value =~ s/\s+$//;
-                  my $lvc_index = $blu_node->getTagName eq "llu" ?
-                    ($attr_node->getAttribute('lvc_coindex') or 0) : undef();
                   if ($attrname eq "nouns") {
                     $node_value = join(", ",
                       map {
@@ -911,7 +916,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     $node_value =~ s/([A-Z])v/$1<span style='vertical-align: sub; font-size: smaller'>verb<\/span>/g;
                     $node_value =~ s/([A-Z])n/$1<span style='vertical-align: sub; font-size: smaller'>noun<\/span>/g;
                   }
-                  warn("ATTR: $attrname\n");
                   if (defined($lvc_index)) {
                     $frame_attrs{$attrname}->[$lvc_index] = $node_value;
                   } else {
@@ -1281,7 +1285,6 @@ sub sort_LVC_attributes {
   my $LVC_lines;
   foreach my $lvc_index (0..$#{$attrs{nouns}}) {
     next if !$attrs{nouns}->[$lvc_index];
-    warn("PRINTING LVC #$lvc_index\n");
     my $suffix = $lvc_index > 0 ? $lvc_index : "";
     $LVC_lines .=
       LVC_line("noun",       $suffix, $attrs{nouns}->[$lvc_index]) .
@@ -1303,7 +1306,6 @@ sub LVC_line {
     $tr_attr = " class='more'";
     $td_attr = " colspan='2'";
   }
-  warn("LVC LINE: $labelname$suffix\n");
   return "<tr$tr_attr><td>"
     . "<td class='attrname $labelname'>$labelname$suffix"
     . "<td$td_attr class='attr $labelname'>$value";
