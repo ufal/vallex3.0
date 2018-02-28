@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
-# use warnings;
+use warnings;
 use locale;
 use POSIX qw(locale_h);
 setlocale(LC_ALL,"cs_CZ.utf8");
@@ -42,6 +42,7 @@ my %functor_comments = (
   "CAUS" => "cause",
   "COMPL" => "complement",
   "CPHR" => "compound phraseme",
+  "CRIT" => "criterion/measure/standard",
   "DIR" => "shortcut for DIR1 DIR2 DIR3",
   "DIR1" => "direction-from",
   "DIR2" => "direction-through",
@@ -63,6 +64,7 @@ my %functor_comments = (
   "THL" => "temporal-how-long ",
   "TOWH" => "temporal-to when",
   "TSIN" => "temporal-since-when",
+  "TTILL" => "temporal-until-when",
   "TWHEN" => "temporal-when"
 );
 
@@ -139,7 +141,7 @@ sub trim {
 my %substitution;
 my %subst_prefs;
 sub string_to_html_filename {
-  my ($orig)=@_;
+  my $orig=shift;
   if (not $substitution{$orig}) {
     my $subst_prefix;
     my $subst_suffix = "";
@@ -229,7 +231,7 @@ sub questionmark ($) {
 
 sub formnode2formtxt {
   my ($formnode)=@_;
-  my $to_be;
+  my $to_be = "";
   if ($formnode->getAttribute('to_be')) { $to_be="být+" }
   my $prep=$formnode->getAttribute('prepos_lemma');
   $prep=~s/\_/ /g;
@@ -364,7 +366,7 @@ sub lexeme_or_blu_to_lemmas {
 
 sub coindex_sort { # (temer) kopie z txt2xml_b.pl
     local $_ = shift;
-    my $n = $1 if s/(\d+)$//;
+    my $n = $1 if s/(\d*)$//;
     s/^biasp$/b$n/;
     s/^pf/c$n/;
     s/^impf/a$n/;
@@ -458,7 +460,7 @@ sub create_links_to_valeval {
   my %coindexed_lemmas = @_;
   my @return;
 
-  my %sortasp = (impf=>1, impf1=>2, impf2=>3, pf=>4, pf1=>5, pf2=>6, iter=>7);
+  my %sortasp = (impf=>1, impf1=>2, impf2=>3, pf=>4, pf1=>5, pf2=>6, biasp=>7, iter=>8, iter1=>9, iter2=>10);
   my @aspects = sort {$sortasp{$a}<=>$sortasp{$b}} keys(%coindexed_lemmas);
   foreach my $asp (@aspects) {
     my @variants = @{$coindexed_lemmas{$asp}};
@@ -703,7 +705,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $link_to_frame = "<a target='wordentry' href='../lexeme-entries/$filename\#$frame_index'>$bullet $headword_lemmas <span class='scriptsize'>$frame_index</span></a><br>";
 
 
-    my $limited_lex_forms;
+    my $limited_lex_forms = "";
     my @blu_coindexes;
     my %local_aspect;
     if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0) {  # omezeni forem, pro nez LU plati
@@ -739,7 +741,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 . ($primary ? "Ⅰ." : "Ⅱ.") . "</span>";
               my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("frame_id");
               my $LU_ref_index = $1 if $LU_ref =~ /^blu-v-.+-(\d+)$/;
-              warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n") if !$LU_ref_index;
+              if (!$LU_ref_index) {
+                warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n");
+                $LU_ref_index = "N";
+              }
 
               unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$locatum);
               my $url_type = string_to_html_filename($type);
@@ -846,11 +851,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 $lemma =~ s/\ /+/xg;
                 # Rounding (2 decimal places)
                 $weight += 0.005; # plus half
-                $weight =~ s/,(..).*$/.\1/; # trunk
+                $weight =~ s/,(..).*$/.$1/; # trunk
                 $weight += 0; # remove trailing zeros
                 $weight =~ s/,/./; # point instead of comma
 
-                my $limit;
+                my $limit = "";
                 # kdyz je nutne rozlisovat, ktery z vidu platnych pro danou LU to je,
                 # protoze neiterativnich je vic -- a nebo je toto dokonce iterativum
                 if ((grep {$_ !~ /^iter/} @blu_coindexes) > 1 or $coindex =~ /^iter/) {
@@ -873,7 +878,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               ($attr_node->getAttribute('lvc_coindex') or 0) : undef();
             my @coindexed = $attr_node->getElementsByTagName('coindexed');
             if (@coindexed) {
-              my $sep;
+              my $sep = "";
               foreach my $node (@coindexed) {
                 my $node_value = "$sep<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
                 if (defined($lvc_index)) {
@@ -923,7 +928,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   }
                 }
               } else {
-                $frame_attrs{$attrname} =~ s{:  $}{};
+                $frame_attrs{$attrname} =~ s{:  $}{} if $frame_attrs{$attrname};
               }
             }
           }
@@ -945,7 +950,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     $frame_attrs{'usage in ČNK'} = create_links_to_valeval($frame_index, $filename, $lexeme_id, $only_one_apect, %coindexed_lemmas);
 
 
-    my $special_LU_type;
+    my $special_LU_type = "";
     if ($blu_node->getParentNode->getAttribute('idiom') eq "1") {
       $special_LU_type = " (idiom) ";
     } elsif ($blu_node->getTagName eq "llu") {
@@ -1001,13 +1006,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           $filter_url = "functors/free/DPHR";
         }
         my $form_comment = $long_form_type{$type};
-        $form_comment .= " ($case_names{$result})" if ($type eq 'direct_case');
+        $form_comment .= " ($case_names{$result})"
+          if ($type eq 'direct_case' and $efftype ne "byt");
 
         "<a class='forms' target='_top' title='morphemic form: $form_comment'
         href='#/filter/$filter_url'>$result</a>";
       } $frame_slot->getElementsByTagName('form');
 
-      my $classtype;
+      my $classtype = "";
       if ($type eq 'typ') {$classtype=' typ'}
 
       $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a><td class='type' title='$type_of_compl{$type}'>$type";
@@ -1035,6 +1041,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       'class' => 'guide.html#sec:sect:class',
       'diat' => 'guide.html#sec:sect:diat',
       'PDT-Vallex' => 'http://ufal.mff.cuni.cz/PDT-Vallex/',
+      'cnk_usage' => '',  # TODO
       #'noun' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
       #'map' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
       #'instigator' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
@@ -1253,6 +1260,7 @@ sub parseFiltertree {
   }
 
   foreach my $key (@sortedSubfilters) {
+    $key = "" if !$key;  # FIXME: nechapu, jak se tam JB dostane undef, ale takhle aspon nekrici
     my $filter_path = $path . string_to_html_filename($key);
     my $filter_filename = $filter_path . ".json";
     my %filter = (
@@ -1301,7 +1309,7 @@ sub LVC_line {
   my $hidden    = shift;
 
   return "" if !$value;
-  my ($tr_attr, $td_attr);
+  my $tr_attr = my $td_attr = "";
   if ($hidden) {
     $tr_attr = " class='more'";
     $td_attr = " colspan='2'";
