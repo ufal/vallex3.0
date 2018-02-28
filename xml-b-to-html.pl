@@ -17,6 +17,7 @@ use XML::DOM;
 use List::Util 1.33 'none';
 # use Data::Dumper;
 
+my $VERB_MODE = 1;
 
 # ------------------ initializing hint hashes ----------------------
 
@@ -89,7 +90,8 @@ my %long_form_types = (
   'infinitive' => 'Infinitive',
   'adjective' => 'Constructions with adjectives',
   'byt' => 'Constructions with "být" (to be)',
-  'phraseme_part' => 'Parts of phrasemes'
+  'phraseme_part' => 'Parts of phrasemes',
+  'possessive' => 'Possessive',
 );
 
 my %long_form_type = (
@@ -100,7 +102,8 @@ my %long_form_type = (
   'infinitive' => 'infinitive',
   'adjective' => 'construction with an adjective',
   'byt' => 'construction with "být" (to be)',
-  'phraseme_part' => 'part of a phraseme'
+  'phraseme_part' => 'part of a phraseme',
+  'possessive' => 'possessive',
 );
 my %case_names = (
   '1' => 'nominative',
@@ -185,13 +188,37 @@ my $javascript_head = '<script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="../lexeme-entries/index.js"></script>
   <script type="text/javascript" src="autocomplete.js"></script>';
 
+my $HTML_noun_header = '<!DOCTYPE html>
+<html>
+<head>
+        <title>vallex 3.0</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet/less" type="text/css" href="../../css/styles.less">
+        <script src="../../libs/less.min.js"></script>
+        <script src="../../libs/underscore-min.js"></script>
+        <script src="../../libs/jquery-2.1.4.min.js"></script>
+        <script src="../../libs/jquery.autocomplete.min.js"></script>
+        <script src="../../libs/jquery.mCustomScrollbar.concat.min.js"></script>
+        <script src="../../libs/backbone-min.js"></script>
+
+        <script src="../../js/layout.js"></script>
+        <script src="../../js/filters.js"></script>
+        <script src="../../js/lexeme.js"></script>
+        <script src="../../js/router.js"></script>
+        <script src="../../js/app.js"></script>
+</head>
+<body>';
+my $HTML_noun_footer = "</body>\n</html>";
+
 
 sub create_html_file ($$) {
   my ($filename, $content)=@_;
   $filename = $outputdir.$filename;
   # print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
+  print F $HTML_noun_header if !$VERB_MODE;
   print F $content;
+  print F $HTML_noun_footer if !$VERB_MODE;
   close F;
 }
 
@@ -259,6 +286,9 @@ sub formnode2formtxt {
   }
   elsif ($type eq "phraseme_part") {
     return [$formnode->getAttribute('phraseme_part')];
+  }
+  elsif ($type eq "possessive") {
+    return ["poss"];
   }
   else { print STDERR "Nerozeznana forma ($type)!\n"; return ['']  }
 }
@@ -905,7 +935,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                       map {
                         if (/^blu-n-(.*-\d+)$/) {
                           my $noun = $1;
-                          "<a href='n-$noun.html' target='_blank'>$noun</a>";
+                          my $noun_lexeme = $noun;
+                          $noun_lexeme =~ s/-\d+//;
+                          "<a href='generated/lexeme-entries/lxm-n-"
+                          . string_to_html_filename($noun_lexeme)
+                          . ".html' target='_blank'>$noun</a>";
                         } elsif (/\|/) {
                           ";";
                         } else {
@@ -1047,7 +1081,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       #'instigator' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
     );
 
-    my $LVC = $frame_attrs{'nouns'} ? 1 : 0;
+    my $LVC = ($VERB_MODE and $frame_attrs{'nouns'}) ? 1 : 0;
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex');
     my $visible_attributes =
       "<tr><td><td class='attrname frame'>frame<td colspan='2' class='attr frame'>".$frame_table_html. # frame má podobu tabulky
@@ -1061,23 +1095,26 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "<table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
       "<td class='lexical_unit_index'>".$first_frameentry_row.
       "<td colspan='3' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
-      $visible_attributes .
-      "<td class='expander_cell'><a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # more tlačítko
-      # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
-      # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
-      (join "", map {
-        my $attrname =
-          $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
-        "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$_}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} "
-        } (@frame_attrs_filtered) );
-      if ($LVC) {
-        foreach my $lvc_index (0..$#{$frame_attrs{example}}) {
-          my $suffix = $lvc_index > 0 ? $lvc_index : "";
-          $htmlized_frame_entries .=
-            LVC_line("example", $suffix, $frame_attrs{example}->[$lvc_index], "hidden");
-        }
+      $visible_attributes;
+    if ($VERB_MODE) {
+      $htmlized_frame_entries .=
+        "<td class='expander_cell'><a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # more tlačítko
+        # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
+        # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
+        (join "", map {
+          my $attrname =
+            $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
+          "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} "
+          } (@frame_attrs_filtered) );
+    }
+    if ($LVC) {
+      foreach my $lvc_index (0..$#{$frame_attrs{example}}) {
+        my $suffix = $lvc_index > 0 ? $lvc_index : "";
+        $htmlized_frame_entries .=
+          LVC_line("example", $suffix, $frame_attrs{example}->[$lvc_index], "hidden");
       }
-      $htmlized_frame_entries .= "</table>";
+    }
+    $htmlized_frame_entries .= "</table>";
   } # end of foreach blu
 
   $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_content'>".$htmlized_frame_entries."</div>";
