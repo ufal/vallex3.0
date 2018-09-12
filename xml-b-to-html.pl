@@ -331,7 +331,7 @@ sub unit_to_criteria {
     }
     $tree = ${${$tree}{"subfilters"}}{$node};
 
-    ${%{$tree}{"lexemes"}}{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas];
+    $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas];
     # push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas]
       # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
   }
