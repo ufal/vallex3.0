@@ -1010,6 +1010,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
         $functor_class = "quasi-valency";
       }
+      elsif ($functor =~ /^[CD]PHR$/) {
+        $functor_class = "MWE";
+      }
       unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", $functor_class, $functor);
 
       my $type=$frame_slot->getAttribute('type');
@@ -1242,6 +1245,7 @@ my %sortings = (
       "actants" => 0,
       "free" => 1,
       "quasi-valency" => 2,
+      "MWE" => 3,
     }, $ref);
   },
   "aspect" => sub {
