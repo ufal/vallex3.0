@@ -17,7 +17,7 @@ use XML::DOM;
 use List::Util 1.33 'none';
 # use Data::Dumper;
 
-my $VERB_MODE = 1;
+my $VERB_MODE = $ENV{VERB_MODE} // 1;
 
 # ------------------ initializing hint hashes ----------------------
 

@@ -34,7 +34,7 @@ html: $(XML)
 nounhtml: $(XML_NOUNS)
 	@echo Creating HTML files from noun XML file
 	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
-	$(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
+	VERB_MODE=0 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
 	@echo Done.
 
 
