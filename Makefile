@@ -4,7 +4,7 @@ ver = 3.1_jmena_0.0-work
 ver_nouns = 0.1-jmena
 #XML_newest = ../../XML_3.1_0.0
 XML_newest = ../../vallex-3.1_jmena_0.0-work/data/xml/vallex-3.1_jmena_0.0-work-b.xml
-XML_NOUNS = ../../XML_nouns_0.1
+XML_NOUNS = ../../XML-nouns_0.1
 dir_html_in = xml2html
 dir_out     = vallex-$(ver)
 dir_xml_out = $(dir_out)/data/xml
@@ -33,7 +33,8 @@ html: $(XML)
 
 nounhtml: $(XML_NOUNS)
 	@echo Creating HTML files from noun XML file
-	perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
+	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
+	$(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
 	@echo Done.
 
 
@@ -43,9 +44,9 @@ www:
 	scp -r $(dir_out)/data/html/ bejcek@ufal:public_html/vallex31/
 	ssh bejcek@ufal ' \
 		cp -r  public_html/vallex31/html public_html/vallex31/test_`date +%F_%T`; \
-		rm -rf public_html/vallex31/test; \
-		mv     public_html/vallex31/html public_html/vallex31/test'
-	scp vallex-$(ver_nouns)/data/html/generated/lexeme-entries/* bejcek@ufal:public_html/vallex31/test/generated/lexeme-entries
+		rm -rf public_html/vallex31/test-Nov; \
+		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
+	scp vallex-$(ver_nouns)/data/html/generated/lexeme-entries/* bejcek@ufal:public_html/vallex31/test-Nov/generated/lexeme-entries
 	# or
 	# scp -r $(dir_out)/data/html/ bejcek@ufal:web_vallex/3.1-test/
 	# ssh bejcek@ufal 'cp -r web_vallex/3.1-test/html web_vallex/3.1-test/3.1-test_`date +%F_%T`'
