@@ -375,12 +375,13 @@ sub lexeme_or_blu_to_lemmas {
       grep {$_->getNodeType == ELEMENT_NODE}
       map {$_->getChildNodes}
       grep {$_->getNodeType == ELEMENT_NODE and $_->getTagName eq "lexical_forms"} $higher_node->getChildNodes) {
+    my $coindex = $VERB_MODE ? $node->getAttribute("coindex") : "";
     if ($node->getTagName eq "mlemma") {
       my $refl = $node->getAttribute("optrefl") ? " (".$node->getAttribute("optrefl").")" : "##GLOBREFL##";
-      $asp2lemma{$node->getAttribute("coindex")}
+      $asp2lemma{$coindex}
         = [[$node->getFirstChild->getNodeValue . $refl, $node->getAttribute('homograph')]]; # TODO o dva radky niz je temer kopie
     } elsif ($node->getTagName eq "mlemma_variants") {
-      $asp2lemma{$node->getAttribute("coindex")}
+      $asp2lemma{$coindex}
         = [map {
                 my $refl = $_->getAttribute("optrefl") ? " (".$_->getAttribute("optrefl").")" : "##GLOBREFL##";
                 [$_->getFirstChild->getNodeValue . $refl, $_->getAttribute('homograph')]
@@ -420,7 +421,7 @@ sub lexeme_node_2_headwords {
     my @lemmas = @{$aspect2lemma_ref->{$coindex}};
     push(@headwords,
         join("/", map {mlemma_2_string(@{$_})} @lemmas)
-        . ($with_aspect ? "<sup class='scriptsize'>$coindex</sup>" : "")
+        . ($VERB_MODE && $with_aspect ? "<sup class='scriptsize'>$coindex</sup>" : "")
     );
   }
 
@@ -475,6 +476,7 @@ sub pdtvallex_word_links {
 sub get_coindexed_hash {
   my @headwords_html = @{shift()};
   my %coindexed;
+  return if !$VERB_MODE;
 
   foreach my $headword_html (@headwords_html) {
     # $coindexed{$2} = $1 if $headword_html =~ /^ ([^<>]+)  <sup\ class='scriptsize'>  ([^<>]+)  <\/sup>  $/x;
@@ -917,7 +919,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
             if (@coindexed) {
               my $sep = "";
               foreach my $node (@coindexed) {
-                my $node_value = "$sep<span class='scriptsize'>".$node->getAttribute('coindex').":</span> ".$node->getFirstChild->getNodeValue;
+                my $node_value
+                  = "$sep"
+                    . ($VERB_MODE ?
+                      "<span class='scriptsize'>"
+                      . $node->getAttribute('coindex')
+                      . ":</span> "
+                      : "")
+                    . $node->getFirstChild->getNodeValue;
                 if (defined($lvc_index)) {
                   $frame_attrs{$attrname}->[$lvc_index] .= $node_value;
                 } else {
