@@ -367,7 +367,7 @@ sub mlemma_2_string {
 
 
 sub lexeme_or_blu_to_lemmas {
-  my ($higher_node,$with_aspect) = @_;
+  my ($higher_node) = @_;
   my %asp2lemma;
   my $globreflex = "";
 
@@ -661,7 +661,7 @@ open(Pruned_IDs, ">:encoding(utf-8)", $pruned_IDs_file)
 
 foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my $filename = string_to_html_filename($lexeme_node->getAttribute('id'));
-  my %global_aspect = lexeme_or_blu_to_lemmas($lexeme_node, 0); # global == for lexeme
+  my %global_aspect = lexeme_or_blu_to_lemmas($lexeme_node); # global == for lexeme
   my $headwords_rf = lexeme_node_2_headwords(\%global_aspect, 0);
 
   foreach my $headword_string (map {split(/\//, $_)} map {$_ =~ s/<.+?>//g; $_} map {$_} @$headwords_rf) {
@@ -748,7 +748,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my @blu_coindexes;
     my %local_aspect;
     if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0) {  # omezeni forem, pro nez LU plati
-      %local_aspect = lexeme_or_blu_to_lemmas($blu_node, 0);    # local == for LU
+      %local_aspect = lexeme_or_blu_to_lemmas($blu_node);    # local == for LU
       my $blu_headwords_rf = lexeme_node_2_headwords(\%local_aspect, 1);
       $limited_lex_forms = "limit <span class='gloss'>".(join ", ",@$blu_headwords_rf)."</span><br>";
       @blu_coindexes = keys %local_aspect;
