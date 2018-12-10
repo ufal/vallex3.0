@@ -24,6 +24,7 @@ my $VERB_MODE = $ENV{VERB_MODE} // 1;
 my $xmlfile = shift;
 my $xml2html_dir = shift;
 my $version = shift;
+my $verbxmlfile = shift if !$VERB_MODE;
 
 
 my $outputdir = "$xml2html_dir/../vallex-$version/data/html/";
@@ -617,6 +618,8 @@ system "mkdir -p $outputdir/";
 # close IOUT;
 system "cp -r $xml2html_dir/static/* $outputdir/"; # je potreba vyhnout se kopirovan .svn
 
+my %used_noun = load_used_nouns($verbxmlfile) if !$VERB_MODE;
+
 print STDERR "Loading $xmlfile...\n";
 my $parser = XML::DOM::Parser->new();
 my $doc = $parser->parsefile($xmlfile);
@@ -733,10 +736,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   lexeme_to_criteria($filename, $headword_lemmas, "others", 'complexity', $complexity);
 
   my $frame_index;
-  my $htmlized_frame_entries;
+  my $htmlized_frame_entries = "";
   foreach my $blu_node (
       $lexeme_node->getElementsByTagName('blu'),
       $lexeme_node->getElementsByTagName('llu')) {
+    next if !$VERB_MODE && !$used_noun{$blu_node->getAttribute('id')};
     $frame_index ++;
 
     # ------ html link na ramec do vyhledavacich tabulek
@@ -1374,6 +1378,23 @@ sub LVC_line {
   return "<tr$tr_attr><td>"
     . "<td class='attrname $labelname'>$labelname$suffix"
     . "<td$td_attr class='attr $labelname'>$value";
+}
+
+sub load_used_nouns {
+  my $xml = shift;
+  print($xml, "\n");
+
+  my %nouns;
+  my $doc = XML::DOM::Parser->new()->parsefile($xml);
+  foreach my $nouns_node ($doc->getElementsByTagName('nouns')) {
+    foreach my $noun (split(/\s+/, $nouns_node->getFirstChild->toString)) {
+      last if $noun =~ /^\|$/;
+      next if $noun =~ /^\s*$/;
+      $nouns{$noun}++;
+    }
+  }
+
+  return %nouns;
 }
 
 my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree, "all")};
