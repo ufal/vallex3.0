@@ -1352,7 +1352,7 @@ sub sort_LVC_attributes {
     next if !$attrs{nouns}->[$lvc_index];
     my $suffix = $lvc_index > 0 ? $lvc_index : "";
     $LVC_lines .=
-      LVC_line("noun",       $suffix, $attrs{nouns}->[$lvc_index]) .
+      LVC_line("lvc",        $suffix, $attrs{nouns}->[$lvc_index]) .
       LVC_line("instigator", $suffix, $attrs{instigator}->[$lvc_index]) .
       LVC_line("map",        $suffix, $attrs{functor_mapping}->[$lvc_index]);
   }
