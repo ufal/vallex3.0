@@ -211,8 +211,11 @@ my $HTML_noun_header = '<!DOCTYPE html>
         <script src="../../js/router.js"></script>
         <script src="../../js/app.js"></script>
 </head>
-<body>';
-my $HTML_noun_footer = "</body>\n</html>";
+<body>
+<div class="dictionary" style="margin: 5em 25em">
+<div class="wordentry">
+';
+my $HTML_noun_footer = "\n</div>\n</div>\n</body>\n</html>";
 
 
 sub create_html_file ($$) {
