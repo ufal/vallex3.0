@@ -1337,11 +1337,11 @@ sub parseFiltertree {
 
     my @lexemes_array = values %{${${${$tree}{"subfilters"}}{$key}}{"lexemes"}}; # proč perl :-(
     my @sorted = sort {
-      if(${$a}[0] eq ${$b}[0]) {
-        return ${$a}[1] <=> ${$b}[1];
-      }
-      return ${$a}[2] cmp ${$b}[2];
-      } @lexemes_array;
+      return ($a->[0] eq $b->[0]
+        ? $a->[1] <=> $b->[1]
+        : $a->[2] cmp $b->[2]
+      );
+    } @lexemes_array;
     create_json_file($pathPrefix.$filter_filename, \@sorted);
   }
 
