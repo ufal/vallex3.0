@@ -245,10 +245,11 @@ sub create_multiframe ($$$) {
   close F;
 }
 
+my $json_obj = JSON->new->utf8->canonical;
 sub create_json_file ($$) {
   my ($filename, $hash)=@_;
   $filename = $outputdir.$filename;
-  my $json = encode_json($hash);
+  my $json = $json_obj->encode($hash);
   open F,">",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
   print F $json;
   close F;
@@ -1337,10 +1338,10 @@ sub parseFiltertree {
 
     my @lexemes_array = values %{${${${$tree}{"subfilters"}}{$key}}{"lexemes"}}; # proč perl :-(
     my @sorted = sort {
-      return ($a->[0] eq $b->[0]
-        ? $a->[1] <=> $b->[1]
-        : $a->[2] cmp $b->[2]
-      );
+      return ($a->[2] cmp $b->[2]  # sort by lemma
+        or    $a->[0] cmp $b->[0]  # same lemma (i.e. homograph) => sort by lxm ID
+        or    $a->[1] <=> $b->[1]  # same lxm ID => sort by LU number
+      )
     } @lexemes_array;
     create_json_file($pathPrefix.$filter_filename, \@sorted);
   }
