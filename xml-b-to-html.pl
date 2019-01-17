@@ -739,8 +739,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my $frame_index;
   my $htmlized_frame_entries = "";
   foreach my $blu_node (
-      $lexeme_node->getElementsByTagName('blu'),
-      $lexeme_node->getElementsByTagName('llu')) {
+      # We need to keep order of mixed <blu> and <llu> elements
+      grep { $_->getNodeName() =~ /^[bl]lu$/ }
+      map { $_->getChildNodes() }
+        $lexeme_node->getElementsByTagName('lexical_units')->[0]->getElementsByTagName('lu_cluster')
+    ) {
+      # Previously we wanted to take all <blu> in XML order and then all <llu>:
+      # $lexeme_node->getElementsByTagName('blu'),
+      # $lexeme_node->getElementsByTagName('llu')) {
     next if !$VERB_MODE && !$used_noun{$blu_node->getAttribute('id')};
     $frame_index ++;
 
