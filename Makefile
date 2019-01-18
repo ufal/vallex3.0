@@ -42,11 +42,11 @@ nounhtml: $(XML_NOUNS)
 
 www:
 	scp -r $(dir_out)/data/html/ bejcek@ufal:public_html/vallex31/
+	scp vallex-$(ver_nouns)/data/html/generated/lexeme-entries/* bejcek@ufal:public_html/vallex31/html/generated/lexeme-entries
 	ssh bejcek@ufal ' \
 		cp -r  public_html/vallex31/html public_html/vallex31/test_`date +%F_%T`; \
 		rm -rf public_html/vallex31/test-Nov; \
 		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
-	scp vallex-$(ver_nouns)/data/html/generated/lexeme-entries/* bejcek@ufal:public_html/vallex31/test-Nov/generated/lexeme-entries
 	# or
 	# scp -r $(dir_out)/data/html/ bejcek@ufal:web_vallex/3.1-test/
 	# ssh bejcek@ufal 'cp -r web_vallex/3.1-test/html web_vallex/3.1-test/3.1-test_`date +%F_%T`'
