@@ -12,7 +12,7 @@ dir_doc_out = $(dir_out)/doc
 dir_valeval = ../../extern/cnk
 XML = $(dir_xml_out)/vallex-$(ver).xml#	 name of -> XML file itself
 
-all: html www
+all: html nounhtml www
 
 
 
