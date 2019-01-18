@@ -1038,7 +1038,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         $functor_class = "quasi-valency";
       }
       elsif ($functor =~ /^[CD]PHR$/) {
-        $functor_class = "MWE";
+        $functor_class = "mwe";
       }
       unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", $functor_class, $functor);
 
@@ -1272,7 +1272,7 @@ my %sortings = (
       "actants" => 0,
       "free" => 1,
       "quasi-valency" => 2,
-      "MWE" => 3,
+      "mwe" => 3,
     }, $ref);
   },
   "aspect" => sub {
