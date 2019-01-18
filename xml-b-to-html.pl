@@ -196,7 +196,7 @@ my $javascript_head = '<script type="text/javascript" src="jquery.js"></script>
 my $HTML_noun_header = '<!DOCTYPE html>
 <html>
 <head>
-        <title>vallex 3.0</title>
+        <title>vallex 3.5</title>
         <meta charset="utf-8">
         <link rel="stylesheet/less" type="text/css" href="../../css/styles.less">
         <script src="../../libs/less.min.js"></script>
