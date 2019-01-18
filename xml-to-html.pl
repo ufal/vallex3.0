@@ -801,7 +801,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               my $url_subtype = string_to_html_filename($subtype.$locatum);
               $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
                 . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
-                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec:sect:$type' class='rule-link'>rule</a>"
+                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec-sect-$type' class='rule-link'>rule</a>"
                 . "</table>";
             }
             elsif ($attrname eq "diat") {
@@ -1096,14 +1096,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     # }
 
     my %attrname_links = (
-      'control' => 'guide.html#sec:sect:control',
-      'reflex' => 'guide.html#sec:sect:reflexivity',
-      'conv' => 'guide.html#sec:sect:alter',
-      'split' => 'guide.html#sec:sect:alter',
-      'multiple' => 'guide.html#sec:sect:alter',
-      'recipr' => 'guide.html#sec:sect:reciprocity',
-      'class' => 'guide.html#sec:sect:class',
-      'diat' => 'guide.html#sec:sect:diat',
+      'control' => 'guide.html#sec-sect-control',
+      'reflex' => 'guide.html#sec-sect-reflexivity',
+      'conv' => 'guide.html#sec-sect-alter',
+      'split' => 'guide.html#sec-sect-alter',
+      'multiple' => 'guide.html#sec-sect-alter',
+      'recipr' => 'guide.html#sec-sect-reciprocity',
+      'class' => 'guide.html#sec-sect-class',
+      'diat' => 'guide.html#sec-sect-diat',
       'PDT-Vallex' => 'http://ufal.mff.cuni.cz/PDT-Vallex/',
       'cnk_usage' => '',  # TODO
       #'noun' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
