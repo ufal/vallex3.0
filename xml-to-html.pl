@@ -1106,9 +1106,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       'diat' => 'guide.html#sec-sect-diat',
       'PDT-Vallex' => 'http://ufal.mff.cuni.cz/PDT-Vallex/',
       'cnk_usage' => '',  # TODO
-      #'noun' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
-      #'map' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
-      #'instigator' => 'https://ufal.mff.cuni.cz/node/1124', #TODO
     );
 
     my $LVC = ($VERB_MODE and $frame_attrs{'nouns'}) ? 1 : 0;
@@ -1382,8 +1379,15 @@ sub LVC_line {
     $tr_attr = " class='more'";
     $td_attr = " colspan='2'";
   }
+  my %attr_link = (
+    'lvc' => 'guide.html#sec-sect-complpred',
+    'instigator' => 'guide.html#sec-sect-complpred',
+    'map' => 'guide.html#sec-sect-complpred',
+    'example' => '',    # TODO neni uplne dobre, vyrobi uplne zbytecny prazdny odkaz => na stranku vallexu
+  );
   return "<tr$tr_attr><td>"
-    . "<td class='attrname $labelname'>$labelname$suffix"
+    . "<td class='attrname $labelname'>"
+    . "<a href='$attr_link{$labelname}'>$labelname$suffix</a>"
     . "<td$td_attr class='attr $labelname'>$value";
 }
 
