@@ -1119,7 +1119,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       );
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries .=
-      "<table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
+      "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
       "<td class='lexical_unit_index'>".$first_frameentry_row.
       "<td colspan='3' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
       $visible_attributes;
