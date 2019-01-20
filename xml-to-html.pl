@@ -943,7 +943,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 } else {
                   $frame_attrs{$attrname} .= $node_value;
                 }
-                $sep = "&nbsp";
+                $sep = "&nbsp;";
               }
             }
             else {
