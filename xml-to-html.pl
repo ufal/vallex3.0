@@ -962,9 +962,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                       map {
                         if (/^blu-n-(.*-\d+)$/) {
                           my $noun = $1;
-                          my $noun_lexeme = $noun;
+                          my $noun_lexeme = 'lxm-n-' . $noun;
                           $noun_lexeme =~ s/-\d+//;
-                          "<a href='generated/lexeme-entries/lxm-n-"
+                          "<a href='generated/lexeme-entries/"
                           . string_to_html_filename($noun_lexeme)
                           . ".html' target='_blank'>$noun</a>";
                         } elsif (/\|/) {
