@@ -153,8 +153,8 @@ sub string_to_html_filename {
   if (not $substitution{$orig}) {
     my $subst_prefix;
     my $subst_suffix = "";
-    if ($orig =~ /^lxm-v-/) {
-      $subst_prefix = $1 if $orig =~ /^lxm-v-(.{1,5}).*?$/;
+    if ($orig =~ /^lxm-v-(.{1,5}).*?$/) {
+      $subst_prefix = $1;
       $subst_prefix =~ tr/áéíóúůýěžščřďťň/aeiouuyezscrdtn/;
       $subst_prefix =~ s/[^a-zA-Z0-9-]/_/g;
       $subst_suffix = ++$subst_prefs{$subst_prefix};
