@@ -789,8 +789,8 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               $locatum = $locatum ? " ($locatum)" : "";
               my $primary_mark = "<span class='primary-mark'>" # FIXME moc velke, odstrkuje radku
                 . ($primary ? "Ⅰ." : "Ⅱ.") . "</span>";
-              my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("frame_id");
-              my $LU_ref_index = $1 if $LU_ref =~ /^blu-v-.+-(\d+)$/;
+              my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("web_frame_id");
+              my $LU_ref_index = $1 if $LU_ref =~ /^w-blu-v-.+-(\d+)$/; # same as getAttribute("order");
               if (!$LU_ref_index) {
                 warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n");
                 $LU_ref_index = "N";
@@ -1018,10 +1018,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       $special_LU_type = " (light verb) ";
     }
 
-    my $id = $blu_node->getAttribute('id');
+    my $orig_id = $blu_node->getAttribute('orig_id');
 
     # číslo rámce
-    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a>";
+    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$orig_id' class='frame_index_link circle'>$frame_index</a>";
     my $lexical_unit_gloss = "$limited_lex_forms<span class='gloss'>$frame_attrs{gloss}</span>$special_LU_type";
 
     # ---------- vytvoreni tabulky s valencnim ramcem
