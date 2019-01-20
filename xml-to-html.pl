@@ -747,8 +747,20 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       # Previously we wanted to take all <blu> in XML order and then all <llu>:
       # $lexeme_node->getElementsByTagName('blu'),
       # $lexeme_node->getElementsByTagName('llu')) {
-    next if !$VERB_MODE && !$used_noun{$blu_node->getAttribute('id')};
     $frame_index ++;
+    my $orig_id = $blu_node->getAttribute('orig_id');
+    warn("ERROR: Non-sequential IDs? $orig_id / ",
+        $blu_node->getAttribute('web_id'), " : $frame_index\n")
+        if $frame_index != $blu_node->getAttribute('order');
+    if (!$VERB_MODE && !$used_noun{$orig_id}) {
+      $htmlized_frame_entries .=
+        "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
+        "<td class='lexical_unit_index'>".
+        "<a href='#/lexeme/$filename/$frame_index' title='$orig_id' class='frame_index_link circle'>$frame_index</a>".
+        "<td colspan='3' class='gloss_header'><i>This lexical unit does not participate in any LVC&hellip;</i></td>".
+        "</td></table>";
+      next;
+    }
 
     # ------ html link na ramec do vyhledavacich tabulek
 
@@ -1017,8 +1029,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     } elsif ($blu_node->getTagName eq "llu") {
       $special_LU_type = " (light verb) ";
     }
-
-    my $orig_id = $blu_node->getAttribute('orig_id');
 
     # číslo rámce
     my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$orig_id' class='frame_index_link circle'>$frame_index</a>";
