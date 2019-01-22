@@ -17,14 +17,17 @@ use XML::DOM;
 use List::Util 1.33 'none';
 # use Data::Dumper;
 
-my $VERB_MODE = $ENV{VERB_MODE} // 1;
+my ($VERB_MODE, $NOUN_MODE) =
+    $ENV{VERB_MODE} ? (1,0) :
+    $ENV{NOUN_MODE} ? (0,1) :
+                      (1,0); # VERB_MODE is default
 
 # ------------------ initializing hint hashes ----------------------
 
 my $xmlfile = shift;
 my $xml2html_dir = shift;
 my $version = shift;
-my $verbxmlfile = shift if !$VERB_MODE;
+my $verbxmlfile = shift if $NOUN_MODE;
 
 
 my $outputdir = "$xml2html_dir/../vallex-$version/data/html/";
@@ -224,9 +227,9 @@ sub create_html_file ($$) {
   $filename = $outputdir.$filename;
   # print STDERR "Storing $filename ...\n";
   open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
-  print F $HTML_noun_header if !$VERB_MODE;
+  print F $HTML_noun_header if $NOUN_MODE;
   print F $content;
-  print F $HTML_noun_footer if !$VERB_MODE;
+  print F $HTML_noun_footer if $NOUN_MODE;
   close F;
 }
 
@@ -478,7 +481,7 @@ sub pdtvallex_word_links {
 sub get_coindexed_hash {
   my @headwords_html = @{shift()};
   my %coindexed;
-  return if !$VERB_MODE;
+  return if $NOUN_MODE;
 
   foreach my $headword_html (@headwords_html) {
     # $coindexed{$2} = $1 if $headword_html =~ /^ ([^<>]+)  <sup\ class='scriptsize'>  ([^<>]+)  <\/sup>  $/x;
@@ -619,7 +622,7 @@ system "mkdir -p $outputdir/";
 # close IOUT;
 system "cp -r $xml2html_dir/static/* $outputdir/"; # je potreba vyhnout se kopirovan .svn
 
-my %used_noun = load_used_nouns($verbxmlfile) if !$VERB_MODE;
+my %used_noun = load_used_nouns($verbxmlfile) if $NOUN_MODE;
 
 print STDERR "Loading $xmlfile...\n";
 my $parser = XML::DOM::Parser->new();
@@ -752,7 +755,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     warn("ERROR: Non-sequential IDs? $orig_id / ",
         $blu_node->getAttribute('web_id'), " : $frame_index\n")
         if $frame_index != $blu_node->getAttribute('order');
-    if (!$VERB_MODE && !$used_noun{$orig_id}) {
+    if ($NOUN_MODE && !$used_noun{$orig_id}) {
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
         "<td class='lexical_unit_index'>".
