@@ -379,8 +379,27 @@ sub lexeme_or_blu_to_lemmas {
       grep {$_->getNodeType == ELEMENT_NODE}
       map {$_->getChildNodes}
       grep {$_->getNodeType == ELEMENT_NODE and $_->getTagName eq "lexical_forms"} $higher_node->getChildNodes) {
-    my $coindex = $VERB_MODE ? $node->getAttribute("coindex") : "";
+    my $coindex = $node->getAttribute("coindex");
     if ($node->getTagName eq "mlemma") {
+
+      # check whether this aspect is used in any LVC-LU
+      if ($NOUN_MODE) {
+        # FIXME: It doesn't expect mlemma_variants (as these are rare in noun data)
+        my $is_used_in_lvc = 0;
+        foreach my $blu ($higher_node->getElementsByTagName('blu')) {
+          next if !$blu;    # in case it is called on blu, not on lexeme
+          my $lex_forms = (grep {$_} $blu->getElementsByTagName('lexical_forms'))[0];
+          if (scalar(grep {$_} $blu->getElementsByTagName('nouns'))   # is LVC-LU
+            && (!$lex_forms # either without limit
+              || scalar(    # or with specified aspect
+                  grep {$_->getAttribute('coindex') eq $coindex}
+                  $lex_forms->getElementsByTagName('mlemma')))) {
+            $is_used_in_lvc = 1;
+          }
+        }
+        next if !$is_used_in_lvc;
+      }
+
       my $refl = $node->getAttribute("optrefl") ? " (".$node->getAttribute("optrefl").")" : "##GLOBREFL##";
       $asp2lemma{$coindex}
         = [[$node->getFirstChild->getNodeValue . $refl, $node->getAttribute('homograph')]]; # TODO o dva radky niz je temer kopie
@@ -666,6 +685,7 @@ open(Pruned_IDs, ">:encoding(utf-8)", $pruned_IDs_file)
 foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my $filename = string_to_html_filename($lexeme_node->getAttribute('id'));
   my %global_aspect = lexeme_or_blu_to_lemmas($lexeme_node); # global == for lexeme
+  next if $NOUN_MODE && !%global_aspect;    # no lemma in this lexeme is used in LVC
   my $headwords_rf = lexeme_node_2_headwords(\%global_aspect, 0);
 
   foreach my $headword_string (map {split(/\//, $_)} map {$_ =~ s/<.+?>//g; $_} map {$_} @$headwords_rf) {
@@ -770,7 +790,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $limited_lex_forms = "";
     my @blu_coindexes;
     my %local_aspect;
-    if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0) {  # omezeni forem, pro nez LU plati
+    if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0     # omezeni forem, pro nez LU plati
+        && ($VERB_MODE || @$headwords_rf>1)                         # nemam-li jmenny lexem s jedinou f.
+      ) {
       %local_aspect = lexeme_or_blu_to_lemmas($blu_node);    # local == for LU
       my $blu_headwords_rf = lexeme_node_2_headwords(\%local_aspect, 1);
       $limited_lex_forms = "limit <span class='gloss'>".(join ", ",@$blu_headwords_rf)."</span><br>";
