@@ -27,7 +27,6 @@ my ($VERB_MODE, $NOUN_MODE) =
 my $xmlfile = shift;
 my $xml2html_dir = shift;
 my $version = shift;
-my $verbxmlfile = shift if $NOUN_MODE;
 
 
 my $outputdir = "$xml2html_dir/../vallex-$version/data/html/";
@@ -622,8 +621,6 @@ system "mkdir -p $outputdir/";
 # close IOUT;
 system "cp -r $xml2html_dir/static/* $outputdir/"; # je potreba vyhnout se kopirovan .svn
 
-my %used_noun = load_used_nouns($verbxmlfile) if $NOUN_MODE;
-
 print STDERR "Loading $xmlfile...\n";
 my $parser = XML::DOM::Parser->new();
 my $doc = $parser->parsefile($xmlfile);
@@ -755,7 +752,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     warn("ERROR: Non-sequential IDs? $orig_id / ",
         $blu_node->getAttribute('web_id'), " : $frame_index\n")
         if $frame_index != $blu_node->getAttribute('order');
-    if ($NOUN_MODE && !$used_noun{$orig_id}) {
+    if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('nouns')) {    # FIXME stupid element name, should be rather 'verbs' or 'lvc' or so
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
         "<td class='lexical_unit_index'>".
@@ -1402,23 +1399,6 @@ sub LVC_line {
     . "<td class='attrname $labelname'>"
     . "<a href='$attr_link{$labelname}'>$labelname$suffix</a>"
     . "<td$td_attr class='attr $labelname'>$value";
-}
-
-sub load_used_nouns {
-  my $xml = shift;
-  print($xml, "\n");
-
-  my %nouns;
-  my $doc = XML::DOM::Parser->new()->parsefile($xml);
-  foreach my $nouns_node ($doc->getElementsByTagName('nouns')) {
-    foreach my $noun (split(/\s+/, $nouns_node->getFirstChild->toString)) {
-      last if $noun =~ /^\|$/;
-      next if $noun =~ /^\s*$/;
-      $nouns{$noun}++;
-    }
-  }
-
-  return %nouns;
 }
 
 my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree, "all")};
