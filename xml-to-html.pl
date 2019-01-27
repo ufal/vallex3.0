@@ -1236,6 +1236,7 @@ sub fixedSort {
     }
   }
   @sorted = sort @sorted;
+  @fixed = grep {$_} @fixed;
   return (@fixed, @sorted);
 }
 
