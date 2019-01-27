@@ -1069,8 +1069,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
         $functor_class = "quasi-valency";
       }
-      elsif ($functor =~ /^[CD]PHR$/) {
-        $functor_class = "mwe";
+      elsif ($functor =~ /^([CD]PHR)$/) {
+        $functor_class = "func-mwe";
+        my $mwe_type = $1 eq 'CPHR' ? 'complex predicates' : 'idioms';
+        unit_to_criteria($frame_index, $filename, $headword_lemmas, "top-mwe", $mwe_type);
       }
       unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", $functor_class, $functor);
 
@@ -1209,6 +1211,8 @@ print STDERR "Generating JSON files for filtering\n";
 my %names = (
   "recipr" => "reciprocity",
   "reflex" => "reflexivity",
+  "top-mwe" => "mwe <span style='color:#e43e5e'>new!</span>",
+  "func-mwe" => "mwe",
 );
 
 sub numberSort {
@@ -1246,10 +1250,11 @@ my %sortings = (
     return fixedSort({
       "functors" => 0,
       "forms" => 1,
-      "control" => 2,
-      "alternation" => 3,
-      "class" => 4,
-      "others" => 5
+      "top-mwe" => 2,
+      "control" => 3,
+      "alternation" => 4,
+      "class" => 5,
+      "others" => 6
     }, $ref);
   },
   "lexicalized" => sub {
@@ -1302,7 +1307,7 @@ my %sortings = (
       "actants" => 0,
       "free" => 1,
       "quasi-valency" => 2,
-      "mwe" => 3,
+      "func-mwe" => 3,
     }, $ref);
   },
   "aspect" => sub {
