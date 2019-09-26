@@ -1,0 +1,3 @@
+according to commit 59a016a,
+link the Makefile from one directory above (Vallex/aktualni_data)
+... probably after creating the xml file with the original Makefile placed there
