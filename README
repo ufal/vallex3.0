@@ -1,3 +1,30 @@
 according to commit 59a016a,
 link the Makefile from one directory above (Vallex/aktualni_data)
 ... probably after creating the xml file with the original Makefile placed there
+
+
+howto publish the webpages:
+ssh ufal.ms.mff.cuni.cz
+cd /IMPORT/home/www/html/project/vallex
+
+-> proste vytvoris novy adresar a ten se rovnou objevi (prava asi
+budou automaticky nastavena spravne). Nic nikde nekonfigurujes, musi to
+byt v tom /IMPORT/home/www/html/project/vallex. Pokud si na to taky
+udelas symlink, tak ho samozrejme pro sve pohodli klidne dej nekam do
+publishovacich targetu v Makefilu
+
+
+testovací verze lze na ufal.ms.mff.cuni.cz dávat také do 
+~/public_html
+/home/bejcek/public_html/vallex31/test-Nov
+je nejnovější testovací verze z ledna 2019 (název znamená "aktualni
+testovaci adresar pro praci zapocatou v listopadu 2018")
+totožná s test_2019-01-25_09:23:39
+
+
+
+
+test morfologie:
+Muzes si klidne pustit i sama make test... Problem ovsem je, ze tam
+zatim nejsou vychytane nejake systematicke veci, jako klicova slova.
+poslední výstup: ~bejcek/public/NomVallex_spelling   (11. 1. 2019)
