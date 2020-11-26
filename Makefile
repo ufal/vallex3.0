@@ -3,7 +3,7 @@ SHELL = /bin/bash
 ver = 3.1_jmena_0.0-work
 ver_nouns = 0.1-jmena
 #XML_newest = ../../XML_3.1_0.0
-XML_newest = ../../vallex-3.1_jmena_0.0-work/data/xml/vallex-3.1_jmena_0.0-work-b.xml
+XML_newest = ../../vallex-3.1_jmena_0.0-work/data/xml/vallex-3.1_jmena_0.0-work.xml
 XML_NOUNS = ../../XML-nouns_0.1
 dir_html_in = xml2html
 dir_out     = vallex-$(ver)
@@ -26,15 +26,15 @@ html: $(XML)
 	@mkdir -p $(dir_out)/data/html/generated/cnk
 	cp $(dir_valeval)/*html $(dir_out)/data/html/generated/cnk
 	@echo Creating HTML files from verb XML file
-	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-b-to-html.pl $(XML) $(dir_html_in) $(ver)
-	# perlbrew exec --with perl-5.18.2 $(dir_html_in)/xml-b-to-html.pl $(XML) $(dir_html_in) $(ver)
-	$(dir_html_in)/xml-b-to-html.pl $(XML) $(dir_html_in) $(ver)
+	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-to-html.pl $(XML) $(dir_html_in) $(ver)
+	# perlbrew exec --with perl-5.18.2 $(dir_html_in)/xml-to-html.pl $(XML) $(dir_html_in) $(ver)
+	$(dir_html_in)/xml-to-html.pl $(XML) $(dir_html_in) $(ver)
 	cp $(dir_valeval)/valeval.xml $(dir_valeval)/valeval.dtd $(dir_xml_out)
 
 nounhtml: $(XML_NOUNS)
 	@echo Creating HTML files from noun XML file
-	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
-	VERB_MODE=0 $(dir_html_in)/xml-b-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns) $(XML)
+	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
+	VERB_MODE=0 $(dir_html_in)/xml-to-html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns) $(XML)
 	@echo Done.
 
 
