@@ -703,6 +703,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my %coindexed_lemmas = get_coindexed_hash($headwords_rf_with_aspect);
   my $pdtvallex_word_links = pdtvallex_word_links($lexeme_node, %coindexed_lemmas);
 
+  ## TODO: now reflexiva tantum are annotated manually, so we should not compute the value
   if ($headword_lemmas =~ / s[ie]\b/) {
     my $tantum = 1;
     mlemma: foreach my $mlemma_node ($lexeme_node->getElementsByTagName('mlemma')) {

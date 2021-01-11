@@ -1,11 +1,10 @@
 SHELL = /bin/bash
 
-ver = 3.1_jmena_0.0-work
-ver_nouns = 0.1-jmena
-#XML_newest = ../../XML_3.1_0.0
-XML_newest = ../../vallex-3.1_jmena_0.0-work/data/xml/vallex-3.1_jmena_0.0-work.xml
-XML_NOUNS = ../../XML-nouns_0.1
-dir_html_in = xml2html
+ver = 4.0-work
+ver_nouns = 1.1
+XML_newest = ../../vallex-4.0-work/data/xml/vallex-4.0-work.xml
+XML_NOUNS = ../../XML-nouns_1.1
+dir_html_in = xml2html30
 dir_out     = vallex-$(ver)
 dir_xml_out = $(dir_out)/data/xml
 dir_doc_out = $(dir_out)/doc
