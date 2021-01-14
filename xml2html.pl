@@ -12,9 +12,9 @@ use JSON qw(encode_json);
 binmode STDERR,":encoding(utf-8)";
 binmode STDOUT,":encoding(utf-8)";
 
-
 use XML::DOM;
 use List::Util 1.33 'none';
+
 # use Data::Dumper;
 
 my ($VERB_MODE, $NOUN_MODE) =
@@ -28,9 +28,7 @@ my $xmlfile = shift;
 my $xml2html_dir = shift;
 my $version = shift;
 
-
 my $outputdir = "$xml2html_dir/../vallex-$version/data/html/";
-
 
 my %functor_comments = (
   "ACT" => "actor",
@@ -88,7 +86,7 @@ my %long_attr_names = (
   'class' => 'sem. class',
   'frame' => 'val. frame',
 );
- 
+
 my %long_form_types = (
   'direct_case' => 'Direct cases',
   'prepos_case' => 'Prepositional cases',
@@ -122,7 +120,6 @@ my %case_names = (
   '7' => 'instrumental',
 );
 
-
 my $bullet = "<img src='../../static/redbullet.gif'>";
 
 use Readonly;
@@ -132,8 +129,6 @@ my ($multiframe,$template);
 my %irrefl_mlemma;
 
 # ----------------- pomocne funkce ----------------
-
-
 # prevod arabskych cislic na rimske (zatim napraseno)
 sub ara2roman ($) {
   my ($cnt)=@_;
@@ -180,8 +175,6 @@ sub string_to_html_filename {
   return $substitution{$orig};
 }
 
-
-
 sub create_directory ($) {
   my $directory_name = shift;
   my $fullpath = $outputdir.$directory_name;
@@ -219,7 +212,6 @@ my $HTML_noun_header = '<!DOCTYPE html>
 <div class="wordentry">
 ';
 my $HTML_noun_footer = "\n</div>\n</div>\n</body>\n</html>";
-
 
 sub create_html_file ($$) {
   my ($filename, $content)=@_;
@@ -305,8 +297,6 @@ sub formnode2formtxt {
 }
 
 
-
-
 my %framelist;
 my %framecnt;
 my %firstframefilename;
@@ -344,7 +334,7 @@ sub unit_to_criteria {
 
     $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas];
     # push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas]
-      # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
+    # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
   }
 }
 
@@ -367,18 +357,15 @@ sub mlemma_2_string {
 }
 
 
-
-
-
 sub lexeme_or_blu_to_lemmas {
   my ($higher_node) = @_;
   my %asp2lemma;
   my $globreflex = "";
 
   foreach my $node (
-      grep {$_->getNodeType == ELEMENT_NODE}
-      map {$_->getChildNodes}
-      grep {$_->getNodeType == ELEMENT_NODE and $_->getTagName eq "lexical_forms"} $higher_node->getChildNodes) {
+    grep {$_->getNodeType == ELEMENT_NODE}
+    map {$_->getChildNodes}
+    grep {$_->getNodeType == ELEMENT_NODE and $_->getTagName eq "lexical_forms"} $higher_node->getChildNodes) {
     my $coindex = $node->getAttribute("coindex");
     if ($node->getTagName eq "mlemma") {
 
@@ -392,8 +379,8 @@ sub lexeme_or_blu_to_lemmas {
           if (scalar(grep {$_} $blu->getElementsByTagName('nouns'))   # is LVC-LU
             && (!$lex_forms # either without limit
               || scalar(    # or with specified aspect
-                  grep {$_->getAttribute('coindex') eq $coindex}
-                  $lex_forms->getElementsByTagName('mlemma')))) {
+                  grep { $_->getAttribute('coindex') eq $coindex }
+                       $lex_forms->getElementsByTagName('mlemma')))) {
             $is_used_in_lvc = 1;
           }
         }
@@ -405,9 +392,9 @@ sub lexeme_or_blu_to_lemmas {
         = [[$node->getFirstChild->getNodeValue . $refl, $node->getAttribute('homograph')]]; # TODO o dva radky niz je temer kopie
     } elsif ($node->getTagName eq "mlemma_variants") {
       $asp2lemma{$coindex}
-        = [map {
-                my $refl = $_->getAttribute("optrefl") ? " (".$_->getAttribute("optrefl").")" : "##GLOBREFL##";
-                [$_->getFirstChild->getNodeValue . $refl, $_->getAttribute('homograph')]
+        = [ map {
+              my $refl = $_->getAttribute("optrefl") ? " (".$_->getAttribute("optrefl").")" : "##GLOBREFL##";
+              [$_->getFirstChild->getNodeValue . $refl, $_->getAttribute('homograph')]
             } $node->getElementsByTagName('mlemma')];
     } elsif ($node->getTagName eq "commonrefl") {
       $globreflex = " ".$node->getFirstChild->getNodeValue;
@@ -426,13 +413,13 @@ sub lexeme_or_blu_to_lemmas {
 }
 
 sub coindex_sort { # (temer) kopie z txt2xml_b.pl
-    local $_ = shift;
-    my $n = $1 if s/(\d*)$//;
-    s/^biasp$/b$n/;
-    s/^pf/c$n/;
-    s/^impf/a$n/;
-    s/^iter/d$n/;
-    return $_;
+  local $_ = shift;
+  my $n = $1 if s/(\d*)$//;
+  s/^biasp$/b$n/;
+  s/^pf/c$n/;
+  s/^impf/a$n/;
+  s/^iter/d$n/;
+  return $_;
 }
 
 sub lexeme_node_2_headwords {
@@ -442,8 +429,8 @@ sub lexeme_node_2_headwords {
 
   foreach my $coindex (sort {coindex_sort($a) cmp coindex_sort($b)} keys %$aspect2lemma_ref) {
     my @lemmas = @{$aspect2lemma_ref->{$coindex}};
-    push(@headwords,
-        join("/", map {mlemma_2_string(@{$_})} @lemmas)
+    push( @headwords,
+          join("/", map {mlemma_2_string(@{$_})} @lemmas)
         . ($VERB_MODE && $with_aspect ? "<sup class='scriptsize'>$coindex</sup>" : "")
     );
   }
@@ -742,8 +729,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     lexeme_to_criteria($filename, $headword_lemmas, "others", "variants");
   }
 
-
-
   $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div></div>\n";
   # "<td>&nbsp;&nbsp;&nbsp;
   # <span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
@@ -764,15 +749,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       grep { $_->getNodeName() =~ /^[bl]lu$/ }
       map { $_->getChildNodes() }
         $lexeme_node->getElementsByTagName('lexical_units')->[0]->getElementsByTagName('lu_cluster')
-    ) {
-      # Previously we wanted to take all <blu> in XML order and then all <llu>:
-      # $lexeme_node->getElementsByTagName('blu'),
-      # $lexeme_node->getElementsByTagName('llu')) {
+  ) {
+    # Previously we wanted to take all <blu> in XML order and then all <llu>:
+    # $lexeme_node->getElementsByTagName('blu'),
+    # $lexeme_node->getElementsByTagName('llu')) {
     $frame_index ++;
     my $orig_id = $blu_node->getAttribute('orig_id');
-    warn("ERROR: Non-sequential IDs? $orig_id / ",
-        $blu_node->getAttribute('web_id'), " : $frame_index\n")
-        if $frame_index != $blu_node->getAttribute('order');
+    warn( "ERROR: Non-sequential IDs? $orig_id / ",
+          $blu_node->getAttribute('web_id'), " : $frame_index\n")
+      if $frame_index != $blu_node->getAttribute('order');
     if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('nouns')) {    # FIXME stupid element name, should be rather 'verbs' or 'lvc' or so
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
@@ -787,12 +772,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
     my $link_to_frame = "<a target='wordentry' href='../lexeme-entries/$filename\#$frame_index'>$bullet $headword_lemmas <span class='scriptsize'>$frame_index</span></a><br>";
 
-
     my $limited_lex_forms = "";
     my @blu_coindexes;
     my %local_aspect;
-    if (@{[$blu_node->getElementsByTagName('lexical_forms')]}>0     # omezeni forem, pro nez LU plati
-        && ($VERB_MODE || @$headwords_rf>1)                         # nemam-li jmenny lexem s jedinou f.
+    if ( @{[$blu_node->getElementsByTagName('lexical_forms')]}>0     # omezeni forem, pro nez LU plati
+         && ($VERB_MODE || @$headwords_rf>1)                         # nemam-li jmenny lexem s jedinou f.
       ) {
       %local_aspect = lexeme_or_blu_to_lemmas($blu_node);    # local == for LU
       my $blu_headwords_rf = lexeme_node_2_headwords(\%local_aspect, 1);
@@ -842,7 +826,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
             elsif ($attrname eq "diat") {
               my $type = $attr_node->getAttribute('type');
               if ($attr_node->getAttribute('value') eq "no") {
-              # add_to_list("diat","$type NO",$link_to_frame);
+                # add_to_list("diat","$type NO",$link_to_frame);
               } elsif ($attr_node->getAttribute('value') eq "yes") {
                 unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "$type");
                 if ($frame_attrs{"diat"}) {$frame_attrs{"diat"} .="<br>"}
@@ -1044,7 +1028,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $only_one_apect = (@lexforms and (@{$lexforms[0]->getElementsByTagName('mlemma')})) == 1 ? "1" : "";
     my $lexeme_id = $lexeme_node->getAttribute('id');
     $frame_attrs{'usage in ČNK'} = create_links_to_valeval($frame_index, $filename, $lexeme_id, $only_one_apect, %coindexed_lemmas);
-
 
     my $special_LU_type = "";
     if ($blu_node->getParentNode->getAttribute('idiom') eq "1") {
@@ -1434,8 +1417,6 @@ my @parsedFiltertree = @{parseFiltertree("generated/", "",\%filtertree, "all")};
 
 create_json_file("generated/filters.json", \@parsedFiltertree);
 
-
-
 my $javascript_index_filename = "$outputdir/generated/lexeme-entries/index.js";
 print STDERR "Generating autocomplete javascript file $javascript_index_filename\n";
 
@@ -1444,12 +1425,8 @@ print STDERR "Generating autocomplete javascript file $javascript_index_filename
 my $pairs = join ",", map {"[\"$_\",\"$autocomplete_lemma2filename{$_}\"\]"} sort keys %autocomplete_lemma2filename;
 $pairs =~ s/\.html//g;
 
-
-
 open O, ">:encoding(utf-8)", $javascript_index_filename;
 print O "var vallex_lexeme_entries_index =\n\t[\n\t\t$pairs\n\t];\n";
 close O;
-
-
 
 print STDERR "Done.\n";
