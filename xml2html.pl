@@ -369,22 +369,22 @@ sub lexeme_or_blu_to_lemmas {
     if ($node->getTagName eq "mlemma") {
 
       # check whether this aspect is used in any LVC-LU
-      if ($NOUN_MODE) {
-        # FIXME: It doesn't expect mlemma_variants (as these are rare in noun data)
-        my $is_used_in_lvc = 0;
-        foreach my $blu ($higher_node->getElementsByTagName('blu')) {
-          next if !$blu;    # in case it is called on blu, not on lexeme
-          my $lex_forms = (grep {$_} $blu->getElementsByTagName('lexical_forms'))[0];
-          if (scalar(grep {$_} $blu->getElementsByTagName('nouns'))   # is LVC-LU
-            && (!$lex_forms # either without limit
-              || scalar(    # or with specified aspect
-                  grep { $_->getAttribute('coindex') eq $coindex }
-                       $lex_forms->getElementsByTagName('mlemma')))) {
-            $is_used_in_lvc = 1;
-          }
-        }
-        next if !$is_used_in_lvc;
-      }
+#      if ($NOUN_MODE) {
+#        # FIXME: It doesn't expect mlemma_variants (as these are rare in noun data)
+#        my $is_used_in_lvc = 0;
+#        foreach my $blu ($higher_node->getElementsByTagName('nlu')) {
+#          next if !$blu;    # in case it is called on blu, not on lexeme
+#          my $lex_forms = (grep {$_} $blu->getElementsByTagName('lexical_forms'))[0];
+#          if (scalar(grep {$_} $blu->getElementsByTagName('lvc'))   # is LVC-LU
+#            && (!$lex_forms # either without limit
+#              || scalar(    # or with specified aspect
+#                  grep { $_->getAttribute('coindex') eq $coindex }
+#                       $lex_forms->getElementsByTagName('mlemma')))) {
+#            $is_used_in_lvc = 1;
+#          }
+#        }
+#        next if !$is_used_in_lvc;
+#      }
 
       my $refl = $node->getAttribute("optrefl") ? " (".$node->getAttribute("optrefl").")" : "##GLOBREFL##";
       $asp2lemma{$coindex}
@@ -671,7 +671,7 @@ open(Pruned_IDs, ">:encoding(utf-8)", $pruned_IDs_file)
 foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my $filename = string_to_html_filename($lexeme_node->getAttribute('id'));
   my %global_aspect = lexeme_or_blu_to_lemmas($lexeme_node); # global == for lexeme
-  next if $NOUN_MODE && !%global_aspect;    # no lemma in this lexeme is used in LVC
+  #next if $NOUN_MODE && !%global_aspect;    # no lemma in this lexeme is used in LVC
   my $headwords_rf = lexeme_node_2_headwords(\%global_aspect, 0);
 
   foreach my $headword_string (map {split(/\//, $_)} map {$_ =~ s/<.+?>//g; $_} map {$_} @$headwords_rf) {
@@ -757,7 +757,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     warn( "ERROR: Non-sequential IDs? $orig_id / ",
           $blu_node->getAttribute('web_id'), " : $frame_index\n")
       if $frame_index != $blu_node->getAttribute('order');
-    if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('nouns')) {    # FIXME stupid element name, should be rather 'verbs' or 'lvc' or so
+    if ($NOUN_MODE ) {  #&& !grep {$_} $blu_node->getElementsByTagName('lvc')) {
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
         "<td class='lexical_unit_index'>".
@@ -792,7 +792,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     # ---------- load the frame attributes
     my %frame_attrs;
     # tady se musi pridat rozdeleni na dok: %???% /ned: %...%
-    foreach my $attrname ('example','gloss','control','class','reflex','diat','alter','recipr','links','nouns', "instigator", "functor_mapping") {
+    foreach my $attrname ('example','gloss','control','class','reflex','diat','alter','recipr','links','lvc', "instigator", "functor_mapping") {
       if ($blu_node->getElementsByTagName($attrname)->item(0)) {
         eval {
           foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
@@ -975,7 +975,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   my $node_value = $the_only_child->getNodeValue;
                   $node_value =~ s/^\s+//;
                   $node_value =~ s/\s+$//;
-                  if ($attrname eq "nouns") {
+                  if ($attrname eq "lvc") {
                     $node_value = join(", ",
                       map {
                         if (/^blu-n-(.*-\d+)$/) {
@@ -1125,7 +1125,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       'cnk_usage' => '',  # TODO
     );
 
-    my $LVC = ($VERB_MODE and $frame_attrs{'nouns'}) ? 1 : 0;
+    my $LVC = ($VERB_MODE and $frame_attrs{'lvc'}) ? 1 : 0;
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex');
     my $visible_attributes =
       "<tr><td><td class='attrname frame'>frame<td colspan='2' class='attr frame'>".$frame_table_html. # frame má podobu tabulky
@@ -1377,11 +1377,11 @@ sub sort_LVC_attributes {
   my %attrs = @_;
 
   my $LVC_lines;
-  foreach my $lvc_index (0..$#{$attrs{nouns}}) {
-    next if !$attrs{nouns}->[$lvc_index];
+  foreach my $lvc_index (0..$#{$attrs{lvc}}) {
+    next if !$attrs{lvc}->[$lvc_index];
     my $suffix = $lvc_index > 0 ? $lvc_index : "";
     $LVC_lines .=
-      LVC_line("lvc",        $suffix, $attrs{nouns}->[$lvc_index]) .
+      LVC_line("lvc",        $suffix, $attrs{lvc}->[$lvc_index]) .
       LVC_line("instigator", $suffix, $attrs{instigator}->[$lvc_index]) .
       LVC_line("map",        $suffix, $attrs{functor_mapping}->[$lvc_index]);
   }
