@@ -1,15 +1,15 @@
 SHELL = /bin/bash
 
 ver = 4.0-work
-ver_nouns = 1.1
 XML_newest = XMLverbs.xml
-XML_NOUNS = XMLnouns.xml
+XML_NOUNS = XMLlvc-nouns.xml
 dir_html_in = xml2html30
 dir_out     = vallex-$(ver)
 dir_xml_out = $(dir_out)/data/xml
 dir_doc_out = $(dir_out)/doc
 dir_valeval = extern/cnk
 XML = $(dir_xml_out)/vallex-$(ver).xml#	 name of -> XML file itself
+date = $(shell date +%F_%H:%M)
 
 all: html nounhtml www
 
@@ -32,24 +32,25 @@ html: $(XML)
 
 nounhtml: $(XML_NOUNS)
 	@echo Creating HTML files from noun XML file
-	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
-	# VERB_MODE=0 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns) $(XML)
-	NOUN_MODE=1 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver_nouns)
+	# perlbrew exec --with perl-5.20.1 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver)
+	# VERB_MODE=0 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver) $(XML)
+	NOUN_MODE=1 $(dir_html_in)/xml2html.pl $(XML_NOUNS) $(dir_html_in) $(ver)
 	@echo Done.
 
 
 
 
 www:
-	scp -r $(dir_out)/data/html/ bejcek@ufal:public_html/vallex31/
-	scp vallex-$(ver_nouns)/data/html/generated/lexeme-entries/* bejcek@ufal:public_html/vallex31/html/generated/lexeme-entries
-	ssh bejcek@ufal ' \
-		cp -r  public_html/vallex31/html public_html/vallex31/test_`date +%F_%T`; \
-		rm -rf public_html/vallex31/test-Nov; \
-		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
+#	scp -r $(dir_out)/data/html/ vernerova@ufal:public_html/vallex31/
+#	scp vallex-$(ver)/data/html/generated/lexeme-entries/* vernerova@ufal:public_html/vallex31/html/generated/lexeme-entries
+#	ssh vernerova@ufal ' \
+#		cp -r  public_html/vallex31/html public_html/vallex31/test_`date +%F_%T`; \
+#		rm -rf public_html/vallex31/test-Nov; \
+#		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
 	# or
-	# scp -r $(dir_out)/data/html/ bejcek@ufal:web_vallex/3.1-test/
-	# ssh bejcek@ufal 'cp -r web_vallex/3.1-test/html web_vallex/3.1-test/3.1-test_`date +%F_%T`'
+	echo $(date)
+	scp -r $(dir_out)/data/html/ vernerova@ufal:vallex_web/$(ver)_${date}
+	ssh vernerova@ufal 'unlink vallex_web/$(ver); ln -s vallex_web/$(ver)_$(date) vallex_web/$(ver)'
 	#### cp 3.0 3.0_backup_<datum>
 	#### cd     3.0_backup_<datum>
 	#### cp about.html grammar.html guide.html theory.html obr-* ../3.0/

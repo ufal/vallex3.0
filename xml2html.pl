@@ -21,7 +21,7 @@ my ($VERB_MODE, $NOUN_MODE) =
     $ENV{VERB_MODE} ? (1,0) :
     $ENV{NOUN_MODE} ? (0,1) :
                       (1,0); # VERB_MODE is default
-
+my $ADD_VALEVAL = 0;
 # ------------------ initializing hint hashes ----------------------
 
 my $xmlfile = shift;
@@ -191,7 +191,7 @@ my $javascript_head = '<script type="text/javascript" src="jquery.js"></script>
 my $HTML_noun_header = '<!DOCTYPE html>
 <html>
 <head>
-        <title>vallex 3.5</title>
+        <title>vallex '.$version.'</title>
         <meta charset="utf-8">
         <link rel="stylesheet/less" type="text/css" href="../../css/styles.less">
         <script src="../../libs/less.min.js"></script>
@@ -216,8 +216,7 @@ my $HTML_noun_footer = "\n</div>\n</div>\n</body>\n</html>";
 sub create_html_file ($$) {
   my ($filename, $content)=@_;
   $filename = $outputdir.$filename;
-  # print STDERR "Storing $filename ...\n";
-  open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; # should be die!
+  open F,">:encoding(utf-8)",$filename or die "!!!! Nelze otevrit $filename pro zapis\n"; 
   print F $HTML_noun_header if $NOUN_MODE;
   print F $content;
   print F $HTML_noun_footer if $NOUN_MODE;
@@ -234,7 +233,7 @@ sub create_multiframe ($$$) {
   # open F,">:$filename";
   # $filename=~s/^(..............................).+/$1/;  #hack!!!! tady by mel byt poradny test
   # print STDERR "Storing $filename ...\n";
-  open F,">:encoding(utf-8)",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
+  open F,">:encoding(utf-8)",$filename or die "!!!! Nelze otevrit $filename pro zapis\n"; 
   print F $m;
   close F;
 }
@@ -244,7 +243,7 @@ sub create_json_file ($$) {
   my ($filename, $hash)=@_;
   $filename = $outputdir.$filename;
   my $json = $json_obj->encode($hash);
-  open F,">",$filename or print STDERR  "!!!! Nelze otevrit $filename pro zapis\n"; #die "Nelze otevrit $filename pro zapis";
+  open F,">",$filename or die "!!!! Nelze otevrit $filename pro zapis\n";
   print F $json;
   close F;
 }
@@ -1027,7 +1026,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my @lexforms = $blu_node->getElementsByTagName('lexical_forms');
     my $only_one_apect = (@lexforms and (@{$lexforms[0]->getElementsByTagName('mlemma')})) == 1 ? "1" : "";
     my $lexeme_id = $lexeme_node->getAttribute('id');
-    $frame_attrs{'usage in ČNK'} = create_links_to_valeval($frame_index, $filename, $lexeme_id, $only_one_apect, %coindexed_lemmas);
+    $frame_attrs{'usage in ČNK'} = create_links_to_valeval($frame_index, $filename, $lexeme_id, $only_one_apect, %coindexed_lemmas) if $ADD_VALEVAL;
 
     my $special_LU_type = "";
     if ($blu_node->getParentNode->getAttribute('idiom') eq "1") {
