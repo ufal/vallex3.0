@@ -50,7 +50,7 @@ www:
 	# or
 	echo $(date)
 	scp -r $(dir_out)/data/html/ vernerova@ufal:vallex_web/$(ver)_${date}
-	ssh vernerova@ufal 'unlink vallex_web/$(ver); ln -s $(ver)_$(date) vallex_web/$(ver)'
+	ssh vernerova@ufal 'unlink vallex_web/$(ver)-test; ln -s $(ver)_$(date) vallex_web/$(ver)-test'
 	#### cp 3.0 3.0_backup_<datum>
 	#### cd     3.0_backup_<datum>
 	#### cp about.html grammar.html guide.html theory.html obr-* ../3.0/

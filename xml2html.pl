@@ -745,7 +745,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my $htmlized_frame_entries = "";
   foreach my $blu_node (
       # We need to keep order of mixed <blu> and <llu> elements
-      grep { $_->getNodeName() =~ /^[bl]lu$/ }
+      grep { $_->getNodeName() =~ /^[bln]lu$/ }
       map { $_->getChildNodes() }
         $lexeme_node->getElementsByTagName('lexical_units')->[0]->getElementsByTagName('lu_cluster')
   ) {
@@ -757,7 +757,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     warn( "ERROR: Non-sequential IDs? $orig_id / ",
           $blu_node->getAttribute('web_id'), " : $frame_index\n")
       if $frame_index != $blu_node->getAttribute('order');
-    if ($NOUN_MODE ) {  #&& !grep {$_} $blu_node->getElementsByTagName('lvc')) {
+    if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('lvc')) {
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
         "<td class='lexical_unit_index'>".
