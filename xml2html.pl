@@ -753,15 +753,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     # $lexeme_node->getElementsByTagName('blu'),
     # $lexeme_node->getElementsByTagName('llu')) {
     $frame_index ++;
-    my $orig_id = $blu_node->getAttribute('orig_id');
-    warn( "ERROR: Non-sequential IDs? $orig_id / ",
+    my $id = $blu_node->getAttribute('id');
+    warn( "ERROR: Non-sequential IDs? $id / ",
           $blu_node->getAttribute('web_id'), " : $frame_index\n")
       if $frame_index != $blu_node->getAttribute('order');
     if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('lvc')) {
       $htmlized_frame_entries .=
         "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
         "<td class='lexical_unit_index'>".
-        "<a href='#/lexeme/$filename/$frame_index' title='$orig_id' class='frame_index_link circle'>$frame_index</a>".
+        "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a>".
         "<td colspan='3' class='gloss_header'><i>This lexical unit does not participate in any LVC&hellip;</i></td>".
         "</td></table>";
       next;
@@ -1036,7 +1036,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     }
 
     # číslo rámce
-    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$orig_id' class='frame_index_link circle'>$frame_index</a>";
+    my $first_frameentry_row = "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a>";
     my $lexical_unit_gloss = "$limited_lex_forms<span class='gloss'>$frame_attrs{gloss}</span>$special_LU_type";
 
     # ---------- vytvoreni tabulky s valencnim ramcem
