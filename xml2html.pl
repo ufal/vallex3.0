@@ -1194,7 +1194,7 @@ print STDERR "Generating JSON files for filtering\n";
 my %names = (
   "recipr" => "reciprocity",
   "reflex" => "reflexivity",
-  "top-mwe" => "mwe <span style='color:#e43e5e'>new!</span>",
+  "top-mwe" => "mwe",
   "func-mwe" => "mwe",
 );
 
