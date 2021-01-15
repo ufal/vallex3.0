@@ -798,8 +798,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
             if ($attrname=~/^(control|class)$/) {
               unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($attr_node->getFirstChild->getNodeValue));
-            }
-            elsif ($attrname eq "alter") {
+            } elsif ($attrname eq "alter") {
               my $type       = $attr_node->getAttribute('type');
               my $subtype    = $attr_node->getAttribute('subtype');
               my $primary    = $attr_node->getAttribute('primary');
@@ -821,8 +820,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
                 . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec-sect-$type' class='rule-link'>rule</a>"
                 . "</table>";
-            }
-            elsif ($attrname eq "diat") {
+            } elsif ($attrname eq "diat") {
               my $type = $attr_node->getAttribute('type');
               if ($attr_node->getAttribute('value') eq "no") {
                 # add_to_list("diat","$type NO",$link_to_frame);
@@ -882,8 +880,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               } else {
                 print STDERR "Unexpected value of 'value' in a diathesis node.";
               }
-            }
-            elsif (my $type = $attr_node->getAttribute('type')) {
+            } elsif (my $type = $attr_node->getAttribute('type')) {
               if ($frame_attrs{$attrname}) {
                 $frame_attrs{$attrname} .="<br>"
               }
@@ -893,22 +890,18 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 if ($attrname eq "reflex") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
                   $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
-                }
-                elsif ($attrname eq "recipr") {
+                } elsif ($attrname eq "recipr") {
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
                   $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
-                }
-                else { # control a class
+                } else { # control a class
                   # tohle else nikdy nenastane, nejspíš přežitek ze starších verzí, radši to tu ale nechávám
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($type));
                   $frame_attrs{$attrname} .= "$type: ";
                 }
-              }
-              else {
+              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ control|class|reflex|recipr
                 $frame_attrs{$attrname} .= "$type: ";
               }
-            }
-            elsif ($attrname eq "links") {
+            } elsif ($attrname eq "links") {
               my $last_limit = "";
               foreach my $flink_node ($attr_node->getElementsByTagName("flink")) {
                 my $coindex      = $flink_node->getAttribute('coindex');
@@ -963,15 +956,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 }
                 $sep = "&nbsp;";
               }
-            }
-            else {
+            } else {  ## not @coindexed
               if (my $the_only_child = $attr_node->getFirstChild) {
                 my $trimmed_value = trim($the_only_child->getNodeValue);
                 if($attrname=~/^(control|class)$/){
                   my $url_value = string_to_html_filename($trimmed_value);
                   $frame_attrs{$attrname} .= "<a href='#/filter/$attrname/$url_value'>$trimmed_value</a>";
-                }
-                else {
+                } else {  ## $attrname !~ control|class
                   my $node_value = $the_only_child->getNodeValue;
                   $node_value =~ s/^\s+//;
                   $node_value =~ s/\s+$//;
