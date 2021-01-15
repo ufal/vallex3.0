@@ -238,7 +238,7 @@ sub create_multiframe ($$$) {
   close F;
 }
 
-my $json_obj = JSON->new->utf8->canonical;
+my $json_obj = JSON->new->utf8->canonical->pretty;
 sub create_json_file ($$) {
   my ($filename, $hash)=@_;
   $filename = $outputdir.$filename;
