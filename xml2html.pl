@@ -798,7 +798,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
             if ($attrname=~/^(control|class)$/) {
               unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($attr_node->getFirstChild->getNodeValue));
-            } elsif ($attrname eq "alter") {
+            } elsif ($attrname eq 'alter') {
               my $type       = $attr_node->getAttribute('type');
               my $subtype    = $attr_node->getAttribute('subtype');
               my $primary    = $attr_node->getAttribute('primary');
@@ -806,27 +806,27 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               $locatum = $locatum ? " ($locatum)" : "";
               my $primary_mark = "<span class='primary-mark'>" # FIXME moc velke, odstrkuje radku
                 . ($primary ? "Ⅰ." : "Ⅱ.") . "</span>";
-              my $LU_ref     = $attr_node->getElementsByTagName("flink")->[0]->getAttribute("web_frame_id");
+              my $LU_ref     = $attr_node->getElementsByTagName('flink')->[0]->getAttribute('web_frame_id');
               my $LU_ref_index = $1 if $LU_ref =~ /^w-blu-v-.+-(\d+)$/; # same as getAttribute("order");
               if (!$LU_ref_index) {
                 warn("*** Unrecognized ID of a counterpart of lexical alternation: $LU_ref\n");
-                $LU_ref_index = "N";
+                $LU_ref_index = 'N';
               }
 
-              unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "lexicalized", $type, $subtype.$locatum);
+              unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'lexicalized', $type, $subtype.$locatum);
               my $url_type = string_to_html_filename($type);
               my $url_subtype = string_to_html_filename($subtype.$locatum);
               $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
                 . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
                 . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec-sect-$type' class='rule-link'>rule</a>"
                 . "</table>";
-            } elsif ($attrname eq "diat") {
+            } elsif ($attrname eq 'diat') {
               my $type = $attr_node->getAttribute('type');
-              if ($attr_node->getAttribute('value') eq "no") {
+              if ($attr_node->getAttribute('value') eq 'no') {
                 # add_to_list("diat","$type NO",$link_to_frame);
-              } elsif ($attr_node->getAttribute('value') eq "yes") {
-                unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", "$type");
-                if ($frame_attrs{"diat"}) {$frame_attrs{"diat"} .="<br>"}
+              } elsif ($attr_node->getAttribute('value') eq 'yes') {
+                unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'diathesis', "$type");
+                if ($frame_attrs{diat}) {$frame_attrs{diat} .='<br>'}
                 my %subtypes;
                 if ( my @coindexed = $attr_node->getElementsByTagName('coindexeddiat') ) {
                   foreach my $coindexed (@coindexed) {
@@ -859,39 +859,39 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 warn("ERROR: Deagentisation without a subtype: $headword_lemmas LU$frame_index\n") if $type eq "deagent" and !%subtypes;
                 warn("ERROR: Subtype not allowed for $type diathesis: $headword_lemmas LU$frame_index\n") if $type ne "poss-result" and $type ne "deagent" and %subtypes and (keys(%subtypes) > 1 or !$subtypes{$type});
                 # TODO predchozi chyby kontrolovat hlavne v prevodu do XML ci v testech dat
-                if ($type eq "poss-result") {
+                if ($type eq 'poss-result') {
                   foreach my $subtype (sort keys %subtypes) {
                     # my $adjusted_subtype = $subtype;
                     # $adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
                     # $frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
                     # add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
-                    $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype'>$subtype:</a>".$subtypes{$subtype};
-                    unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "diathesis", $type, $subtype);
+                    $frame_attrs{diat} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype'>$subtype:</a>".$subtypes{$subtype};
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'diathesis', $type, $subtype);
                   }
                 } elsif (%subtypes) {
-                  $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type:</a>";
+                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type:</a>";
                   # Only one possible subtype for "passive" and "recipient"
                   # and both possible subtypes for "deagent" should be merged
                   # TODO aspects are not merged properly (original "deagent impf pf deagent0 impf pf" -> "deagent impf pf impf pf")
-                  $frame_attrs{"diat"} .= join("; ", map {$subtypes{$_}} sort keys(%subtypes));
+                  $frame_attrs{'diat'} .= join('; ', map {$subtypes{$_}} sort keys(%subtypes));
                 } else {
-                  $frame_attrs{"diat"} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type</a> YES";
+                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type</a> YES";
                 }
               } else {
                 print STDERR "Unexpected value of 'value' in a diathesis node.";
               }
             } elsif (my $type = $attr_node->getAttribute('type')) {
               if ($frame_attrs{$attrname}) {
-                $frame_attrs{$attrname} .="<br>"
+                $frame_attrs{$attrname} .='<br>'
               }
 
               my $url_type = string_to_html_filename($type);
               if ( ($attrname=~/^(control|class|reflex|recipr)$/) ) {
-                if ($attrname eq "reflex") {
-                  unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reflexivity", $type);
+                if ($attrname eq 'reflex') {
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reflexivity', $type);
                   $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
-                } elsif ($attrname eq "recipr") {
-                  unit_to_criteria($frame_index, $filename, $headword_lemmas, "alternation", "grammaticalized", "reciprocity", $type);
+                } elsif ($attrname eq 'recipr') {
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
                   $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
                 } else { # control a class
                   # tohle else nikdy nenastane, nejspíš přežitek ze starších verzí, radši to tu ale nechávám
@@ -901,14 +901,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ control|class|reflex|recipr
                 $frame_attrs{$attrname} .= "$type: ";
               }
-            } elsif ($attrname eq "links") {
-              my $last_limit = "";
-              foreach my $flink_node ($attr_node->getElementsByTagName("flink")) {
+            } elsif ($attrname eq 'links') {
+              my $last_limit = '';
+              foreach my $flink_node ($attr_node->getElementsByTagName('flink')) {
                 my $coindex      = $flink_node->getAttribute('coindex');
-                my $pdtvallex_id = $flink_node->getAttribute("frame_id");
-                my $variant      = $flink_node->getAttribute("variant");
-                my $weight       = $flink_node->getAttribute("weight");
-                my $lemma        = $variant ? $variant : join("/", map {$_->[0]} @{$local_aspect{$coindex}}); # TODO kdyby se fakt pouzilo /, je to chyba
+                my $pdtvallex_id = $flink_node->getAttribute('frame_id');
+                my $variant      = $flink_node->getAttribute('variant');
+                my $weight       = $flink_node->getAttribute('weight');
+                my $lemma        = $variant ? $variant : join('/', map {$_->[0]} @{$local_aspect{$coindex}}); # TODO kdyby se fakt pouzilo /, je to chyba
                 $lemma =~ s/\ /+/xg;
                 # Rounding (2 decimal places)
                 $weight += 0.005; # plus half
@@ -916,7 +916,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 $weight += 0; # remove trailing zeros
                 $weight =~ s/,/./; # point instead of comma
 
-                my $limit = "";
+                my $limit = '';
                 # kdyz je nutne rozlisovat, ktery z vidu platnych pro danou LU to je,
                 # protoze neiterativnich je vic -- a nebo je toto dokonce iterativum
                 if ((grep {$_ !~ /^iter/} @blu_coindexes) > 1 or $coindex =~ /^iter/) {
@@ -924,37 +924,37 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 }
                 $limit = $limit ? "$limit, $variant" : $variant if $variant;
                 if ($limit eq $last_limit) {
-                  $limit = "";
+                  $limit = '';
                 } else {
                   $last_limit = $limit;
                 }
                 $frame_attrs{'PDT-Vallex'} .=
-                  ($limit ? " &nbsp;<span class='scriptsize'>$limit:</span> " : "")
+                  ($limit ? " &nbsp;<span class='scriptsize'>$limit:</span> " : '')
                   . "<a href='$PDTVALLEX_URL$lemma#$pdtvallex_id' target='_blank'>$pdtvallex_id</a> "
                   . "<span style='font-size:xx-small'>($weight)</span>\n";
               }
             }
 
-            my $lvc_index = $blu_node->getTagName eq "llu" ?
+            my $lvc_index = $blu_node->getTagName eq 'llu' ?
               ($attr_node->getAttribute('lvc_coindex') or 0) : undef();
             my @coindexed = $attr_node->getElementsByTagName('coindexed');
             if (@coindexed) {
-              my $sep = "";
+              my $sep = '';
               foreach my $node (@coindexed) {
                 my $node_value
                   = "$sep"
                     . ($VERB_MODE ?
                       "<span class='scriptsize'>"
                       . $node->getAttribute('coindex')
-                      . ":</span> "
-                      : "")
+                      . ':</span> '
+                      : '')
                     . $node->getFirstChild->getNodeValue;
                 if (defined($lvc_index)) {
                   $frame_attrs{$attrname}->[$lvc_index] .= $node_value;
                 } else {
                   $frame_attrs{$attrname} .= $node_value;
                 }
-                $sep = "&nbsp;";
+                $sep = '&nbsp;';
               }
             } else {  ## not @coindexed
               if (my $the_only_child = $attr_node->getFirstChild) {
@@ -966,8 +966,8 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   my $node_value = $the_only_child->getNodeValue;
                   $node_value =~ s/^\s+//;
                   $node_value =~ s/\s+$//;
-                  if ($attrname eq "lvc") {
-                    $node_value = join(", ",
+                  if ($attrname eq 'lvc') {
+                    $node_value = join(', ',
                       map {
                         if (/^blu-n-(.*-\d+)$/) {
                           my $noun = $1;
@@ -977,7 +977,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                           . string_to_html_filename($noun_lexeme)
                           . ".html' target='_blank'>$noun</a>";
                         } elsif (/\|/) {
-                          ";";
+                          ';';
                         } else {
                           "<span class='one-verb-noun'>$_</span>";  # TODO no specification for this class, yet
                         }
@@ -986,7 +986,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                       split(/\s+/, $node_value));
                     $node_value =~ s/^;,//;     # lvc:  | noun noun       -> ;, noun, noun
                     $node_value =~ s/, ;,/;/;   # lvc: noun1 noun1 | noun -> noun1, noun1, ;, noun
-                  } elsif ($attrname eq "functor_mapping") {
+                  } elsif ($attrname eq 'functor_mapping') {
                     $node_value =~ s/-/&mdash;/g;
                     $node_value =~ s/([A-Z])v/$1<span style='vertical-align: sub; font-size: smaller'>verb<\/span>/g;
                     $node_value =~ s/([A-Z])n/$1<span style='vertical-align: sub; font-size: smaller'>noun<\/span>/g;
@@ -1005,10 +1005,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
           # $frame_attrs{$attrname}=$blu_node->getElementsByTagName($attrname)->item(0)->getFirstChild->getNodeValue
         };
-        warn("nonfatal: ", $@) if $@;
+        warn('nonfatal: ', $@) if $@;
       }
-      elsif ($attrname eq "gloss" and $blu_node->getTagName eq "llu") {
-        $frame_attrs{$attrname} .= "complex predicates";
+      elsif ($attrname eq 'gloss' and $blu_node->getTagName eq 'llu') {
+        $frame_attrs{$attrname} .= 'complex predicates';
       }
     }
 
@@ -1114,6 +1114,8 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       'diat' => 'guide.html#sec-sect-diat',
       'PDT-Vallex' => 'http://ufal.mff.cuni.cz/PDT-Vallex/',
       'cnk_usage' => '',  # TODO
+      'reflexverb' => '',  # TODO
+      'reciprverb' => '',  # TODO
     );
 
     my $LVC = ($VERB_MODE and $frame_attrs{'lvc'}) ? 1 : 0;
@@ -1139,7 +1141,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         (join "", map {
           my $attrname =
             $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
-          "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} "
+          "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} \n"
           } (@frame_attrs_filtered) );
     }
     if ($LVC) {
