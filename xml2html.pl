@@ -792,7 +792,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     # ---------- load the frame attributes
     my %frame_attrs;
     # tady se musi pridat rozdeleni na dok: %???% /ned: %...%
-    foreach my $attrname ('example','gloss','control','class','reflex','diat','alter','recipr','links','lvc', "instigator", "functor_mapping") {
+    foreach my $attrname ('example','gloss','control','class','reflex','diat','alter','recipr','links','lvc', 'instigator', 'functor_mapping', 'reciprverb', 'reflexverb') {
       if ($blu_node->getElementsByTagName($attrname)->item(0)) {
         eval {
           foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
@@ -1119,7 +1119,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     );
 
     my $LVC = ($VERB_MODE and $frame_attrs{'lvc'}) ? 1 : 0;
-    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex');
+    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex','reciprverb','reflexverb');
     my $visible_attributes =
       "<tr><td><td class='attrname frame'>frame<td colspan='2' class='attr frame'>".$frame_table_html. # frame má podobu tabulky
       ($LVC ?
