@@ -684,7 +684,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
   my $headword_lemmas_table= join ", ",@$headwords_rf_with_aspect; # doplnit vyrobeni tabulek
 
-  my $link_to_word = "<a target='wordentry' href='../lexeme-entries/$filename'>$bullet $headword_lemmas</a><br>";
+  my $link_to_word = "<a target='wordentry' href='../lexeme-entries/$filename'>$bullet $headword_lemmas</a><br>\n";
 
   my %coindexed_lemmas = get_coindexed_hash($headwords_rf_with_aspect);
   my $pdtvallex_word_links = pdtvallex_word_links($lexeme_node, %coindexed_lemmas);
@@ -728,7 +728,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     lexeme_to_criteria($filename, $headword_lemmas, "others", "variants");
   }
 
-  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links<div class='headword'>$headword_lemmas_table</div></div>\n";
+  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links\n  <div class='headword'>$headword_lemmas_table</div>\n</div>\n";
   # "<td>&nbsp;&nbsp;&nbsp;
   # <span class='headword_aspect'>   <a title='aspect' href='../aspect/index-$aspect.html' target='_parent'>$aspect.</a></span></table><br>\n";
 
@@ -759,17 +759,19 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       if $frame_index != $blu_node->getAttribute('order');
     if ($NOUN_MODE && !grep {$_} $blu_node->getElementsByTagName('lvc')) {
       $htmlized_frame_entries .=
-        "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
-        "<td class='lexical_unit_index'>".
-        "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a>".
-        "<td colspan='3' class='gloss_header'><i>This lexical unit does not participate in any LVC&hellip;</i></td>".
-        "</td></table>";
+        "  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>\n".
+        "    <tr>\n".
+        "      <td class='lexical_unit_index'>".
+        "<a href='#/lexeme/$filename/$frame_index' title='$id' class='frame_index_link circle'>$frame_index</a></td>\n".
+        "      <td colspan='3' class='gloss_header'><i>This lexical unit does not participate in any LVC&hellip;</i></td>\n".
+        "    </tr>\n".
+        "  </table>\n";
       next;
     }
 
     # ------ html link na ramec do vyhledavacich tabulek
 
-    my $link_to_frame = "<a target='wordentry' href='../lexeme-entries/$filename\#$frame_index'>$bullet $headword_lemmas <span class='scriptsize'>$frame_index</span></a><br>";
+    my $link_to_frame = "<a target='wordentry' href='../lexeme-entries/$filename\#$frame_index'>$bullet $headword_lemmas <span class='scriptsize'>$frame_index</span></a><br>\n";
 
     my $limited_lex_forms = "";
     my @blu_coindexes;
@@ -816,9 +818,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'lexicalized', $type, $subtype.$locatum);
               my $url_type = string_to_html_filename($type);
               my $url_subtype = string_to_html_filename($subtype.$locatum);
-              $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>"
-                . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;"
-                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec-sect-$type' class='rule-link'>rule</a>"
+              $frame_attrs{$type} .= "<table cellspacing='0' cellpadding='0'>\n"
+                . "<tr><td><a href='#/filter/alternation/lexicalized/$url_type/$url_subtype'>$subtype$locatum</a>: $primary_mark&nbsp;</td>\n"
+                . "<td><a href='#/lexeme/$filename/$LU_ref_index' class='circle small'>$LU_ref_index</a> <a href='grammar.html#sec-sect-$type' class='rule-link'>rule</a></td><tr>\n"
                 . "</table>";
             } elsif ($attrname eq 'diat') {
               my $type = $attr_node->getAttribute('type');
@@ -1039,11 +1041,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       my $functor_class = "free";
       if ($functor =~ /^(ACT|ADDR|ORIG|PAT|EFF)$/) {
         $functor_class = "actants";
-      }
-      elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
+      } elsif ($functor =~ /^(DIFF|OBST|INTT)$/) {
         $functor_class = "quasi-valency";
-      }
-      elsif ($functor =~ /^([CD]PHR)$/) {
+      } elsif ($functor =~ /^([CD]PHR)$/) {
         $functor_class = "func-mwe";
         my $mwe_type = $1 eq 'CPHR' ? 'complex predicates' : 'idioms';
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "top-mwe", $mwe_type);
@@ -1068,21 +1068,18 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           if($type eq "cont"){ # cont nemá podkategorie
             unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $result);
             $filter_url = "forms/$url_result";
-          }
-          else {
+          } else {
             unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $type, $result);
             $filter_url = "forms/".string_to_html_filename($type)."/$url_result";
           }
-        }
-        else {
+        } else {
           $filter_url = "functors/free/DPHR";
         }
         my $form_comment = $long_form_type{$type};
         $form_comment .= " ($case_names{$result})"
           if ($type eq 'direct_case' and $efftype ne "byt");
 
-        "<a class='forms' target='_top' title='morphemic form: $form_comment'
-        href='#/filter/$filter_url'>$result</a>";
+        "<a class='forms' target='_top' title='morphemic form: $form_comment' href='#/filter/$filter_url'>$result</a>";
       } $frame_slot->getElementsByTagName('form');
 
       my $classtype = "";
@@ -1121,27 +1118,31 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my $LVC = ($VERB_MODE and $frame_attrs{'lvc'}) ? 1 : 0;
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex','reciprverb','reflexverb');
     my $visible_attributes =
-      "<tr><td><td class='attrname frame'>frame<td colspan='2' class='attr frame'>".$frame_table_html. # frame má podobu tabulky
+      "    <tr>\n      <td></td>\n      <td class='attrname frame'>frame</td>\n".
+      "      <td colspan='2' class='attr frame'>\n".$frame_table_html. # frame má podobu tabulky
       ($LVC ?
         sort_LVC_attributes(%frame_attrs)
         :
-        "<tr><td><td class='attrname example'>example<td class='attr example'>".$frame_attrs{example}
+        "    <tr>\n      <td></td>\n      <td class='attrname example'>example</td>\n".
+        "      <td class='attr example'>".$frame_attrs{example}
       );
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries .=
-      "\n  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>".
-      "<td class='lexical_unit_index'>".$first_frameentry_row.
-      "<td colspan='3' class='gloss_header'>".$lexical_unit_gloss. # hlavička se slovesy
+      "  <table class='lexical_unit u$frame_index' data-id='".$frame_index."'>\n".
+      "    <tr>\n".
+      "      <td class='lexical_unit_index'>".$first_frameentry_row."</td>\n".
+      "      <td colspan='3' class='gloss_header'>".$lexical_unit_gloss. "</td>\n".# hlavička se slovesy
+      "    </tr>\n".
       $visible_attributes;
     if ($VERB_MODE) {
       $htmlized_frame_entries .=
-        "<td class='expander_cell'><a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a>". # more tlačítko
+        "    <td class='expander_cell'><a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a></td>\n". # more tlačítko
         # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
         # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
         (join "", map {
           my $attrname =
             $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
-          "<tr class='more'><td><td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a><td colspan='2' class='attr $attrname'>$frame_attrs{$_} \n"
+          "    <tr class='more'>\n      <td></td>\n      <td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a></td>\n      <td colspan='2' class='attr $attrname'>$frame_attrs{$_} </td>\n    </tr>\n"
           } (@frame_attrs_filtered) );
     }
     if ($LVC) {
@@ -1151,10 +1152,10 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           LVC_line("example", $suffix, $frame_attrs{example}->[$lvc_index], "hidden");
       }
     }
-    $htmlized_frame_entries .= "</table>";
+    $htmlized_frame_entries .= "  </table>\n";
   } # end of foreach blu
 
-  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_content'>".$htmlized_frame_entries."</div>";
+  $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_content'>\n".$htmlized_frame_entries."</div>\n";
 
   # print "Lexeme:  ";
   # print join " , ",map {"$_ $reflex"} @{$headwords_rf};
