@@ -49,7 +49,7 @@ www:
 #		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
 	# or
 	echo $(date)
-	scp -r $(dir_out)/data/html/ vernerova@ufal:vallex_web/$(ver)_${date}
+	rsync -av --copy-unsafe-links --delete --checksum $(dir_out)/data/html/ --link-dest ../$(ver)-test vernerova@ufal:vallex_web/$(ver)_${date}
 	ssh vernerova@ufal 'unlink vallex_web/$(ver)-test; ln -s $(ver)_$(date) vallex_web/$(ver)-test'
 	#### cp 3.0 3.0_backup_<datum>
 	#### cd     3.0_backup_<datum>
