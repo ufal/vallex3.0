@@ -1008,8 +1008,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
           # $frame_attrs{$attrname}=$blu_node->getElementsByTagName($attrname)->item(0)->getFirstChild->getNodeValue
         };
         warn('nonfatal: ', $@) if $@;
-      }
-      elsif ($attrname eq 'gloss' and $blu_node->getTagName eq 'llu') {
+      } elsif ($attrname eq 'gloss' and $blu_node->getTagName eq 'llu') {
         $frame_attrs{$attrname} .= 'complex predicates';
       }
     }
@@ -1085,10 +1084,16 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       my $classtype = "";
       if ($type eq 'typ') {$classtype=' typ'}
 
-      $frame_table_row1 .= "<td class='functor$classtype' rowspan='2'><a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a><td class='type' title='$type_of_compl{$type}'>$type";
-      $frame_table_row2 .= "<td class='forms'>$forms";
+      $frame_table_row1 .= "            <td class='functor$classtype' rowspan='2'>\n"
+                         . "              <a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a>\n"
+                         . "            </td>\n"
+                         . "            <td class='type' title='$type_of_compl{$type}'>$type</td>\n";
+      $frame_table_row2 .= "            <td class='forms'>$forms</td>\n";
     } # konec for frame slot
-    my $frame_table_html="<table class='frame'><tr>$frame_table_row1<tr>$frame_table_row2</table>";
+    my $frame_table_html = "        <table class='frame'>\n"
+                         . "          <tr>\n$frame_table_row1          </tr>\n"
+                         . "          <tr>\n$frame_table_row2          </tr>\n"
+                         . "        </table>\n";
 
     # ---------- radek s prikladem, tridou a kontrolou, rcp, refl
     # my $example_line=  "<span class='attrname'>-example: </span>$frame_attrs{example}<br>\n\n";
@@ -1119,12 +1124,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex','reciprverb','reflexverb');
     my $visible_attributes =
       "    <tr>\n      <td></td>\n      <td class='attrname frame'>frame</td>\n".
-      "      <td colspan='2' class='attr frame'>\n".$frame_table_html. # frame má podobu tabulky
+      "      <td colspan='2' class='attr frame'>\n".$frame_table_html."      </td>\n    </tr>\n". # frame má podobu tabulky
       ($LVC ?
         sort_LVC_attributes(%frame_attrs)
         :
-        "    <tr>\n      <td></td>\n      <td class='attrname example'>example</td>\n".
-        "      <td class='attr example'>".$frame_attrs{example}
+          "    <tr>\n      <td></td>\n      <td class='attrname example'>example</td>\n"
+        . "      <td class='attr example'>$frame_attrs{example}</td>\n"
       );
     # ---------- vysledny htmlizovany zaznam ramce
     $htmlized_frame_entries .=
@@ -1136,10 +1141,15 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       $visible_attributes;
     if ($VERB_MODE) {
       $htmlized_frame_entries .=
-        "    <td class='expander_cell'><a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'><span>more</span><div class='arrow'>&gt;</div></a></td>\n". # more tlačítko
+          "      <td class='expander_cell'>\n"
+        . "        <a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'>\n"
+        . "          <span>more</span><div class='arrow'>&gt;</div>\n"
+        . "        </a>\n"
+        . "      </td>\n" # more tlačítko
+        . "    </tr>\n"
         # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
         # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
-        (join "", map {
+        . (join "", map {
           my $attrname =
             $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
           "    <tr class='more'>\n      <td></td>\n      <td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a></td>\n      <td colspan='2' class='attr $attrname'>$frame_attrs{$_} </td>\n    </tr>\n"
