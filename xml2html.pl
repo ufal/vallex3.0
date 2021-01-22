@@ -15,7 +15,7 @@ binmode STDOUT,":encoding(utf-8)";
 use XML::DOM;
 use List::Util 1.33 'none';
 
-# use Data::Dumper;
+#use Data::Printer colored => 1,max_depth => 8, show_tied => 1, class => {inherited => 'all', expand => 3}, caller_info => 0;
 
 my ($VERB_MODE, $NOUN_MODE) =
     $ENV{VERB_MODE} ? (1,0) :
@@ -798,6 +798,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       if ($blu_node->getElementsByTagName($attrname)->item(0)) {
         eval {
           foreach my $attr_node ($blu_node->getElementsByTagName($attrname)) {
+            my $attribute_coindex = ( $blu_node->getTagName eq 'llu'
+                                      and $attrname =~ m/^(lvc|functor_mapping|instigator|example)$/
+                                    ) ? ($attr_node->getAttribute('lvc_coindex') or 0)
+                                      : undef();
+            #warn "============================\n\$attrname = $attrname\n\$attribute_coindex = $attribute_coindex"; #\n\$attr_node = ".np($attr_node)."
+
             if ($attrname=~/^(control|class)$/) {
               unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($attr_node->getFirstChild->getNodeValue));
             } elsif ($attrname eq 'alter') {
@@ -883,24 +889,20 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 print STDERR "Unexpected value of 'value' in a diathesis node.";
               }
             } elsif (my $type = $attr_node->getAttribute('type')) {
-              if ($frame_attrs{$attrname}) {
+              if ($frame_attrs{$attrname} and not ref($frame_attrs{$attrname}) eq 'ARRAY' ) {
                 $frame_attrs{$attrname} .='<br>'
               }
 
               my $url_type = string_to_html_filename($type);
-              if ( ($attrname=~/^(control|class|reflex|recipr)$/) ) {
-                if ($attrname eq 'reflex') {
+              if ($attrname eq 'reflex') {
+                  $attribute_coindex = ( $attr_node->getAttribute('reflex_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reflexivity', $type);
-                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
-                } elsif ($attrname eq 'recipr') {
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
+              } elsif ($attrname eq 'recipr') {
+                  $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
-                  $frame_attrs{$attrname} .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
-                } else { # control a class
-                  # tohle else nikdy nenastane, nejspíš přežitek ze starších verzí, radši to tu ale nechávám
-                  unit_to_criteria($frame_index, $filename, $headword_lemmas, $attrname, trim($type));
-                  $frame_attrs{$attrname} .= "$type: ";
-                }
-              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ control|class|reflex|recipr
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
+              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr
                 $frame_attrs{$attrname} .= "$type: ";
               }
             } elsif ($attrname eq 'links') {
@@ -937,8 +939,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               }
             }
 
-            my $lvc_index = $blu_node->getTagName eq 'llu' ?
-              ($attr_node->getAttribute('lvc_coindex') or 0) : undef();
             my @coindexed = $attr_node->getElementsByTagName('coindexed');
             if (@coindexed) {
               my $sep = '';
@@ -951,8 +951,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                       . ':</span> '
                       : '')
                     . $node->getFirstChild->getNodeValue;
-                if (defined($lvc_index)) {
-                  $frame_attrs{$attrname}->[$lvc_index] .= $node_value;
+                if ( defined($attribute_coindex) ) {
+                  #warn "-----------------\n\$attribute_coindex = $attribute_coindex\n\$frame_attrs{$attrname} = ".np($frame_attrs{$attrname})."\n\$node_value = $node_value";
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= $node_value;
                 } else {
                   $frame_attrs{$attrname} .= $node_value;
                 }
@@ -993,8 +994,9 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     $node_value =~ s/([A-Z])v/$1<span style='vertical-align: sub; font-size: smaller'>verb<\/span>/g;
                     $node_value =~ s/([A-Z])n/$1<span style='vertical-align: sub; font-size: smaller'>noun<\/span>/g;
                   }
-                  if (defined($lvc_index)) {
-                    $frame_attrs{$attrname}->[$lvc_index] = $node_value;
+                  if ( defined($attribute_coindex) ) {
+                    #warn "-----------------\n\$attribute_coindex = $attribute_coindex\n\$frame_attrs{$attrname} = ".np($frame_attrs{$attrname})."\n\$node_value = $node_value";
+                    $frame_attrs{$attrname}->[$attribute_coindex] .= $node_value;
                   } else {
                     $frame_attrs{$attrname} .= $node_value;
                   }
@@ -1149,11 +1151,31 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         . "    </tr>\n"
         # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
         # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
-        . (join "", map {
-          my $attrname =
-            $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
-          "    <tr class='more'>\n      <td></td>\n      <td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a></td>\n      <td colspan='2' class='attr $attrname'>$frame_attrs{$_} </td>\n    </tr>\n"
-          } (@frame_attrs_filtered) );
+        . (join "", 
+                map { my $attrname = $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
+                        my $mainValue;
+                      if ( ref($frame_attrs{$_}) eq 'ARRAY' ) {
+                        foreach my $i (0..$#{$frame_attrs{$_}}) {
+                          my $suffix = $i > 0 ? $i : "";
+                          if (defined $frame_attrs{$_}->[$i]) {
+                              $mainValue .= 
+                              "    <tr class='more'>\n"
+                            . "      <td></td>\n"
+                            . "      <td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_$suffix</a></td>\n"
+                            . "      <td colspan='2' class='attr $attrname'>$frame_attrs{$_}->[$i]</td>\n"
+                            . "    </tr>\n";
+                          }
+                        }
+                      } else {
+                        $mainValue = 
+                          "    <tr class='more'>\n"
+                        . "      <td></td>\n"
+                        . "      <td class='attrname $attrname'><a href='".$attrname_links{$attrname}."'>$_</a></td>\n"
+                        . "      <td colspan='2' class='attr $attrname'>$frame_attrs{$_} </td>\n"
+                        . "    </tr>\n";
+                      };
+                      "$mainValue"
+                    } (@frame_attrs_filtered) );
     }
     if ($LVC) {
       foreach my $lvc_index (0..$#{$frame_attrs{example}}) {
