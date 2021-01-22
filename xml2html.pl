@@ -902,7 +902,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
-              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr
+              } elsif ($attrname eq 'reciprverb') {
+                  $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>";
+              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb
                 $frame_attrs{$attrname} .= "$type: ";
               }
             } elsif ($attrname eq 'links') {
