@@ -1,4 +1,4 @@
-var LUseparator = /[^<]\/|, /;
+var LUseparator = /(?<!<)\/|, /;
 
 var Lexemes = Backbone.Model.extend({
 	lexemes: null,
@@ -238,7 +238,7 @@ var LexemesView = Backbone.View.extend({
 					var unique = {};
 					for (var i = 0; i < _this.model.filtered.length; i++) {
 						var lu = _this.model.filtered[i];
-						var namesString = lu.parent.get("name").toLowerCase();
+						var namesString = lu.parent.get("name");
 						var names = namesString.split(LUseparator);
 						for (var n = 0; n < names.length; n++) {
 							var name = names[n];
