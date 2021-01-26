@@ -322,7 +322,9 @@ sub unit_to_criteria {
   my $headword_lemmas = shift;
 
   my $tree = \%filtertree;
-  foreach my $node (@_) {
+  my $add_this_unit = ((@_ < 3) or ($_[-3] ne 'reflexive lexemes') or ($lu_index == 0));
+  foreach ( my $i = 0; $i < @_; $i++ ) {
+    my $node = $_[$i];
     if(!exists ${${$tree}{"subfilters"}}{$node}){
       ${${$tree}{"subfilters"}}{$node} = {
         "lexemes" => {},
@@ -331,7 +333,8 @@ sub unit_to_criteria {
     }
     $tree = ${${$tree}{"subfilters"}}{$node};
 
-    $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas];
+    $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas]
+      if $add_this_unit or ($i == @_-1);
     # push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas]
     # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
   }
@@ -700,12 +703,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         last mlemma;
       }
     }
-    if ($tantum) {
-      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "reflexive tantum verbs");
-    }
-    else {
-      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "derived reflexive lexemes");
-    }
+#    if ($tantum) {
+#      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "reflexive tantum verbs");
+#    }
+#    else {
+#      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "derived reflexive lexemes");
+#    }
 
     # my $lexeme_cluster = $lexeme_node->getParentNode;
     # if (grep {$_ ne $lexeme_node} $lexeme_cluster->getElementsByTagName('lexeme')) {
@@ -906,7 +909,16 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>";
-              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb
+              } elsif ($attrname eq 'reflexverb') {
+                  if ($type eq 'tantum') {
+                    lexeme_to_criteria($filename, $headword_lemmas, 'others', 'reflexive lexemes', 'reflexive tantum lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'others', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
+                  } else {
+                    lexeme_to_criteria($filename, $headword_lemmas, 'others', 'reflexive lexemes', 'derived reflexive lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'others', 'reflexive lexemes', 'derived reflexive lexemes', $type);
+                  }
+                  $frame_attrs{$attrname} .= "<a href='#/filter/others/reflexive_lexemes/$url_type'>$type</a>";
+              } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb|reflexverb
                 $frame_attrs{$attrname} .= "$type: ";
               }
             } elsif ($attrname eq 'links') {
