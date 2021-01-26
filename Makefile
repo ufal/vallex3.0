@@ -29,6 +29,10 @@ html: $(XML)
 	# perlbrew exec --with perl-5.18.2 $(dir_html_in)/xml2html.pl $(XML) $(dir_html_in) $(ver)
 	$(dir_html_in)/xml2html.pl $(XML) $(dir_html_in) $(ver)
 	#cp $(dir_valeval)/valeval.xml $(dir_valeval)/valeval.dtd $(dir_xml_out)
+	@echo ----------- TODO --------------
+	@echo If you do not want to have \"rozmýšlet (se/si)\" split into impf1 and impf2, you have to manually edit the result.
+	@echo In that case do not forget to edit also the index filter/others/aspect,
+	@echo the xml file, and the json file.
 
 nounhtml: $(XML_NOUNS)
 	@echo Creating HTML files from noun XML file
@@ -48,7 +52,7 @@ www:
 #		rm -rf public_html/vallex31/test-Nov; \
 #		mv     public_html/vallex31/html public_html/vallex31/test-Nov'
 	# or
-	echo $(date)
+	@echo $(date)
 	rsync -av --copy-unsafe-links --delete --checksum $(dir_out)/data/html/ --link-dest ../$(ver)-test vernerova@ufal:vallex_web/$(ver)_${date}
 	ssh vernerova@ufal 'unlink vallex_web/$(ver)-test-prev; mv vallex_web/$(ver)-test{,-prev}; ln -s $(ver)_$(date) vallex_web/$(ver)-test'
 	#### cp 3.0 3.0_backup_<datum>
