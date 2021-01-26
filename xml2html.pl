@@ -322,7 +322,8 @@ sub unit_to_criteria {
   my $headword_lemmas = shift;
 
   my $tree = \%filtertree;
-  my $add_this_unit = ((@_ < 3) or ($_[-3] ne 'reflexive lexemes') or ($lu_index == 0));
+  #warn "\n\@_ = ".np(@_);
+  my $add_this_unit_allnodes  =  @_<=1 || $_[1] ne 'reflexive lexemes';
   foreach ( my $i = 0; $i < @_; $i++ ) {
     my $node = $_[$i];
     if(!exists ${${$tree}{"subfilters"}}{$node}){
@@ -333,11 +334,15 @@ sub unit_to_criteria {
     }
     $tree = ${${$tree}{"subfilters"}}{$node};
 
+    my $add_this_unit_thisnode =
+      ! $add_this_unit_allnodes 
+      && $lu_index == 0 ? $node =~ m/lexemes/ : $node !~ m/lexemes/ ;
+    #$add_this_unit_allnodes || $add_this_unit_thisnode ? warn "ADD $lexeme-$lu_index ($headword_lemmas)" 
+    #                                                   : warn "DON'T ADD $lexeme-$lu_index ($headword_lemmas)";
     $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas]
-      if $add_this_unit or ($i == @_-1);
-    # push @{%{$tree}{"lexemes"}}, [$lexeme, $lu_index, $headword_lemmas]
-    # if none { $_[0] eq $lexeme } @{%{$tree}{"lexemes"}};
+      if $add_this_unit_allnodes or $add_this_unit_thisnode ;
   }
+  
 }
 
 # přidá lexém do filtrovacího stromu
@@ -692,33 +697,6 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my %coindexed_lemmas = get_coindexed_hash($headwords_rf_with_aspect);
   my $pdtvallex_word_links = pdtvallex_word_links($lexeme_node, %coindexed_lemmas);
 
-  ## TODO: now reflexiva tantum are annotated manually, so we should not compute the value
-  if ($headword_lemmas =~ / s[ie]\b/) {
-    my $tantum = 1;
-    mlemma: foreach my $mlemma_node ($lexeme_node->getElementsByTagName('mlemma')) {
-      my $mlemma = $mlemma_node->getFirstChild->getNodeValue;
-      my $homo_index = $mlemma_node->getAttribute('homograph');
-      if ($irrefl_mlemma{$mlemma.$homo_index}) {
-        $tantum = 0;
-        last mlemma;
-      }
-    }
-#    if ($tantum) {
-#      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "reflexive tantum verbs");
-#    }
-#    else {
-#      lexeme_to_criteria($filename, $headword_lemmas, "others", "reflexive lexemes", "derived reflexive lexemes");
-#    }
-
-    # my $lexeme_cluster = $lexeme_node->getParentNode;
-    # if (grep {$_ ne $lexeme_node} $lexeme_cluster->getElementsByTagName('lexeme')) {
-    #  add_to_list('rfl','derived',$link_to_word);
-    # }
-    # else {
-    #  add_to_list('rfl','tantum',$link_to_word);
-    # }
-  }
-
   lexeme_to_criteria($filename, $headword_lemmas, "all");
 
   my ($lexical_forms) = $lexeme_node->getElementsByTagName('lexical_forms');
@@ -900,22 +878,25 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
               if ($attrname eq 'reflex') {
                   $attribute_coindex = ( $attr_node->getAttribute('reflex_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reflexivity', $type);
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexivity', $type);
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
               } elsif ($attrname eq 'recipr') {
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
+                  #unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reciprocal verbs');
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reciprocity', $type);
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
-              } elsif ($attrname eq 'reciprverb') {
+              } elsif ($attrname eq 'reciprverb') {  ## TODO: we are relying on the xml containing reciprverb only for inherently reciprocal verbs
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
-                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
+                  unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'inherently reciprocal verbs');
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>";
               } elsif ($attrname eq 'reflexverb') {
                   if ($type eq 'tantum') {
-                    lexeme_to_criteria($filename, $headword_lemmas, 'others', 'reflexive lexemes', 'reflexive tantum lexemes');
-                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'others', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
+                    lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
                   } else {
-                    lexeme_to_criteria($filename, $headword_lemmas, 'others', 'reflexive lexemes', 'derived reflexive lexemes');
-                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'others', 'reflexive lexemes', 'derived reflexive lexemes', $type);
+                    lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes', $type);
                   }
                   $frame_attrs{$attrname} .= "<a href='#/filter/others/reflexive_lexemes/$url_type'>$type</a>";
               } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb|reflexverb
@@ -1236,8 +1217,9 @@ print STDERR "Generating JSON files for filtering\n";
 my %names = (
   "recipr" => "reciprocity",
   "reflex" => "reflexivity",
-  "top-mwe" => "mwe",
-  "func-mwe" => "mwe",
+  "top-mwe" => "MWE",
+  "func-mwe" => "MWE",
+  "reflexivity and reciprocity" => "reflexivity and reciprocity <sup style='color:#e43e5e'>new!</sup>",
 );
 
 sub numberSort {
@@ -1275,11 +1257,12 @@ my %sortings = (
     return fixedSort({
       "functors" => 0,
       "forms" => 1,
-      "top-mwe" => 2,
-      "control" => 3,
-      "alternation" => 4,
-      "class" => 5,
-      "others" => 6
+      "reflexivity and reciprocity" => 2,
+      "top-mwe" => 3,
+      "control" => 4,
+      "alternation" => 5,
+      "class" => 6,
+      "others" => 7
     }, $ref);
   },
   "lexicalized" => sub {
@@ -1339,13 +1322,15 @@ my %sortings = (
     my $ref = shift;
     return fixedSort({
       "impf" => 0,
-      "pf" => 1,
-      "impf+pf" => 2,
+      "impf1" => 1,
+      "pf" => 2,
       "biasp" => 3,
-      "impf1+impf2+pf" => 4,
-      "impf1+impf2+pf1+pf2" => 5,
-      "impf+pf1+pf2" => 6,
+      "impf+pf" => 5,
+      "impf+pf2" => 6,
       "pf1+pf2" => 7,
+      "impf+pf1+pf2" => 8,
+      "impf1+impf2+pf" => 9,
+      "impf1+impf2+pf1+pf2" => 10,
     }, $ref);
   },
   "control" => sub {
@@ -1363,6 +1348,15 @@ my %sortings = (
       "PAT, ex" => 9,
       "BEN, ex" => 10,
       "ORIG, ex" => 11,
+    }, $ref);
+  },
+  "reflexivity and reciprocity" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "reflexive lexemes" => 0,
+      "reciprocity" => 1,
+      "inherently reciprocal verbs" => 2,
+      "reflexivity" => 3,
     }, $ref);
   },
 );
