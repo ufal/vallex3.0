@@ -1280,11 +1280,11 @@ my %sortings = (
     return fixedSort({
       "frames" => 1,
       "reflexivity and reciprocity" => 2,
-      "alternation" => 3,
-      "control" => 4,
+      "control" => 3,
+      "alternation" => 4,
       "class" => 5,
-      "lexemes" => 6,
-      "top-mwe" => 7,
+      "top-mwe" => 6,
+      "lexemes" => 7,
     }, $ref);
   },
   "frames" => sub {
@@ -1382,10 +1382,10 @@ my %sortings = (
   "reflexivity and reciprocity" => sub {
     my $ref = shift;
     return fixedSort({
-      "reflexive lexemes" => 0,
+      "reflexivity" => 0,
       "reciprocity" => 1,
       "inherently reciprocal verbs" => 2,
-      "reflexivity" => 3,
+      "reflexive lexemes" => 3,
     }, $ref);
   },
   "reflexive lexemes" => sub {
