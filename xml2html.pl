@@ -1147,7 +1147,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         . "      </td>\n"; # more tlačítko
     } else {
       $htmlized_frame_entries .=
-          "      <td></td>\n"; # místo, kde by bylo "more", kdyby tam bylo
+        # "      <td></td>\n"; # místo, kde by bylo "more", kdyby tam bylo
+          "      <td class='expander_cell'>\n"
+        . "        <a class='expander disabled'>\n"
+        . "          <span>that's all</span>\n"
+        . "        </a>\n"
+        . "      </td>\n"; # more tlačítko
     }
     if ($VERB_MODE) {
       $htmlized_frame_entries .=
