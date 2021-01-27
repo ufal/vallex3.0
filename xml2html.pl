@@ -854,17 +854,17 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     # $adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
                     # $frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
                     # add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
-                    $frame_attrs{diat} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype'>$subtype:</a>".$subtypes{$subtype};
+                    $frame_attrs{diat} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype' class='valuename'>$subtype</a>".$subtypes{$subtype};
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'diathesis', $type, $subtype);
                   }
                 } elsif (%subtypes) {
-                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type:</a>";
+                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type' class='valuename'>$type</a>";
                   # Only one possible subtype for "passive" and "recipient"
                   # and both possible subtypes for "deagent" should be merged
                   # TODO aspects are not merged properly (original "deagent impf pf deagent0 impf pf" -> "deagent impf pf impf pf")
                   $frame_attrs{'diat'} .= join('; ', map {$subtypes{$_}} sort keys(%subtypes));
                 } else {
-                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type'>$type</a> YES";
+                  $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type' class='valuename'>$type</a> YES";
                 }
               } else {
                 print STDERR "Unexpected value of 'value' in a diathesis node.";
@@ -879,13 +879,13 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   $attribute_coindex = ( $attr_node->getAttribute('reflex_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reflexivity', $type);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexivity', $type);
-                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type'>$type</a>: ";
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reflexivity/$url_type' class='valuename'>$type</a> ";
               } elsif ($attrname eq 'recipr') {
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'reciprocity', $type);
                   #unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reciprocal verbs');
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reciprocity', $type);
-                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>: ";
+                  $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type' class='valuename'>$type</a> ";
               } elsif ($attrname eq 'reciprverb') {  ## TODO: we are relying on the xml containing reciprverb only for inherently reciprocal verbs
                   $attribute_coindex = ( $attr_node->getAttribute('recipr_coindex') or 0);
                   unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'inherently reciprocal verbs');
@@ -898,7 +898,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                     lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes');
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes', $type);
                   }
-                  $frame_attrs{$attrname} .= "<a href='#/filter/others/reflexive_lexemes/$url_type'>$type</a>";
+                  $frame_attrs{$attrname} .= "<a href='#/filter/lexemes/reflexive_lexemes/$url_type'>$type</a> ";
               } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb|reflexverb
                 $frame_attrs{$attrname} .= "$type: ";
               }
@@ -1120,7 +1120,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
     );
 
     my $LVC = ($VERB_MODE and $frame_attrs{'lvc'}) ? 1 : 0;
-    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','control','reflex','conv','split','multiple','recipr','class','diat','PDT-Vallex','reciprverb','reflexverb');
+    my @frame_attrs_filtered = grep {$frame_attrs{$_}} ('usage in ČNK','reflexverb','class','control','conv','split','multiple','reciprverb','recipr','reflex','diat','PDT-Vallex');
     my $visible_attributes =
       "    <tr>\n      <td></td>\n      <td class='attrname frame'>frame</td>\n".
       "      <td colspan='2' class='attr frame'>\n".$frame_table_html."      </td>\n    </tr>\n". # frame má podobu tabulky
@@ -1161,7 +1161,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
         . (join "", 
                 map { my $attrname = $_ eq "usage in ČNK"     ? "cnk_usage" : $_;
-                        my $mainValue;
+                      my $mainValue;
                       if ( ref($frame_attrs{$_}) eq 'ARRAY' ) {
                         foreach my $i (0..$#{$frame_attrs{$_}}) {
                           my $suffix = $i > 0 ? $i : "";

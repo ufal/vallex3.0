@@ -390,6 +390,10 @@ body, html {
 
 	.attr {
 		vertical-align: top;
+        .valuename::after {
+             content: "\a0\a0\a0"; //three non-breakable spaces
+             white-space: pre;
+        }
 	}
 
 	.attrname {
