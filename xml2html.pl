@@ -849,14 +849,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                 warn("ERROR: Subtype not allowed for $type diathesis: $headword_lemmas LU$frame_index\n") if $type ne "poss-result" and $type ne "deagent" and %subtypes and (keys(%subtypes) > 1 or !$subtypes{$type});
                 # TODO predchozi chyby kontrolovat hlavne v prevodu do XML ci v testech dat
                 if ($type eq 'poss-result') {
-                  foreach my $subtype (sort keys %subtypes) {
-                    # my $adjusted_subtype = $subtype;
-                    # $adjusted_subtype =~ s@-(n?conv|both)@<sub>\1</sub>@;  #TODO: chceme to jako spodní index, ale takhle to nemá správnou barvu
-                    # $frame_attrs{"diat"} .= "<span class='attrname'>$adjusted_subtype:</span>".$subtypes{$subtype};
-                    # add_to_list("diat","$adjusted_subtype",$link_to_frame); # FIXME postaru -> asi smazat a napsat znovu poradne
-                    $frame_attrs{diat} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$subtype' class='valuename'>$subtype</a>".$subtypes{$subtype};
-                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'diathesis', $type, $subtype);
-                  }
+                  $frame_attrs{'diat'} .= 
+                    join('<br/>', 
+                         map {
+                           my $adjusted_subtype = $_;
+                           $adjusted_subtype =~ s@-(n?conv|both)@<sub>$1</sub>@;
+                           unit_to_criteria($frame_index, $filename, $headword_lemmas, 'alternation', 'grammaticalized', 'diathesis', $type, $adjusted_subtype);
+                           "<a href='#/filter/alternation/grammaticalized/diathesis/$type/$_' class='valuename'>$adjusted_subtype</a>".$subtypes{$_}
+                         } sort keys(%subtypes));
                 } elsif (%subtypes) {
                   $frame_attrs{'diat'} .= "<a href='#/filter/alternation/grammaticalized/diathesis/$type' class='valuename'>$type</a>";
                   # Only one possible subtype for "passive" and "recipient"
