@@ -1138,14 +1138,20 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       "      <td colspan='3' class='gloss_header'>".$lexical_unit_gloss. "</td>\n".# hlavička se slovesy
       "    </tr>\n".
       $visible_attributes;
-    if ($VERB_MODE) {
+    if ($VERB_MODE and (@frame_attrs_filtered or $LVC)) {
       $htmlized_frame_entries .=
           "      <td class='expander_cell'>\n"
-        . "        <a class='expander". (@frame_attrs_filtered or $LVC ? "" : " disabled") ."'>\n"
+        . "        <a class='expander'>\n"
         . "          <span>more</span><div class='arrow'>&gt;</div>\n"
         . "        </a>\n"
-        . "      </td>\n" # more tlačítko
-        . "    </tr>\n"
+        . "      </td>\n"; # more tlačítko
+    } else {
+      $htmlized_frame_entries .=
+          "      <td></td>\n"; # místo, kde by bylo "more", kdyby tam bylo
+    }
+    if ($VERB_MODE) {
+      $htmlized_frame_entries .=
+          "    </tr>\n"
         # ostatní má class more: #diat je na konci kvuli prehlednosti vystupu
         # (join "", map ({"<tr class='more'><td><td class='attrname $_'>$_<td>$frame_attrs{$_} "}, @frame_attrs_filtered) ).
         . (join "", 
