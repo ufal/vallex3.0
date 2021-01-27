@@ -1058,7 +1058,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         my $mwe_type = $1 eq 'CPHR' ? 'complex predicates' : 'idioms';
         unit_to_criteria($frame_index, $filename, $headword_lemmas, "top-mwe", $mwe_type);
       }
-      unit_to_criteria($frame_index, $filename, $headword_lemmas, "functors", $functor_class, $functor);
+      unit_to_criteria($frame_index, $filename, $headword_lemmas, 'frames', 'functors', $functor_class, $functor);
 
       my $type=$frame_slot->getAttribute('type');
 
@@ -1076,14 +1076,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         my $url_result = string_to_html_filename($result);
         if($type ne "phraseme_part"){ # filtrování phraseme_part, jinak ostatní forms ano
           if($type eq "cont"){ # cont nemá podkategorie
-            unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $result);
-            $filter_url = "forms/$url_result";
+            unit_to_criteria($frame_index, $filename, $headword_lemmas, 'frames', 'forms', $result);
+            $filter_url = "frames/forms/$url_result";
           } else {
-            unit_to_criteria($frame_index, $filename, $headword_lemmas, "forms", $type, $result);
-            $filter_url = "forms/".string_to_html_filename($type)."/$url_result";
+            unit_to_criteria($frame_index, $filename, $headword_lemmas, 'frames', 'forms', $type, $result);
+            $filter_url = "frames/forms/".string_to_html_filename($type)."/$url_result";
           }
         } else {
-          $filter_url = "functors/free/DPHR";
+          $filter_url = "frames/functors/free/DPHR";
         }
         my $form_comment = $long_form_type{$type};
         $form_comment .= " ($case_names{$result})"
@@ -1096,7 +1096,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       if ($type eq 'typ') {$classtype=' typ'}
 
       $frame_table_row1 .= "            <td class='functor$classtype' rowspan='2'>\n"
-                         . "              <a title='functor: $functor_comments{$functor}' href='#/filter/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a>\n"
+                         . "              <a title='functor: $functor_comments{$functor}' href='#/filter/frames/functors/$functor_class/".string_to_html_filename($functor)."'>$functor</a>\n"
                          . "            </td>\n"
                          . "            <td class='type' title='$type_of_compl{$type}'>$type</td>\n";
       $frame_table_row2 .= "            <td class='forms'>$forms</td>\n";
@@ -1278,14 +1278,20 @@ my %sortings = (
   "all" => sub {
     my $ref = shift;
     return fixedSort({
+      "frames" => 1,
+      "reflexivity and reciprocity" => 2,
+      "alternation" => 3,
+      "control" => 4,
+      "class" => 5,
+      "lexemes" => 6,
+      "top-mwe" => 7,
+    }, $ref);
+  },
+  "frames" => sub {
+    my $ref = shift;
+    return fixedSort({
       "functors" => 0,
       "forms" => 1,
-      "reflexivity and reciprocity" => 2,
-      "top-mwe" => 3,
-      "control" => 4,
-      "alternation" => 5,
-      "class" => 6,
-      "lexemes" => 7
     }, $ref);
   },
   "lexicalized" => sub {
