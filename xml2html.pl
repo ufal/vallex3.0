@@ -336,7 +336,7 @@ sub unit_to_criteria {
 
     my $add_this_unit_thisnode =
       ! $add_this_unit_allnodes 
-      && $lu_index == 0 ? $node =~ m/lexemes/ : $node !~ m/lexemes/ ;
+      && $lu_index == 0 ? $node =~ m/lexeme/ : $node !~ m/lexemes/ ;
     #$add_this_unit_allnodes || $add_this_unit_thisnode ? warn "ADD $lexeme-$lu_index ($headword_lemmas)" 
     #                                                   : warn "DON'T ADD $lexeme-$lu_index ($headword_lemmas)";
     $tree->{"lexemes"}->{$lexeme . "-" . $lu_index} = [$lexeme, $lu_index, $headword_lemmas]
@@ -702,11 +702,11 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
   my ($lexical_forms) = $lexeme_node->getElementsByTagName('lexical_forms');
 
   my $aspect_combination = join "+",sort grep {!/iter/} grep {$_} keys %global_aspect;
-  lexeme_to_criteria($filename, $headword_lemmas, "others", "aspect", $aspect_combination);
+  lexeme_to_criteria($filename, $headword_lemmas, "lexemes", "aspect", $aspect_combination);
 
   my @variants = $lexeme_node->getElementsByTagName('mlemma_variants');
   if (@variants > 0) {
-    lexeme_to_criteria($filename, $headword_lemmas, "others", "variants");
+    lexeme_to_criteria($filename, $headword_lemmas, "lexemes", "variants");
   }
 
   $htmlized_lexeme_entry{$filename} .= "<div class='wordentry_header'>$pdtvallex_word_links\n  <div class='headword'>$headword_lemmas_table</div>\n</div>\n";
@@ -715,12 +715,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
 
   my $homographs = grep {$_->getAttribute('homograph') } $lexeme_node->getElementsByTagName('mlemma');
   if ($homographs) {
-    lexeme_to_criteria($filename, $headword_lemmas, "others", "homographs");
+    lexeme_to_criteria($filename, $headword_lemmas, "lexemes", "homographs");
   }
 
   my $complexity = $#{[$lexeme_node->getElementsByTagName('lu_cluster')]}+1;
   $complexity .= $complexity > 1 ? " LUs" : " LU"; # přidá jednotné/množné číslo LU
-  lexeme_to_criteria($filename, $headword_lemmas, "others", 'complexity', $complexity);
+  lexeme_to_criteria($filename, $headword_lemmas, "lexemes", 'complexity', $complexity);
 
   my $frame_index;
   my $htmlized_frame_entries = "";
@@ -892,10 +892,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   $frame_attrs{$attrname}->[$attribute_coindex] .= "<a href='#/filter/alternation/grammaticalized/reciprocity/$url_type'>$type</a>";
               } elsif ($attrname eq 'reflexverb') {
                   if ($type eq 'tantum') {
+                    lexeme_to_criteria($filename, $headword_lemmas, 'lexemes', 'reflexive lexemes', 'reflexive tantum lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'lexemes', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
                     lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes');
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
                     $frame_attrs{$attrname} .= "<a href='#/filter/reflexivity_and_reciprocity/reflexive_lexemes/reflexive_tantum_lexemes'>$type</a> ";
                   } else {
+                    lexeme_to_criteria($filename, $headword_lemmas, 'lexemes', 'reflexive lexemes', 'derived reflexive lexemes');
+                    unit_to_criteria($frame_index, $filename, $headword_lemmas, 'lexemes', 'reflexive lexemes', 'derived reflexive lexemes', $type);
                     lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes');
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes', $type);
                     $frame_attrs{$attrname} .= "<a href='#/filter/reflexivity_and_reciprocity/reflexive_lexemes/derived_reflexive_lexemes/$url_type'>$type</a> ";
@@ -1238,7 +1242,7 @@ my %names = (
   "reflex" => "reflexivity",
   "top-mwe" => "MWE",
   "func-mwe" => "MWE",
-  "reflexivity and reciprocity" => "reflexivity and reciprocity <sup style='color:#e43e5e'>new!</sup>",
+  "reflexivity and reciprocity" => "reflexivity &amp; reciprocity <sup style='color:#e43e5e'>new!</sup>",
 );
 
 sub numberSort {
@@ -1281,7 +1285,7 @@ my %sortings = (
       "control" => 4,
       "alternation" => 5,
       "class" => 6,
-      "others" => 7
+      "lexemes" => 7
     }, $ref);
   },
   "lexicalized" => sub {
@@ -1376,6 +1380,23 @@ my %sortings = (
       "reciprocity" => 1,
       "inherently reciprocal verbs" => 2,
       "reflexivity" => 3,
+    }, $ref);
+  },
+  "reflexive lexemes" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "reflexive tantum lexemes" => 1,
+      "derived reflexive lexemes" => 2,
+    }, $ref);
+  },
+  "derived reflexive lexemes" => sub {
+    my $ref = shift;
+    return fixedSort({
+      "derived-conv" => 1,
+      "derived-decaus" => 2,
+      "derived-intrans" => 3,
+      "derived-recipr" => 4,
+      "derived-nonspecific" => 5,
     }, $ref);
   },
 );
