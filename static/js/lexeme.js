@@ -493,8 +493,7 @@ var LexemesView = Backbone.View.extend({
 				for (var i = 0; i < $(".lexical_unit").length; i++) {
 					_this.toggleLUExpansion(i+1, true, false);
 				};
-			}
-			else {
+			} else {
 				// otevře aktivní LU
 				if(lu.id > 0)
 					_this.toggleLUExpansion(lu.id, true, true);
@@ -535,15 +534,14 @@ var LexemesView = Backbone.View.extend({
 			return false;
 
 		if(($expander.hasClass("expanded") && expand === undefined) || expand === false){
-			$expander.find("span").html("more");
+			$expander.find("span").html("more of ");
 			$expander.removeClass("expanded");
 
 			$parent.find(".more").hide(200);
 
 			return false;
-		}
-		else {
-			$expander.find("span").html("less");
+		} else {
+			$expander.find("span").html("less of ");
 			$expander.addClass("expanded");
 
 			var hidden = $parent.find(".more").length;

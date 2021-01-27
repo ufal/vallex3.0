@@ -1142,7 +1142,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
       $htmlized_frame_entries .=
           "      <td class='expander_cell'>\n"
         . "        <a class='expander'>\n"
-        . "          <span>more</span><div class='arrow'>&gt;</div>\n"
+        . "          <span>more of </span><div class='circle small'>$frame_index</div><div class='arrow'>&gt;</div>\n"
         . "        </a>\n"
         . "      </td>\n"; # more tlačítko
     } else {
@@ -1150,7 +1150,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
         # "      <td></td>\n"; # místo, kde by bylo "more", kdyby tam bylo
           "      <td class='expander_cell'>\n"
         . "        <a class='expander disabled'>\n"
-        . "          <span>that's all</span>\n"
+        . "          <span>that's all for <span class='circle small'>$frame_index</span></span>\n"
         . "        </a>\n"
         . "      </td>\n"; # more tlačítko
     }
