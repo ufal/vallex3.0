@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-ver = 3.99
+ver = 4.0
 XML_newest = XMLverbs.xml
 XML_NOUNS = XMLlvc-nouns.xml
 dir_html_in = xml2html30
