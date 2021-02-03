@@ -1385,7 +1385,8 @@ my %sortings = (
       "reflexivity" => 0,
       "reciprocity" => 1,
       "inherently reciprocal verbs" => 2,
-      "reflexive lexemes" => 3,
+      "" => 3,
+      "reflexive lexemes" => 4,
     }, $ref);
   },
   "reflexive lexemes" => sub {

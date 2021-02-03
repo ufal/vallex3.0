@@ -433,6 +433,9 @@ ul {
 			content: "|";
 			padding-right: 0.3em;
 		}
+        li + li.thickSeparator::before {
+              content: "||";
+        }
 		&.gt_separators li + li::before {
 			content: ">";
 		}
