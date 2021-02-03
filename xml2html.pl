@@ -894,11 +894,12 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   if ($type eq 'tantum') {
                     lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes');
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'reflexive tantum lexemes', 'reflexive tantum LUs');
+                    $frame_attrs{$attrname} .= "<a href='#/filter/reflexivity_and_reciprocity/reflexive_lexemes/reflexive_tantum_lexemes'>$type</a> ";
                   } else {
                     lexeme_to_criteria($filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes');
                     unit_to_criteria($frame_index, $filename, $headword_lemmas, 'reflexivity and reciprocity', 'reflexive lexemes', 'derived reflexive lexemes', $type);
+                    $frame_attrs{$attrname} .= "<a href='#/filter/reflexivity_and_reciprocity/reflexive_lexemes/derived_reflexive_lexemes/$url_type'>$type</a> ";
                   }
-                  $frame_attrs{$attrname} .= "<a href='#/filter/lexemes/reflexive_lexemes/$url_type'>$type</a> ";
               } else {  ## $type = $attr_node->getAttribute('type') and $atttrname !~ reflex|recipr|reciprverb|reflexverb
                 $frame_attrs{$attrname} .= "$type: ";
               }
@@ -966,7 +967,7 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                   my $node_value = $the_only_child->getNodeValue;
                   $node_value =~ s/^\s+//;
                   $node_value =~ s/\s+$//;
-                  if ($attrname eq 'lvc') {
+                  if ( $attrname eq 'lvc' ) {
                     $node_value = join(', ',
                       map {
                         if (/^blu-n-(.*-\d+)$/) {
@@ -986,7 +987,14 @@ foreach my $lexeme_node ($doc->getElementsByTagName('lexeme')){
                       split(/\s+/, $node_value));
                     $node_value =~ s/^;,//;     # lvc:  | noun noun       -> ;, noun, noun
                     $node_value =~ s/, ;,/;/;   # lvc: noun1 noun1 | noun -> noun1, noun1, ;, noun
-                  } elsif ($attrname eq 'functor_mapping') {
+                  } elsif ( $attrname eq 'reflexverb' and $attr_node->getElementsByTagName('flink')) {
+                    my $LU_ref  = $attr_node->getElementsByTagName('flink')->[0]->getAttribute('web_frame_id');
+                    my ($LU_ref_lexeme, $LU_ref_index) = ($1,$2) if $LU_ref =~ /^w-blu-v-(.+)-(\d+)$/; # same as getAttribute("order");
+                    #my %aspect = lexeme_or_blu_to_lemmas($doc-> TODO: get structure corresponding to $LU_ref_real_id);
+                    #my $headwords_rf = lexeme_node_2_headwords(\%aspect, 1);
+                    #my $LU_ref_lex_forms = "<span class='gloss'>".(join ", ",@$headwords_rf)."</span>";
+                    $node_value .= "<a href='#/lexeme/".string_to_html_filename("lxm-v-$LU_ref_lexeme")."/$LU_ref_index'>$LU_ref_lexeme <span class='circle small'>$LU_ref_index</span></a></td><tr>\n";
+                  } elsif ( $attrname eq 'functor_mapping' ) {
                     $node_value =~ s/-/&mdash;/g;
                     $node_value =~ s/([A-Z])v/$1<span style='vertical-align: sub; font-size: smaller'>verb<\/span>/g;
                     $node_value =~ s/([A-Z])n/$1<span style='vertical-align: sub; font-size: smaller'>noun<\/span>/g;
